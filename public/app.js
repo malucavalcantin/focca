@@ -1,12 +1,13 @@
 import { finishRedirectLogin, watchAuth, logout, getProfile, saveProfile, listSubjects, createSubject, updateSubject, removeSubject, replaceSubjects, listTasks, createTask, updateTask, removeTask, listSchedule, saveScheduleItem, removeScheduleItem, listAbsences, addAbsence, removeAbsence, listAssessments, saveAssessment, removeAssessment, listSubjectSettings, saveSubjectSetting } from './firebase-service.js?v=20260825-auth62';
 import { createCalendarEvent } from './calendar.js?v=20260825-auth62';
 import { COMPUTACAO_BASE_MATRIX } from './base-matrix.js?v=20260825-auth62';
+import { DONE_STATUSES, calcProgress, countStatuses, subjectAverage, percentLabel, approvalSituation, findNextClass } from './academic.js?v=20261001';
 
 const $=id=>document.getElementById(id);
 const esc=(v='')=>String(v).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
 const state={user:null,profile:null,subjects:[],tasks:[],schedule:[],absences:[],assessments:[],settings:[],filter:'current',currentFavoritesOnly:false,selectedSubjectId:null};
 const statusMeta={pending:['Pendente','pending'],current:['Cursando','current'],approved:['Aprovada','done'],approved_final:['Aprovada na final','final'],failed:['Reprovada','failed'],withdrawn:['Trancada','withdrawn'],exempt:['Dispensada','done']};
-const doneStatuses=new Set(['approved','approved_final','exempt']);
+const doneStatuses=DONE_STATUSES;
 const viewTitles={today:'Hoje',dashboard:'Visão geral',curriculum:'Minha matriz',subjects:'Disciplinas atuais','subject-detail':'Disciplina 360º',study:'Modo Foco',materials:'Materiais',degree:'Minha Graduação',grades:'Notas',attendance:'Faltas',agenda:'Agenda',schedule:'Horários',university:'Universidade',settings:'Configurações'};
 
 function toast(msg,error=false){const el=$('toast');el.textContent=msg;el.className=`toast show${error?' error':''}`;clearTimeout(toast.t);toast.t=setTimeout(()=>el.className='toast',3500)}
@@ -15,7 +16,7 @@ function closeModal(id){$(id).classList.add('hidden')}
 function fmtDate(v){return new Date(v).toLocaleString('pt-BR',{dateStyle:'short',timeStyle:'short'})}
 function jump(view){const nav=document.querySelector(`.nav-item[data-view="${view}"]`);if(nav)nav.click();else activateView(view)}
 function currentSubjects(){return state.subjects.filter(s=>s.status==='current')}
-function progress(){const eligible=state.subjects.filter(s=>Number(s.hours)>0);const total=eligible.reduce((a,s)=>a+Number(s.hours||0),0);const done=eligible.filter(s=>doneStatuses.has(s.status)).reduce((a,s)=>a+Number(s.hours||0),0);const projected=eligible.filter(s=>doneStatuses.has(s.status)||s.status==='current').reduce((a,s)=>a+Number(s.hours||0),0);return{total,done,projected,pct:total?done/total*100:0,projectedPct:total?projected/total*100:0}}
+function progress(){return calcProgress(state.subjects)}
 
 
 function activateView(view,title=null){
@@ -83,14 +84,13 @@ function renderHeader(){
   $('matrixCourseTitle').textContent='Computação · UFRPE';
   if(state.user?.photoURL){$('userPhoto').src=state.user.photoURL;$('userPhoto').classList.remove('hidden')}
 }
-function percentLabel(v){return `${Number(v||0).toFixed(1).replace('.',',')}%`}
-function statusCounts(){return{done:state.subjects.filter(s=>doneStatuses.has(s.status)).length,current:state.subjects.filter(s=>s.status==='current').length,failed:state.subjects.filter(s=>s.status==='failed').length,pending:state.subjects.filter(s=>!doneStatuses.has(s.status)&&s.status!=='current'&&s.status!=='failed').length}}
-function currentAverage(subjectId){const vals=state.assessments.filter(a=>a.subjectId===subjectId).map(a=>Number(a.grade)).filter(Number.isFinite);return vals.length?vals.reduce((a,b)=>a+b,0)/vals.length:null}
+function statusCounts(){return countStatuses(state.subjects)}
+function currentAverage(subjectId){return subjectAverage(state.assessments,subjectId)}
 function renderPeriodChart(){const root=$('periodChart');if(!root)return;const periods=[...new Set(state.subjects.map(s=>s.period).filter(Boolean))].sort((a,b)=>Number(a)-Number(b));root.innerHTML=periods.map(period=>{const list=state.subjects.filter(s=>s.period===period);const total=list.reduce((a,s)=>a+Number(s.hours||0),0);const done=list.filter(s=>doneStatuses.has(s.status)).reduce((a,s)=>a+Number(s.hours||0),0);const pct=total?done/total*100:0;return `<button class="period-bar-item" data-jump="curriculum"><div class="period-bar-meta"><b>${esc(period)}º</b><span>${Math.round(pct)}%</span></div><div class="period-bar-track"><i style="height:${Math.max(5,pct)}%"></i></div></button>`}).join('')}
 function renderStatusChart(p){const c=statusCounts(),total=Math.max(1,c.done+c.current+c.failed+c.pending);const d=c.done/total*100,cu=c.current/total*100,f=c.failed/total*100;const donut=$('statusDonut');if(donut)donut.style.background=`conic-gradient(var(--done) 0 ${d}%,var(--current) ${d}% ${d+cu}%,var(--failed) ${d+cu}% ${d+cu+f}%,var(--pending) ${d+cu+f}% 100%)`;if($('donutCenter'))$('donutCenter').textContent=percentLabel(p.pct);if($('statusLegend'))$('statusLegend').innerHTML=[['Concluídas',c.done,'done'],['Cursando',c.current,'current'],['Pendentes',c.pending,'pending'],['Reprovadas',c.failed,'failed']].map(x=>`<div><span><i class="dot ${x[2]}"></i>${x[0]}</span><b>${x[1]}</b></div>`).join('')}
 function renderGradeChart(){const root=$('gradeChart');if(!root)return;const curr=currentSubjects();root.innerHTML=curr.length?curr.map(s=>{const avg=currentAverage(s.id);return `<button class="grade-row" data-jump="grades"><div><b>${esc(s.name)}</b><span>${avg==null?'Sem notas lançadas':`${avg.toFixed(1).replace('.',',')} de 10`}</span></div><div class="grade-track"><i style="width:${avg==null?0:Math.max(0,Math.min(100,avg*10))}%"></i></div></button>`}).join(''):'<div class="empty-state">Marque as disciplinas do semestre para acompanhar suas médias.</div>'}
 function resolveScheduleSubject(x){const direct=state.subjects.find(v=>v.id===x.subjectId);if(direct)return direct;if(x.subjectName){const norm=v=>String(v||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');return state.subjects.find(v=>norm(v.name)===norm(x.subjectName))||{name:x.subjectName,id:x.subjectId}}return null}
-function nextClass(){const dayNames=['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];const now=new Date();let best=null,bestDate=null;for(let offset=0;offset<7;offset++){const d=new Date(now);d.setDate(now.getDate()+offset);const day=dayNames[d.getDay()];state.schedule.filter(x=>x.day===day&&x.start).forEach(x=>{const [h,m]=x.start.split(':').map(Number);const when=new Date(d);when.setHours(h,m,0,0);if(when>=now&&(!bestDate||when<bestDate)){best=x;bestDate=when}})}return best?{item:best,date:bestDate,subject:resolveScheduleSubject(best)}:null}
+function nextClass(){const next=findNextClass(state.schedule);return next?{...next,subject:resolveScheduleSubject(next.item)}:null}
 function renderDashboard(){const p=progress(),counts=statusCounts();if(!$('overallPercent'))return;$('overallPercent').textContent=percentLabel(p.pct);$('overallBar').style.width=`${Math.min(100,p.pct)}%`;$('overallHours').textContent=`${p.done} / ${p.total} h`;$('doneCount').textContent=counts.done;$('currentCount').textContent=counts.current;$('pendingTaskCount').textContent=state.tasks.filter(t=>!t.completed).length;$('projectedPercent').textContent=percentLabel(p.projectedPct);$('projectedBar').style.width=`${Math.min(100,p.projectedPct)}%`;$('projectionText').textContent=p.total?`Você chegaria a ${p.projected} de ${p.total} horas concluídas.`:'Configure sua matriz para ver a projeção.';const curr=currentSubjects();$('currentPreview').innerHTML=curr.length?curr.map(subjectCard).join(''):'<div class="empty-state">Nenhuma disciplina marcada como cursando.</div>';renderPeriodChart();renderStatusChart(p);renderGradeChart();const nc=nextClass();$('nextClassPreview').innerHTML=nc?`<div class="next-class-time">${nc.item.start}</div><div class="next-class-copy"><span>${nc.date.toLocaleDateString('pt-BR',{weekday:'long'})}</span><h4>${esc(nc.subject?.name||nc.item.subjectName||'Disciplina')}</h4><p>${esc(nc.item.location||'Local não informado')} · ${nc.item.start}–${nc.item.end}</p></div>`:'<div class="empty-state">Nenhuma aula futura cadastrada.</div>';const tasks=state.tasks.filter(t=>!t.completed).sort((a,b)=>new Date(a.dueAt)-new Date(b.dueAt)).slice(0,4);$('dashboardTaskList').innerHTML=tasks.length?tasks.map(t=>`<button class="mini-task" data-jump="agenda"><span>${new Date(t.dueAt).toLocaleDateString('pt-BR',{day:'2-digit',month:'short'})}</span><div><b>${esc(t.title)}</b><small>${esc(t.subjectName||'Atividade')}</small></div></button>`).join(''):'<div class="empty-state">Nenhuma atividade pendente.</div>';renderTodayOverview();renderTodayHub();renderInterfaceRefresh();renderStudyHub();renderDynamicHome();renderNotifications();applyDashboardPreferences();setupWidgetDrag()}
 function subjectCard(s){const [label,cls]=statusMeta[s.status]||statusMeta.pending;const accents=['#6c5bff','#5b9dff','#45c49a','#f0a34d','#d87adf','#e76c7c'];const accent=accents[[...(s.name||'')].reduce((a,c)=>a+c.charCodeAt(0),0)%accents.length];return `<article style="--subject-accent:${accent}" class="subject-card ${cls} clickable-subject" data-subject-details="${s.id}"><div class="subject-card-top"><span class="status-pill ${cls}">${label}</span><div class="subject-card-actions"><button class="favorite-btn ${s.favorite?'active':''}" data-favorite-subject="${s.id}" title="Favoritar">${s.favorite?'⭐':'☆'}</button><button class="mini-btn" data-edit-subject="${s.id}">Status</button></div></div><h3>${esc(s.name)}</h3><p>${s.code?esc(s.code)+' · ':''}${Number(s.hours||0)} h${s.period?` · ${esc(s.period)}º período`:''}</p>${s.professor?`<small class="subject-inline-meta">Prof. ${esc(s.professor)}</small>`:''}</article>`}
 function openSubjectDetails(id){
@@ -653,62 +653,50 @@ function calcApprovalSituation(){
   if(!$('gradeSituationResult'))return;
   const va1=gradeNumber('gradeVA1'),va2=gradeNumber('gradeVA2'),va3=gradeNumber('gradeVA3'),finalGrade=gradeNumber('gradeFinal');
 
-  if(va1==null||va2==null){
+  const r=approvalSituation({va1,va2,va3,final:finalGrade});
+  const fmt=n=>n.toFixed(1).replace('.',',');
+
+  if(r.stage==='missing'){
     $('gradeSituationResult').innerHTML=`<div class="grade-status neutral"><span>📘</span><div><strong>Informe a 1ª VA e a 2ª VA</strong><small>O Focca calcula automaticamente sua situação.</small></div></div>`;
     return;
   }
 
-  const initial=(va1+va2)/2;
-  let effective1=va1,effective2=va2,replaced=false;
-  const lower=Math.min(va1,va2);
-
-  if(va3!=null && va3>lower){
-    if(va1<=va2) effective1=va3; else effective2=va3;
-    replaced=true;
-  }
-
-  const afterVA3=(effective1+effective2)/2;
   let status='',cls='neutral',icon='📘',message='',extra='';
 
-  if(initial>=7){
+  if(r.stage==='approved'){
     status='Aprovado por média';
     cls='success';icon='✅';
-    message=`Média das duas primeiras avaliações: ${initial.toFixed(1).replace('.',',')}.`;
+    message=`Média das duas primeiras avaliações: ${fmt(r.initial)}.`;
     extra='Você não precisa fazer 3ª VA nem Final.';
-  } else if(va3==null){
+  } else if(r.stage==='needs-va3'){
     status='3ª VA necessária';
     cls='warning';icon='🟡';
-    message=`Média atual: ${initial.toFixed(1).replace('.',',')}.`;
-    const needed=Math.max(0,14-Math.max(va1,va2));
-    extra=needed<=10
-      ? `Para atingir média 7 substituindo a menor nota, você precisa tirar pelo menos ${needed.toFixed(1).replace('.',',')} na 3ª VA.`
+    message=`Média atual: ${fmt(r.initial)}.`;
+    extra=r.needed<=10
+      ? `Para atingir média 7 substituindo a menor nota, você precisa tirar pelo menos ${fmt(r.needed)} na 3ª VA.`
       : 'Mesmo com nota 10 na 3ª VA, você ainda irá para a Final.';
-  } else if(afterVA3>=7){
+  } else if(r.stage==='approved-va3'){
     status='Aprovado após 3ª VA';
     cls='success';icon='✅';
-    message=`A 3ª VA ${replaced?'substituiu':'não substituiu'} a menor nota. Nova média: ${afterVA3.toFixed(1).replace('.',',')}.`;
+    message=`A 3ª VA ${r.replaced?'substituiu':'não substituiu'} a menor nota. Nova média: ${fmt(r.afterVA3)}.`;
     extra='Você foi aprovado sem precisar da Final.';
-  } else if(finalGrade==null){
+  } else if(r.stage==='needs-final'){
     status='Final necessária';
     cls='danger';icon='🔴';
-    message=`Média após a 3ª VA: ${afterVA3.toFixed(1).replace('.',',')}.`;
-    const needed=Math.max(0,10-afterVA3);
-    extra=needed<=10
-      ? `Na Final, você precisa tirar pelo menos ${needed.toFixed(1).replace('.',',')} para que (média anterior + Final) ÷ 2 seja 5.`
+    message=`Média após a 3ª VA: ${fmt(r.afterVA3)}.`;
+    extra=r.needed<=10
+      ? `Na Final, você precisa tirar pelo menos ${fmt(r.needed)} para que (média anterior + Final) ÷ 2 seja 5.`
       : 'Com essa média, não é possível atingir média final 5 mesmo com nota 10.';
+  } else if(r.stage==='approved-final'){
+    status='Aprovado na Final';
+    cls='success';icon='✅';
+    message=`Média antes da Final: ${fmt(r.afterVA3)} · Nota da Final: ${fmt(finalGrade)}.`;
+    extra=`Média final: ${fmt(r.finalAverage)}.`;
   } else {
-    const finalAverage=(afterVA3+finalGrade)/2;
-    if(finalAverage>=5){
-      status='Aprovado na Final';
-      cls='success';icon='✅';
-      message=`Média antes da Final: ${afterVA3.toFixed(1).replace('.',',')} · Nota da Final: ${finalGrade.toFixed(1).replace('.',',')}.`;
-      extra=`Média final: ${finalAverage.toFixed(1).replace('.',',')}.`;
-    }else{
-      status='Reprovado por nota';
-      cls='danger';icon='❌';
-      message=`Média final: ${finalAverage.toFixed(1).replace('.',',')}.`;
-      extra='A média final ficou abaixo de 5.';
-    }
+    status='Reprovado por nota';
+    cls='danger';icon='❌';
+    message=`Média final: ${fmt(r.finalAverage)}.`;
+    extra='A média final ficou abaixo de 5.';
   }
 
   $('gradeSituationResult').innerHTML=`
@@ -724,7 +712,7 @@ function calcApprovalSituation(){
       <span><b>${va1.toFixed(1).replace('.',',')}</b> 1ª VA</span>
       <span><b>${va2.toFixed(1).replace('.',',')}</b> 2ª VA</span>
       <span><b>${va3==null?'—':va3.toFixed(1).replace('.',',')}</b> 3ª VA</span>
-      <span><b>${afterVA3.toFixed(1).replace('.',',')}</b> média base</span>
+      <span><b>${fmt(r.afterVA3)}</b> média base</span>
       <span><b>${finalGrade==null?'—':finalGrade.toFixed(1).replace('.',',')}</b> Final</span>
     </div>`;
 }
