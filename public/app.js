@@ -588,7 +588,12 @@ document.addEventListener('click',e=>{
   if(j&&!j.classList.contains('nav-item'))jump(j.dataset.jump)
 })}
 
-async function start(){document.documentElement.dataset.theme=localStorage.getItem('focca-theme')||'light';bind();watchAuth(async(user)=>{state.user=user;$('loginScreen').classList.toggle('hidden',!!user);$('appShell').classList.toggle('hidden',!user);if(user)try{await loadPrivate()}catch(e){toast(`Erro ao carregar: ${e.message}`,true)}})}
+// Tema: segue o claro/escuro do aparelho até a pessoa escolher um tema no botão.
+const systemThemeQuery=window.matchMedia?.('(prefers-color-scheme: dark)');
+function systemTheme(){return systemThemeQuery?.matches?'dark':'light'}
+function storedTheme(){try{return localStorage.getItem('focca-theme')}catch{return null}}
+function watchSystemTheme(){systemThemeQuery?.addEventListener?.('change',()=>{if(!storedTheme())document.documentElement.dataset.theme=systemTheme()})}
+async function start(){document.documentElement.dataset.theme=storedTheme()||systemTheme();watchSystemTheme();bind();watchAuth(async(user)=>{state.user=user;$('loginScreen').classList.toggle('hidden',!!user);$('appShell').classList.toggle('hidden',!user);if(user)try{await loadPrivate()}catch(e){toast(`Erro ao carregar: ${e.message}`,true)}})}
 start();
 
 

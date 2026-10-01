@@ -375,8 +375,11 @@ html[data-theme] body :is(.login-visual-copy p,.auth-switch){color:var(--muted)!
 html[data-theme] body .auth-divider:before,
 html[data-theme] body .auth-divider:after{background:var(--separator)!important}
 html[data-theme] body .auth-divider span{color:var(--muted-2)}
-/* o logo tem fundo branco: no escuro, inverte luminância mantendo o matiz */
-html[data-theme="dark"] body .login-logo-full{filter:invert(1) hue-rotate(180deg);mix-blend-mode:screen}
+/* logo transparente com versão clara e escura */
+html body .login-logo-full{mix-blend-mode:normal!important;filter:none!important}
+html body .logo-for-dark{display:none}
+html[data-theme="dark"] body .logo-for-light{display:none}
+html[data-theme="dark"] body .logo-for-dark{display:block}
 
 /* ---------- Navegação inferior (iOS tab bar) ---------- */
 html[data-theme] body .mobile-bottom-nav{
@@ -436,3 +439,23 @@ html[data-theme] body .topbar .eyebrow{font-size:11px!important;white-space:nowr
 html[data-theme] body .mobile-bottom-nav button.active,
 html[data-theme] body .mobile-bottom-nav button.active *{color:var(--primary)!important}
 html[data-theme] body .mobile-bottom-nav button.active{background:var(--tint-soft)!important}
+
+/* ---------- Ícones SVG (estilo SF Symbols) ---------- */
+.ico{width:20px;height:20px;display:block;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:0 0 auto}
+html[data-theme] body .nav-emoji{display:grid;place-items:center;color:var(--primary)}
+html[data-theme] body .nav-emoji .ico{width:19px;height:19px}
+html[data-theme] body :is(.topbar-tool,.topbar-action-btn){display:inline-grid;place-items:center;font-size:0}
+@media(max-width:760px){html[data-theme] body .icon-btn{display:inline-grid;place-items:center;font-size:0}}
+html[data-theme] body :is(.topbar-tool,.topbar-action-btn,.icon-btn) .ico{width:18px;height:18px}
+html[data-theme] body .topbar-action-btn.logout{color:var(--failed)!important}
+html[data-theme] body .tool-badge{font-size:10px}
+html[data-theme] body #themeBtn .ico-sun{display:none}
+html[data-theme="dark"] body #themeBtn .ico-sun{display:block}
+html[data-theme="dark"] body #themeBtn .ico-moon{display:none}
+html[data-theme] body .mobile-bottom-nav button>span{display:grid;place-items:center}
+html[data-theme] body .mobile-bottom-nav .ico{width:23px;height:23px}
+html[data-theme] body .command-fab{display:grid;place-items:center}
+html[data-theme] body .command-fab .ico{width:26px;height:26px;stroke-width:2.2}
+
+/* botão "+" e barra inferior só aparecem com o app aberto, nunca no login */
+body:has(#appShell.hidden) :is(#commandCenterBtn,#mobileBottomNav){display:none!important}
