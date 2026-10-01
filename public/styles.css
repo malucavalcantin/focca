@@ -7407,3 +7407,103 @@ html[data-theme] body .absence-record .btn { min-height: 32px; padding: 6px 12px
   .absence-tile { padding: 14px; }
   .absence-subject-grid { grid-template-columns: 1fr; }
 }
+
+/* ---------- Google Agenda (horários e atividades) ---------- */
+.calendar-sync-status { margin: 10px 0 0; font-size: 13px; min-height: 1em; }
+.calendar-chip {
+  display: inline-block;
+  padding: 1px 7px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--current);
+  background: var(--current-bg);
+}
+
+/* ---------- Média geral (CRA) ---------- */
+.cra-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(260px, .9fr);
+  gap: 20px;
+  align-items: start;
+}
+.cra-main { display: grid; gap: 4px; }
+.cra-main strong {
+  font-size: 56px;
+  line-height: 1;
+  letter-spacing: -.04em;
+  font-variant-numeric: tabular-nums;
+  color: var(--primary);
+}
+.cra-main span { font-size: 13px; }
+.cra-projection { color: var(--text); font-weight: 500; }
+.cra-goal { display: grid; gap: 10px; }
+.cra-goal-status {
+  padding: 12px 14px;
+  border-radius: 12px;
+  font-size: 14px;
+  background: var(--tint-soft);
+  color: var(--text);
+}
+.cra-goal-status b { color: var(--primary); font-size: 16px; }
+.cra-goal-status.ok { background: var(--done-bg); color: var(--done); }
+.cra-goal-status.risk { background: var(--failed-bg); color: var(--failed); }
+.cra-current-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 10px;
+  margin-top: 16px;
+}
+.cra-current-list:empty { display: none; }
+.cra-current {
+  display: grid;
+  gap: 3px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: var(--panel-2);
+  border-left: 4px solid var(--muted-2);
+}
+.cra-current.ok { border-left-color: var(--sys-green); }
+.cra-current.warn { border-left-color: var(--sys-orange); }
+.cra-current strong { font-size: 13px; }
+.cra-current span { font-size: 12px; color: var(--muted); }
+.cra-current i { font-style: normal; font-size: 12px; font-weight: 600; }
+.cra-current.ok i { color: var(--done); }
+.cra-current.warn i { color: var(--pending); }
+.cra-grades summary {
+  cursor: pointer;
+  font-weight: 600;
+  padding: 10px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  list-style: none;
+}
+.cra-grades summary::-webkit-details-marker { display: none; }
+.cra-grades summary::before { content: "›"; font-size: 20px; color: var(--muted); transition: transform .2s ease; }
+.cra-grades[open] summary::before { transform: rotate(90deg); }
+.cra-grade-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 8px;
+  margin-top: 10px;
+}
+.cra-grade-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 84px;
+  gap: 10px;
+  align-items: center;
+  padding: 8px 10px 8px 14px;
+  border-radius: 12px;
+  background: var(--panel-2);
+}
+.cra-grade-row span { display: grid; gap: 1px; min-width: 0; }
+.cra-grade-row strong { font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cra-grade-row small { font-size: 11px; color: var(--muted); }
+html[data-theme] body .cra-grade-row input { text-align: center; padding: 8px; background: var(--panel)!important; }
+
+@media (max-width: 760px) {
+  .cra-layout { grid-template-columns: 1fr; }
+  .cra-main strong { font-size: 44px; }
+  .cra-grade-list { grid-template-columns: 1fr; }
+}

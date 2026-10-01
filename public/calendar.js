@@ -1,4 +1,5 @@
 import { GOOGLE_CLIENT_ID } from './firebase-config.js';
+import { buildClassEvent } from './calendar-events.js?v=20261001';
 
 const CALENDAR_SCOPE = 'https://www.googleapis.com/auth/calendar.events';
 const USER_TIMEZONE = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
@@ -60,8 +61,30 @@ export function reminderToMinutes(value, unit) {
   return minutes;
 }
 
+const EVENTS_URL = 'https://www.googleapis.com/calendar/v3/calendars/primary/events';
+
+// Chamada à API do Google Agenda, renovando o token uma vez se ele expirou.
+async function calendarRequest(method, path = '', body) {
+  const send = token => fetch(EVENTS_URL + path, {
+    method,
+    headers: { Authorization: `Bearer ${token}`, ...(body ? { 'Content-Type': 'application/json' } : {}) },
+    body: body ? JSON.stringify(body) : undefined
+  });
+  let response = await send(await getToken());
+  if (response.status === 401) {
+    accessToken = null;
+    response = await send(await getToken());
+  }
+  return response;
+}
+
+async function ensureOk(response) {
+  if (response.ok) return response.status === 204 ? null : response.json();
+  const details = await response.json().catch(() => ({}));
+  throw new Error(details?.error?.message || `Erro ${response.status} no Google Agenda.`);
+}
+
 export async function createCalendarEvent(task) {
-  const token = await getToken();
   const start = new Date(task.dueAt);
   if (Number.isNaN(start.getTime())) throw new Error('Data/hora da atividade inválida.');
   const end = new Date(start.getTime() + 60 * 60 * 1000);
@@ -69,53 +92,38 @@ export async function createCalendarEvent(task) {
 
   const body = {
     summary: `${task.title} — ${task.subject}`,
-    description: task.notes ? `${task.notes}\n\nCriado pelo Focca.` : 'Criado pelo Focca.',
-    start: {
-      dateTime: start.toISOString(),
-      timeZone: USER_TIMEZONE
-    },
-    end: {
-      dateTime: end.toISOString(),
-      timeZone: USER_TIMEZONE
-    },
+    description: task.notes ? `${task.notes}
+
+Criado pelo Focca.` : 'Criado pelo Focca.',
+    start: { dateTime: start.toISOString(), timeZone: USER_TIMEZONE },
+    end: { dateTime: end.toISOString(), timeZone: USER_TIMEZONE },
     reminders: {
       useDefault: false,
       overrides: reminderMinutes > 0 ? [{ method: 'popup', minutes: reminderMinutes }] : []
     },
-    extendedProperties: {
-      private: {
-        source: 'focca-app',
-        taskId: task.id || ''
-      }
-    }
+    extendedProperties: { private: { source: 'focca-app', taskId: task.id || '' } }
   };
 
-  let response = await fetch('https://www.googleapis.com/calendar/v3/calendars/primary/events', {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${token}`,
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(body)
-  });
+  return ensureOk(await calendarRequest('POST', '', body));
+}
 
-  if (response.status === 401) {
-    accessToken = null;
-    const renewedToken = await getToken();
-    response = await fetch('https://www.googleapis.com/calendar/v3/calendars/primary/events', {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${renewedToken}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(body)
-    });
+export async function updateCalendarEvent(eventId, patch) {
+  return ensureOk(await calendarRequest('PATCH', `/${encodeURIComponent(eventId)}`, patch));
+}
+
+/** Remove o evento; se ele já não existe mais na agenda, não é erro. */
+export async function deleteCalendarEvent(eventId) {
+  const response = await calendarRequest('DELETE', `/${encodeURIComponent(eventId)}`);
+  if (response.status === 404 || response.status === 410) return null;
+  return ensureOk(response);
+}
+
+/** Cria ou atualiza o evento semanal de uma aula. Retorna o evento salvo. */
+export async function upsertClassEvent(item, options) {
+  const body = buildClassEvent(item, { timeZone: USER_TIMEZONE, ...options });
+  if (item.calendarEventId) {
+    const response = await calendarRequest('PATCH', `/${encodeURIComponent(item.calendarEventId)}`, body);
+    if (response.status !== 404 && response.status !== 410) return ensureOk(response);
   }
-
-  if (!response.ok) {
-    const details = await response.json().catch(() => ({}));
-    throw new Error(details?.error?.message || `Erro ${response.status} ao criar evento.`);
-  }
-
-  return response.json();
+  return ensureOk(await calendarRequest('POST', '', body));
 }

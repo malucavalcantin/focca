@@ -112,3 +112,45 @@ export function absenceStatus({ hours, absences, calls = true }) {
   const level = used > limit ? 'over' : pct >= 75 ? 'risk' : pct >= 50 ? 'warning' : 'ok';
   return { level, used, limit, remaining: Math.max(0, limit - used), pct };
 }
+
+/** Situações que entram no CRA (com nota final). Dispensadas não entram. */
+export const GRADED_STATUSES = new Set(['approved', 'approved_final', 'failed']);
+
+const isGrade = v => v !== null && v !== '' && v !== undefined && Number.isFinite(Number(v)) && Number(v) >= 0 && Number(v) <= 10;
+
+/**
+ * CRA: média das notas finais ponderada pela carga horária, considerando
+ * aprovadas e reprovadas com nota lançada. `missing` conta as que faltam nota.
+ */
+export function calcCRA(subjects) {
+  const counted = subjects.filter(s => GRADED_STATUSES.has(s.status) && Number(s.hours) > 0);
+  const graded = counted.filter(s => isGrade(s.finalGrade));
+  const hours = sumHours(graded);
+  const points = graded.reduce((total, s) => total + hoursOf(s) * Number(s.finalGrade), 0);
+  return { cra: hours ? points / hours : null, hours, points, count: graded.length, missing: counted.length - graded.length };
+}
+
+/**
+ * CRA projetado se as disciplinas cursando terminarem com as médias atuais
+ * (`averages`: id -> média ou null; sem média, a disciplina fica de fora).
+ */
+export function projectedCRA(subjects, averages) {
+  const base = calcCRA(subjects);
+  const current = subjects.filter(s => s.status === 'current' && Number(s.hours) > 0 && isGrade(averages[s.id]));
+  const hours = base.hours + sumHours(current);
+  if (!hours) return null;
+  return (base.points + current.reduce((t, s) => t + hoursOf(s) * Number(averages[s.id]), 0)) / hours;
+}
+
+/**
+ * Média necessária nas disciplinas cursando (todas com a mesma nota) para o
+ * CRA chegar a `goal` ao fim do semestre. null se não há disciplinas cursando.
+ */
+export function craGoalNeeded(subjects, goal) {
+  if (!isGrade(goal)) return null;
+  const base = calcCRA(subjects);
+  const currentHours = sumHours(subjects.filter(s => s.status === 'current' && Number(s.hours) > 0));
+  if (!currentHours) return null;
+  const needed = (Number(goal) * (base.hours + currentHours) - base.points) / currentHours;
+  return { needed, reachable: needed <= 10, alreadyMet: needed <= 0, currentHours };
+}

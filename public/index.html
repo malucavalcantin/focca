@@ -528,6 +528,15 @@
             <div class="card-header"><div><p class="eyebrow">RESUMO</p><h3>Disciplinas da semana</h3></div></div>
             <div id="scheduleOverview" class="schedule-overview"></div>
           </article>
+          <article class="card section-gap" id="scheduleCalendarCard">
+            <div class="card-header"><div><p class="eyebrow">GOOGLE AGENDA</p><h3>Aulas na sua agenda</h3></div></div>
+            <p class="muted">Cada aula vira um evento semanal no Google Agenda até o último dia de aula. Se você editar ou excluir um horário depois, o evento acompanha.</p>
+            <div class="form-grid section-gap">
+              <label class="field full"><span>Último dia de aula do semestre</span><input id="semesterEndInput" type="date"></label>
+              <button id="syncScheduleCalendarBtn" class="btn btn-primary full" type="button">Enviar aulas para o Google Agenda</button>
+            </div>
+            <p id="scheduleCalendarStatus" class="calendar-sync-status muted"></p>
+          </article>
           <article class="card section-gap" id="scheduleFormCard">
             <div class="card-header"><div><p class="eyebrow">NOVO HORÁRIO</p><h3>Adicionar aula</h3></div></div>
             <form id="scheduleForm" class="form-grid">
@@ -690,6 +699,29 @@
         <article><span>🧩 Restantes</span><strong id="degreeRemaining">0</strong></article>
         <article><span>🎯 Foco na semana</span><strong id="degreeFocus">0 min</strong></article>
       </div>
+
+      <article class="card section-gap cra-card">
+        <div class="card-header">
+          <div><p class="eyebrow">MÉDIA GERAL</p><h3>Seu CRA</h3></div>
+        </div>
+        <div class="cra-layout">
+          <div class="cra-main">
+            <strong id="craValue">—</strong>
+            <span id="craMeta" class="muted">Lance as notas finais para calcular.</span>
+            <span id="craProjection" class="cra-projection"></span>
+          </div>
+          <div class="cra-goal">
+            <label class="field"><span>Meta de CRA</span><input id="craGoalInput" type="number" min="0" max="10" step="0.1" placeholder="Ex.: 8,0" inputmode="decimal"></label>
+            <div id="craGoalResult" class="cra-goal-result"></div>
+          </div>
+        </div>
+        <div id="craCurrentList" class="cra-current-list"></div>
+        <details class="cra-grades section-gap">
+          <summary>Notas finais das disciplinas cursadas <span id="craMissingBadge" class="badge"></span></summary>
+          <p class="muted">O CRA é a média das notas finais ponderada pela carga horária, contando aprovadas e reprovadas (dispensadas ficam de fora). Confira com o seu histórico no SIGAA.</p>
+          <div id="craGradeList" class="cra-grade-list"></div>
+        </details>
+      </article>
 
       <article class="card section-gap">
         <div class="card-header">

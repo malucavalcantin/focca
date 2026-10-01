@@ -1,7 +1,8 @@
 import { finishRedirectLogin, watchAuth, logout, getProfile, saveProfile, listSubjects, createSubject, updateSubject, removeSubject, replaceSubjects, listTasks, createTask, updateTask, removeTask, listSchedule, saveScheduleItem, removeScheduleItem, listAbsences, addAbsence, removeAbsence, listAssessments, saveAssessment, removeAssessment, listSubjectSettings, saveSubjectSetting } from './firebase-service.js?v=20260825-auth62';
-import { createCalendarEvent } from './calendar.js?v=20260825-auth62';
+import { createCalendarEvent, updateCalendarEvent, deleteCalendarEvent, upsertClassEvent } from './calendar.js?v=20261001';
+import { taskEventPatch } from './calendar-events.js?v=20261001';
 import { COMPUTACAO_BASE_MATRIX } from './base-matrix.js?v=20260825-auth62';
-import { DONE_STATUSES, calcProgress, countStatuses, subjectAverage, percentLabel, approvalSituation, findNextClass, absenceStatus } from './academic.js?v=20261001b';
+import { DONE_STATUSES, calcProgress, countStatuses, subjectAverage, percentLabel, approvalSituation, findNextClass, absenceStatus, calcCRA, projectedCRA, craGoalNeeded } from './academic.js?v=20261001c';
 
 const $=id=>document.getElementById(id);
 const esc=(v='')=>String(v).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
@@ -412,12 +413,18 @@ function renderUniversity(){
 }
 
 async function refreshTasks(){state.tasks=await listTasks();$('taskCount').textContent=state.tasks.length;$('taskList').innerHTML=state.tasks.length?state.tasks.map(t=>`<article class="task-card ${t.completed?'done':''}"><div><strong>${esc(t.title)}</strong><span>${esc(t.subjectName||'')} · ${fmtDate(t.dueAt)}</span></div><div class="task-actions"><button class="btn btn-ghost" data-task-toggle="${t.id}">${t.completed?'Reabrir':'Concluir'}</button><button class="btn btn-danger" data-task-delete="${t.id}">Excluir</button></div></article>`).join(''):'<div class="empty-state">Nenhuma atividade.</div>'}
-async function submitTask(e){e.preventDefault();const s=state.subjects.find(x=>x.id===$('taskSubject').value);if(!s)return;const task={subjectId:s.id,subjectName:s.name,subject:s.name,title:$('taskTitle').value.trim(),dueAt:new Date(`${$('taskDate').value}T${$('taskTime').value}:00`).toISOString(),reminderValue:Number($('reminderValue').value||0),reminderUnit:$('reminderUnit').value,notes:$('taskNotes').value.trim()};try{const id=await createTask(task);if($('addToCalendar').checked){const ev=await createCalendarEvent({...task,id});await updateTask(id,{calendarEventId:ev.id,calendarHtmlLink:ev.htmlLink||null})}e.target.reset();$('taskTime').value='09:00';$('reminderValue').value=1;$('addToCalendar').checked=true;await refreshTasks();toast('Atividade salva.')}catch(err){toast(err.message,true)}}
+async function submitTask(e){e.preventDefault();const s=state.subjects.find(x=>x.id===$('taskSubject').value);if(!s)return;const task={subjectId:s.id,subjectName:s.name,subject:s.name,title:$('taskTitle').value.trim(),dueAt:new Date(`${$('taskDate').value}T${$('taskTime').value}:00`).toISOString(),reminderValue:Number($('reminderValue').value||0),reminderUnit:$('reminderUnit').value,notes:$('taskNotes').value.trim()};try{const id=await createTask(task);if($('addToCalendar').checked){const ev=await calendarSafely(()=>createCalendarEvent({...task,id}),'Atividade salva no Focca');if(ev)await updateTask(id,{calendarEventId:ev.id,calendarHtmlLink:ev.htmlLink||null})}e.target.reset();$('taskTime').value='09:00';$('reminderValue').value=1;$('addToCalendar').checked=true;await refreshTasks();if(!$('toast').classList.contains('error'))toast('Atividade salva.')}catch(err){toast(err.message,true)}}
 
 function min(t){const [h,m]=t.split(':').map(Number);return h*60+m}
 async function refreshSchedule(){state.schedule=await listSchedule();renderSchedule()}
 
+function bindCalendarAndCRA(){
+  $('syncScheduleCalendarBtn').onclick=syncScheduleToCalendar;
+  $('craGoalInput').onchange=saveCraGoal;
+  $('craGradeList').onchange=e=>{const input=e.target.closest('[data-final-grade]');if(input)saveFinalGrade(input)};
+}
 function renderSchedule(){
+  if($('semesterEndInput')&&!$('semesterEndInput').value)$('semesterEndInput').value=state.profile?.semesterEnd||'';
   const days=['Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
   const active=days.filter(d=>state.schedule.some(x=>x.day===d));
   const cols=active.length?active:days.slice(0,5);
@@ -459,7 +466,7 @@ function renderSchedule(){
     const s=resolveScheduleSubject(x);
     const name=s?.name||x.subjectName||'Disciplina';
     const location=x.location||s?.room||'';
-    return `<div class="stack-item"><div><strong>${esc(name)}</strong><span>${x.day} · ${x.start}–${x.end}${location?` · ${esc(location)}`:''}</span></div><div class="row-actions"><button class="btn btn-secondary btn-small" data-schedule-edit="${x.id}">Editar</button><button class="btn btn-danger btn-small" data-schedule-delete="${x.id}">Excluir</button></div></div>`;
+    return `<div class="stack-item"><div><strong>${esc(name)}</strong><span>${x.day} · ${x.start}–${x.end}${location?` · ${esc(location)}`:''}${x.calendarEventId?' · <b class="calendar-chip">No Google Agenda</b>':''}</span></div><div class="row-actions"><button class="btn btn-secondary btn-small" data-schedule-edit="${x.id}">Editar</button><button class="btn btn-danger btn-small" data-schedule-delete="${x.id}">Excluir</button></div></div>`;
   }).join('')||'<div class="empty-state">Nenhum horário cadastrado.</div>';
 
   const totalMinutes=state.schedule.reduce((acc,x)=>acc+(x.start&&x.end?Math.max(0,min(x.end)-min(x.start)):0),0);
@@ -507,7 +514,8 @@ async function submitSchedule(e){
     return;
   }
   const editId=$('scheduleEditId').value;
-  await saveScheduleItem({
+  const previous=editId?state.schedule.find(x=>x.id===editId):null;
+  const savedId=await saveScheduleItem({
     id:editId||undefined,
     subjectId:s.id,
     subjectName:s.name,
@@ -519,6 +527,76 @@ async function submitSchedule(e){
   resetScheduleForm();
   await refreshSchedule();
   toast(editId?'Horário atualizado.':'Horário adicionado.');
+  const saved=state.schedule.find(x=>x.id===(editId||savedId));
+  if(previous?.calendarEventId&&saved&&state.profile?.semesterEnd){
+    await calendarSafely(async()=>{const ev=await upsertClassEvent({...saved,calendarEventId:previous.calendarEventId},{subjectName:s.name,until:state.profile.semesterEnd});if(ev.id!==previous.calendarEventId)await saveScheduleItem({id:saved.id,calendarEventId:ev.id})},'Horário salvo no Focca');
+    await refreshSchedule();
+  }
+}
+
+// ---------- Google Agenda ----------
+// Erros da agenda não desfazem o que já foi salvo no Focca: só avisam.
+async function calendarSafely(fn,doneLabel){try{return await fn()}catch(err){toast(`${doneLabel}, mas o Google Agenda não foi atualizado: ${err.message}`,true);return null}}
+async function syncTaskEvent(task,action){
+  if(!task?.calendarEventId)return;
+  await calendarSafely(()=>action==='delete'?deleteCalendarEvent(task.calendarEventId):updateCalendarEvent(task.calendarEventId,taskEventPatch(task,action)),action==='delete'?'Atividade excluída no Focca':'Atividade atualizada no Focca');
+}
+async function syncScheduleToCalendar(){
+  const until=$('semesterEndInput').value,btn=$('syncScheduleCalendarBtn'),status=$('scheduleCalendarStatus');
+  if(!until){toast('Informe o último dia de aula do semestre.',true);$('semesterEndInput').focus();return}
+  if(!state.schedule.length){toast('Adicione suas aulas antes de enviar para a agenda.',true);return}
+  btn.disabled=true;let ok=0;
+  try{
+    if(state.profile?.semesterEnd!==until){await saveProfile({semesterEnd:until});state.profile={...state.profile,semesterEnd:until}}
+    for(const [i,item] of state.schedule.entries()){
+      status.textContent=`Enviando ${i+1} de ${state.schedule.length}…`;
+      const ev=await upsertClassEvent(item,{subjectName:resolveScheduleSubject(item)?.name||item.subjectName,until});
+      if(ev.id!==item.calendarEventId)await saveScheduleItem({id:item.id,calendarEventId:ev.id});
+      ok++;
+    }
+    status.textContent=`${ok} aula(s) no Google Agenda, toda semana até ${new Date(`${until}T12:00:00`).toLocaleDateString('pt-BR')}.`;
+    toast('Aulas enviadas para o Google Agenda.');
+  }catch(err){status.textContent=ok?`${ok} de ${state.schedule.length} aulas enviadas antes do erro.`:'';toast(err.message,true)}
+  finally{btn.disabled=false;await refreshSchedule()}
+}
+
+// ---------- Média geral (CRA) ----------
+const fmtGrade=n=>Number(n).toFixed(2).replace('.',',');
+function renderCRA(){
+  if(!$('craValue'))return;
+  const cra=calcCRA(state.subjects);
+  const averages=Object.fromEntries(currentSubjects().map(s=>[s.id,currentAverage(s.id)]));
+  const projection=projectedCRA(state.subjects,averages);
+  $('craValue').textContent=cra.cra==null?'—':fmtGrade(cra.cra);
+  $('craMeta').textContent=cra.cra==null?'Lance as notas finais das disciplinas cursadas para calcular.':`${cra.count} disciplina(s) · ${cra.hours} h${cra.missing?` · faltam notas de ${cra.missing}`:''}`;
+  $('craProjection').textContent=projection!=null&&currentSubjects().some(s=>averages[s.id]!=null)?`Com as médias atuais deste semestre: ${fmtGrade(projection)}`:'';
+  $('craMissingBadge').textContent=cra.missing?`${cra.missing} sem nota`:'';
+  $('craMissingBadge').classList.toggle('hidden',!cra.missing);
+  const goalRaw=state.profile?.craGoal;
+  if(document.activeElement!==$('craGoalInput'))$('craGoalInput').value=goalRaw??'';
+  const goal=craGoalNeeded(state.subjects,goalRaw);
+  $('craGoalResult').innerHTML=goalRaw==null||goalRaw===''?'<small class="muted">Defina uma meta para ver a média necessária neste semestre.</small>'
+    :!goal?'<small class="muted">Marque as disciplinas que está cursando para calcular a meta.</small>'
+    :goal.alreadyMet?`<div class="cra-goal-status ok">Meta garantida: mesmo com nota 0, o CRA fica acima de ${fmtGrade(goalRaw)}.</div>`
+    :goal.reachable?`<div class="cra-goal-status">Você precisa de média <b>${fmtGrade(goal.needed)}</b> nas ${currentSubjects().length} disciplinas deste semestre.</div>`
+    :`<div class="cra-goal-status risk">Mesmo com 10 em tudo, o CRA não chega a ${fmtGrade(goalRaw)} neste semestre.</div>`;
+  $('craCurrentList').innerHTML=goal&&!goal.alreadyMet&&goal.reachable?currentSubjects().map(s=>{const avg=averages[s.id],on=avg!=null&&avg>=goal.needed;return `<div class="cra-current ${avg==null?'none':on?'ok':'warn'}"><strong>${esc(s.name)}</strong><span>${avg==null?'Sem notas ainda':`Média atual ${fmtGrade(avg)}`}</span><i>${avg==null?'—':on?'No caminho':`Faltam ${fmtGrade(goal.needed-avg)}`}</i></div>`}).join(''):'';
+  const graded=state.subjects.filter(s=>['approved','approved_final','failed'].includes(s.status)).sort((a,b)=>String(a.period||'').localeCompare(String(b.period||''),'pt-BR',{numeric:true}));
+  $('craGradeList').innerHTML=graded.length?graded.map(s=>`<label class="cra-grade-row"><span><strong>${esc(s.name)}</strong><small>${s.period?`${esc(s.period)}º período · `:''}${Number(s.hours||0)} h · ${statusMeta[s.status]?.[0]||''}</small></span><input type="number" min="0" max="10" step="0.1" inputmode="decimal" placeholder="Nota" value="${s.finalGrade??''}" data-final-grade="${s.id}" aria-label="Nota final de ${esc(s.name)}"></label>`).join(''):'<div class="empty-state">Nenhuma disciplina concluída ainda.</div>';
+}
+function parseGrade(v){if(String(v??'').trim()==='')return null;const n=Number(String(v).replace(',','.'));return Number.isFinite(n)&&n>=0&&n<=10?n:undefined}
+async function saveFinalGrade(input){
+  const value=parseGrade(input.value),s=state.subjects.find(x=>x.id===input.dataset.finalGrade);
+  if(!s)return;
+  if(value===undefined){toast('A nota precisa estar entre 0 e 10.',true);input.value=s.finalGrade??'';return}
+  if((s.finalGrade??null)===value)return;
+  await updateSubject(s.id,{finalGrade:value});s.finalGrade=value;renderCRA();toast('Nota final salva.');
+}
+async function saveCraGoal(){
+  const value=parseGrade($('craGoalInput').value);
+  if(value===undefined){toast('A meta precisa estar entre 0 e 10.',true);return}
+  if((state.profile?.craGoal??null)===value)return;
+  await saveProfile({craGoal:value});state.profile={...state.profile,craGoal:value};renderCRA();
 }
 
 function settingFor(id){return state.settings.find(x=>x.subjectId===id)?.professorCalls ?? true}
@@ -544,7 +622,7 @@ async function submitAssessment(e){e.preventDefault();const s=state.subjects.fin
 
 async function loadPrivate(){await refreshCore();await Promise.all([refreshTasks(),refreshSchedule(),refreshAbsences(),refreshGrades()]);if(!state.profile?.onboardingComplete){setTimeout(()=>{$('onboardingInstitution').value=state.profile?.institution||'';$('onboardingTerm').value=state.profile?.currentTerm||'';$('onboardingDisplayName').value=state.profile?.displayName||state.user?.displayName||'';openModal('onboardingModal')},250)}else if(!state.subjects.length){await installBaseMatrix(true)}}
 
-function bind(){setupNav();setupModals();bindStudyHub();$('themeBtn').onclick=()=>{const n=document.documentElement.dataset.theme==='dark'?'light':'dark';document.documentElement.dataset.theme=n;localStorage.setItem('focca-theme',n)};$('logoutBtn').onclick=logout;
+function bind(){setupNav();setupModals();bindStudyHub();bindCalendarAndCRA();$('themeBtn').onclick=()=>{const n=document.documentElement.dataset.theme==='dark'?'light':'dark';document.documentElement.dataset.theme=n;localStorage.setItem('focca-theme',n)};$('logoutBtn').onclick=logout;
 $('trajectorySetupBtn').onclick=$('settingsTrajectoryBtn').onclick=openTrajectorySetup;$('semesterSetupBtn').onclick=$('semesterSetupBtnTop').onclick=$('settingsSemesterBtn').onclick=openSemesterSetup;$('resetBaseMatrixBtn').onclick=async()=>{if(confirm('Restaurar a matriz-base vai substituir as disciplinas atuais. Deseja continuar?')){await installBaseMatrix(true);toast('Matriz-base restaurada.');openTrajectorySetup()}};
 $('onboardingForm').onsubmit=saveOnboarding;$('saveTrajectoryBtn').onclick=saveTrajectorySetup;$('saveSemesterBtn').onclick=saveSemesterSetup;$('semesterAddSubjectBtn').onclick=()=>{closeModal('semesterModal');editSubject()};$('semesterSubjectList').onchange=e=>{const row=e.target.closest('.semester-subject');if(row)row.classList.toggle('selected',e.target.checked)};
 $('subjectForm').onsubmit=saveSubjectForm;
@@ -570,7 +648,7 @@ $('currentFavoritesToggle').onclick=()=>{
   avaUrl:'https://ava.ufrpe.br/login/index.php',
   ruMenuUrl:'https://www.instagram.com/progestiru/',
   calendarUrl:$('calendarUrlInput').value.trim()||'https://preg.ufrpe.br/sites/ww4.depaacademicos.ufrpe.br/files/CALEND%C3%81RIO_GRADUA%C3%87%C3%83O_2026-%20Atualizado%20CEPE%20n%C2%BA%201004%20DE%2021%20DE%20MAIO%20DE%202026%2020%20jul.pdf'
-});await refreshCore();toast('Configurações salvas.');};$('taskForm').onsubmit=submitTask;$('taskList').onclick=async e=>{const del=e.target.closest('[data-task-delete]'),tog=e.target.closest('[data-task-toggle]');if(del)await removeTask(del.dataset.taskDelete);if(tog){const t=state.tasks.find(x=>x.id===tog.dataset.taskToggle);await updateTask(t.id,{completed:!t.completed})}await refreshTasks()};$('scheduleForm').onsubmit=submitSchedule;$('scheduleCancelEditBtn').onclick=resetScheduleForm;$('scheduleSubject').onchange=()=>{const s=state.subjects.find(x=>x.id===$('scheduleSubject').value);if(s?.room&&!$('scheduleEditId').value)$('scheduleLocation').value=s.room};$('scheduleFocusFormBtn').onclick=()=>{$('scheduleFormCard').scrollIntoView({behavior:'smooth',block:'start'})};$('scheduleList').onclick=async e=>{const edit=e.target.closest('[data-schedule-edit]');if(edit){editScheduleItem(edit.dataset.scheduleEdit);return}const del=e.target.closest('[data-schedule-delete]');if(del){await removeScheduleItem(del.dataset.scheduleDelete);await refreshSchedule()}};$('subjectDetailsForm').onsubmit=saveSubjectDetails;$('absenceForm').onsubmit=submitAbsence;$('absenceSubject').onchange=()=>{$('professorCalls').value=settingFor($('absenceSubject').value)?'yes':'no'};$('absenceHistory').onclick=async e=>{const b=e.target.closest('[data-absence-delete]');if(b){await removeAbsence(b.dataset.absenceDelete);await refreshAbsences()}};$('assessmentForm').onsubmit=submitAssessment;$('assessmentList').onclick=async e=>{const b=e.target.closest('[data-assessment-delete]');if(b){await removeAssessment(b.dataset.assessmentDelete);await refreshGrades()}};
+});await refreshCore();toast('Configurações salvas.');};$('taskForm').onsubmit=submitTask;$('taskList').onclick=async e=>{const del=e.target.closest('[data-task-delete]'),tog=e.target.closest('[data-task-toggle]');if(del){const t=state.tasks.find(x=>x.id===del.dataset.taskDelete);await syncTaskEvent(t,'delete');await removeTask(del.dataset.taskDelete)}if(tog){const t=state.tasks.find(x=>x.id===tog.dataset.taskToggle);await syncTaskEvent(t,!t.completed);await updateTask(t.id,{completed:!t.completed})}await refreshTasks()};$('scheduleForm').onsubmit=submitSchedule;$('scheduleCancelEditBtn').onclick=resetScheduleForm;$('scheduleSubject').onchange=()=>{const s=state.subjects.find(x=>x.id===$('scheduleSubject').value);if(s?.room&&!$('scheduleEditId').value)$('scheduleLocation').value=s.room};$('scheduleFocusFormBtn').onclick=()=>{$('scheduleFormCard').scrollIntoView({behavior:'smooth',block:'start'})};$('scheduleList').onclick=async e=>{const edit=e.target.closest('[data-schedule-edit]');if(edit){editScheduleItem(edit.dataset.scheduleEdit);return}const del=e.target.closest('[data-schedule-delete]');if(del){const item=state.schedule.find(x=>x.id===del.dataset.scheduleDelete);if(item?.calendarEventId)await calendarSafely(()=>deleteCalendarEvent(item.calendarEventId),'Horário excluído no Focca');await removeScheduleItem(del.dataset.scheduleDelete);await refreshSchedule()}};$('subjectDetailsForm').onsubmit=saveSubjectDetails;$('absenceForm').onsubmit=submitAbsence;$('absenceSubject').onchange=()=>{$('professorCalls').value=settingFor($('absenceSubject').value)?'yes':'no'};$('absenceHistory').onclick=async e=>{const b=e.target.closest('[data-absence-delete]');if(b){await removeAbsence(b.dataset.absenceDelete);await refreshAbsences()}};$('assessmentForm').onsubmit=submitAssessment;$('assessmentList').onclick=async e=>{const b=e.target.closest('[data-assessment-delete]');if(b){await removeAssessment(b.dataset.assessmentDelete);await refreshGrades()}};
 
 
 
@@ -641,7 +719,7 @@ function renderMaterials(){
 function renderDegree(){
  if(!$('degreePct'))return;
  const total=state.subjects.length,done=state.subjects.filter(s=>doneStatuses.has(s.status)).length,current=state.subjects.filter(s=>s.status==='current').length,remaining=Math.max(0,total-done-current),pct=total?Math.round(done/total*100):0;
- $('degreePct').textContent=`${pct}%`;$('degreeRing').style.setProperty('--degree-progress',pct);$('degreeDone').textContent=done;$('degreeCurrent').textContent=current;$('degreeRemaining').textContent=remaining;
+ renderCRA();$('degreePct').textContent=`${pct}%`;$('degreeRing').style.setProperty('--degree-progress',pct);$('degreeDone').textContent=done;$('degreeCurrent').textContent=current;$('degreeRemaining').textContent=remaining;
  const periods={};state.subjects.forEach(s=>(periods[s.period||'Outras']??=[]).push(s));
  $('degreePeriods').innerHTML=Object.entries(periods).sort((a,b)=>String(a[0]).localeCompare(String(b[0]),'pt-BR',{numeric:true})).map(([period,arr])=>{const d=arr.filter(s=>doneStatuses.has(s.status)).length,p=arr.length?Math.round(d/arr.length*100):0;return `<div class="degree-period-row"><div><strong>${esc(String(period))}${/^\d+$/.test(String(period))?'º período':''}</strong><small>${d}/${arr.length} concluídas</small></div><div class="degree-progress"><i style="width:${p}%"></i></div><b>${p}%</b></div>`}).join('');
 }
