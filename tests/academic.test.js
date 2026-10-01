@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  calcProgress, countStatuses, subjectAverage, percentLabel, approvalSituation, findNextClass,
+  calcProgress, countStatuses, subjectAverage, percentLabel, approvalSituation, findNextClass, absenceStatus,
 } from '../public/academic.js';
 
 const subjects = [
@@ -96,4 +96,22 @@ test('próxima aula considera o horário de agora e os próximos 7 dias', () => 
   const onlyMorning = findNextClass([schedule[0]], now);
   assert.equal(onlyMorning.date.getDate(), 7); // próxima quarta, 07/10
   assert.equal(findNextClass([], now), null);
+});
+
+test('faltas: limite de 25% da carga horária e níveis de alerta', () => {
+  assert.deepEqual(absenceStatus({ hours: 60, absences: 0 }), { level: 'ok', used: 0, limit: 15, remaining: 15, pct: 0 });
+  assert.equal(absenceStatus({ hours: 60, absences: 7 }).level, 'ok');
+  assert.equal(absenceStatus({ hours: 60, absences: 8 }).level, 'warning');   // 53%
+  assert.equal(absenceStatus({ hours: 60, absences: 12 }).level, 'risk');     // 80%
+  assert.equal(absenceStatus({ hours: 60, absences: 15 }).level, 'risk');     // no limite, ainda não reprovou
+  const over = absenceStatus({ hours: 60, absences: 16 });
+  assert.equal(over.level, 'over');
+  assert.equal(over.remaining, 0);
+  assert.equal(over.pct, 100);
+  assert.equal(absenceStatus({ hours: 30, absences: 2 }).limit, 7);           // 7,5 arredonda para baixo
+});
+
+test('faltas: sem chamada ou sem carga horária não calculam limite', () => {
+  assert.equal(absenceStatus({ hours: 60, absences: 3, calls: false }).level, 'no-calls');
+  assert.equal(absenceStatus({ hours: 0, absences: 3 }).level, 'unknown');
 });

@@ -7290,3 +7290,120 @@ html[data-theme] body .command-fab .ico {
 body:has(#appShell.hidden) :is(#commandCenterBtn,#mobileBottomNav) {
   display:none!important;
 }
+
+/* ---------- Faltas ---------- */
+.attendance-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(300px, .8fr);
+  gap: 16px;
+  align-items: start;
+}
+.absence-overview {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+.absence-tile {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  padding: 18px;
+  background: var(--panel);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+html[data-theme="dark"] .absence-tile { border: 1px solid rgba(255,255,255,.04); }
+.absence-tile-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  font-size: 22px;
+  background: var(--fill-2);
+  flex: 0 0 auto;
+}
+.absence-tile div { display: grid; gap: 1px; }
+.absence-tile strong { font-size: 28px; line-height: 1; letter-spacing: -.03em; font-variant-numeric: tabular-nums; }
+.absence-tile b { font-size: 14px; font-weight: 600; }
+.absence-tile small { color: var(--muted); font-size: 12px; }
+.absence-tile.risk strong { color: var(--failed); }
+.absence-tile.ok strong { color: var(--done); }
+.absence-tile.risk .absence-tile-icon { background: var(--failed-bg); }
+.absence-tile.ok .absence-tile-icon { background: var(--done-bg); }
+
+.absence-subject-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 12px;
+}
+.absence-subject {
+  --level: var(--done);
+  --level-bg: var(--done-bg);
+  display: grid;
+  gap: 8px;
+  padding: 16px;
+  border-radius: 14px;
+  background: var(--panel-2);
+  border-left: 4px solid var(--level);
+}
+html[data-theme="dark"] .absence-subject { background: var(--panel-2); }
+.absence-subject.warning { --level: var(--sys-orange); --level-bg: var(--pending-bg); }
+.absence-subject.risk,
+.absence-subject.over { --level: var(--failed); --level-bg: var(--failed-bg); }
+.absence-subject.nocalls { --level: var(--muted-2); --level-bg: var(--fill); }
+.absence-subject-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+.absence-subject-head strong { font-size: 14px; line-height: 1.3; }
+.absence-pill {
+  flex: 0 0 auto;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 9px;
+  border-radius: 999px;
+  color: var(--level);
+  background: var(--level-bg);
+}
+.absence-subject.warning .absence-pill { color: var(--pending); }
+.absence-count { display: flex; align-items: baseline; gap: 6px; }
+.absence-count b { font-size: 30px; line-height: 1; letter-spacing: -.03em; color: var(--level); font-variant-numeric: tabular-nums; }
+.absence-subject.ok .absence-count b,
+.absence-subject.nocalls .absence-count b { color: var(--text); }
+.absence-count span { color: var(--muted); font-size: 13px; }
+.absence-meter { height: 8px; border-radius: 999px; background: var(--fill); overflow: hidden; }
+.absence-meter i { display: block; height: 100%; border-radius: inherit; background: var(--level); transition: width .3s ease; }
+.absence-subject small { color: var(--muted); font-size: 12px; }
+
+.absence-history { display: grid; gap: 8px; }
+.absence-record {
+  display: grid;
+  grid-template-columns: 36px minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: var(--panel-2);
+}
+.absence-record-count {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  color: var(--failed);
+  background: var(--failed-bg);
+  font-variant-numeric: tabular-nums;
+}
+.absence-record div { display: grid; gap: 2px; min-width: 0; }
+.absence-record strong { font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.absence-record span { color: var(--muted); font-size: 12px; }
+html[data-theme] body .absence-record .btn { min-height: 32px; padding: 6px 12px; font-size: 12px; }
+
+@media (max-width: 1100px) {
+  .attendance-layout { grid-template-columns: 1fr; }
+}
+@media (max-width: 760px) {
+  .absence-overview { grid-template-columns: 1fr; gap: 10px; }
+  .absence-tile { padding: 14px; }
+  .absence-subject-grid { grid-template-columns: 1fr; }
+}

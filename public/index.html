@@ -493,12 +493,19 @@
     <article class="card section-gap"><div class="card-header"><div><p class="eyebrow">EVOLUÇÃO</p><h3>Evolução das notas</h3></div></div><div id="gradeEvolution" class="evolution-chart"></div></article>
     <div id="assessmentList" class="discipline-grid section-gap"></div></section>
 
-    <section id="view-attendance" class="view"><div class="two-col">
-      <article class="card"><div class="card-header"><div><p class="eyebrow">FREQUÊNCIA</p><h3>Registrar falta</h3></div></div><form id="absenceForm" class="form-grid"><label class="field full"><span>Disciplina</span><select id="absenceSubject" required></select></label><label class="field"><span>Data</span><input id="absenceDate" type="date" required></label><label class="field"><span>Quantidade</span><input id="absenceCount" type="number" min="1" value="1" required></label><label class="field full"><span>Professor faz chamada?</span><select id="professorCalls"><option value="yes">Sim</option><option value="no">Não</option></select></label><button class="btn btn-primary full">Salvar</button></form></article>
-      <article class="card"><div class="card-header"><div><p class="eyebrow">RESUMO</p><h3>Faltas por disciplina</h3></div></div><div id="absenceSummary" class="stack-list"></div></article>
-    </div>
-    <article class="card section-gap"><div class="card-header"><div><p class="eyebrow">VISÃO GERAL</p><h3>Faltas registradas por disciplina</h3></div></div><div id="absenceChart" class="absence-chart"></div></article>
-    <div class="card section-gap"><div class="card-header"><h3>Registros</h3></div><div id="absenceHistory" class="stack-list"></div></div></section>
+    <section id="view-attendance" class="view">
+      <div class="page-head">
+        <div><p class="eyebrow">FREQUÊNCIA</p><h1>Faltas</h1><p class="muted">Você pode faltar até 25% da carga horária de cada disciplina (frequência mínima de 75%). Cada falta conta como 1 hora-aula.</p></div>
+      </div>
+      <div id="absenceChart" class="absence-overview section-gap"></div>
+      <div class="attendance-layout section-gap">
+        <article class="card"><div class="card-header"><div><p class="eyebrow">POR DISCIPLINA</p><h3>Quanto ainda dá para faltar</h3></div></div><div id="absenceSummary" class="absence-subject-grid"></div></article>
+        <aside class="attendance-side">
+          <article class="card"><div class="card-header"><div><p class="eyebrow">REGISTRAR</p><h3>Nova falta</h3></div></div><form id="absenceForm" class="form-grid"><label class="field full"><span>Disciplina</span><select id="absenceSubject" required></select></label><label class="field"><span>Data</span><input id="absenceDate" type="date" required></label><label class="field"><span>Quantidade</span><input id="absenceCount" type="number" min="1" value="1" required></label><label class="field full"><span>Professor faz chamada?</span><select id="professorCalls"><option value="yes">Sim</option><option value="no">Não</option></select></label><button class="btn btn-primary full">Salvar</button></form></article>
+          <article class="card section-gap"><div class="card-header"><div><p class="eyebrow">HISTÓRICO</p><h3>Registros</h3></div></div><div id="absenceHistory" class="absence-history"></div></article>
+        </aside>
+      </div>
+    </section>
 
     <section id="view-agenda" class="view"><div class="two-col">
       <article class="card"><div class="card-header"><div><p class="eyebrow">AGENDA</p><h3>Nova atividade</h3></div></div><form id="taskForm" class="form-grid"><label class="field full"><span>Disciplina</span><select id="taskSubject" required></select></label><label class="field full"><span>Título</span><input id="taskTitle" required></label><label class="field"><span>Data</span><input id="taskDate" type="date" required></label><label class="field"><span>Hora</span><input id="taskTime" type="time" value="09:00" required></label><label class="field"><span>Lembrar</span><input id="reminderValue" type="number" min="0" max="28" value="1"></label><label class="field"><span>Unidade</span><select id="reminderUnit"><option value="days">dia(s)</option><option value="hours">hora(s)</option><option value="minutes">minuto(s)</option></select></label><label class="field full"><span>Observações</span><textarea id="taskNotes" rows="3"></textarea></label><label class="checkbox-row full"><input id="addToCalendar" type="checkbox" checked><span>Adicionar ao Google Agenda</span></label><button class="btn btn-primary full">Salvar atividade</button></form></article>

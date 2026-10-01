@@ -97,3 +97,18 @@ export function findNextClass(schedule, now = new Date()) {
   }
   return best ? { item: best, date: bestDate } : null;
 }
+
+/**
+ * Situação de faltas de uma disciplina. O limite é 25% da carga horária
+ * (frequência mínima de 75%), contando cada falta como 1 hora-aula.
+ * Disciplinas sem chamada ficam com nível 'no-calls'.
+ */
+export function absenceStatus({ hours, absences, calls = true }) {
+  const used = Number(absences || 0);
+  if (!calls) return { level: 'no-calls', used, limit: null, remaining: null, pct: 0 };
+  const limit = Math.floor(Number(hours || 0) * 0.25);
+  if (!limit) return { level: 'unknown', used, limit: null, remaining: null, pct: 0 };
+  const pct = Math.min(100, used / limit * 100);
+  const level = used > limit ? 'over' : pct >= 75 ? 'risk' : pct >= 50 ? 'warning' : 'ok';
+  return { level, used, limit, remaining: Math.max(0, limit - used), pct };
+}
