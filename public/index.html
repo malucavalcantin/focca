@@ -1,0 +1,847 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#5847ff">
+  <title>Focca — foque no que importa</title>
+  <link rel="icon" type="image/png" href="./assets/favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./styles.css?v=20260825-auth62">
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+</head>
+<body>
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+<section id="loginScreen" class="login-screen focca-auth">
+  <div class="login-visual">
+    <img src="./assets/focca-logo_2.png" class="login-logo-full" alt="Focca">
+    <div class="login-visual-copy">
+      <span class="eyebrow">SEU HUB UNIVERSITÁRIO</span>
+      <h1>Faculdade organizada.<br>Foco no que importa.</h1>
+      <p>Matriz, semestre, horários, notas, faltas, atividades e universidade em uma experiência só.</p>
+    </div>
+  </div>
+
+  <div class="login-panel">
+    <div class="login-card official-login">
+      <img src="./assets/focca-mark.png" class="login-mascot" alt="Mascote Focca">
+      <div id="loginFormView">
+        <p class="eyebrow">BEM-VINDO DE VOLTA</p>
+        <h2>Entre no Focca</h2>
+        <p class="muted">Continue sua organização acadêmica de onde parou.</p>
+        <form id="emailLoginForm" class="form-grid auth-form">
+          <label class="field full"><span>E-mail</span><input id="loginEmail" type="email" required placeholder="voce@email.com"></label>
+          <label class="field full"><span>Senha</span><input id="loginPassword" type="password" required minlength="6" placeholder="••••••••"></label>
+          <button class="btn btn-primary full">Entrar</button>
+        </form>
+        <div class="auth-divider"><span>ou</span></div>
+        <button id="loginBtn" type="button" class="btn btn-google btn-wide"><b>G</b> Continuar com Google</button>
+        <p class="auth-switch">Ainda não tem conta? <button id="showRegisterBtn" class="text-link" type="button">Criar conta</button></p>
+      </div>
+
+      <div id="registerFormView" class="hidden">
+        <p class="eyebrow">CRIAR CONTA</p>
+        <h2>Comece no Focca</h2>
+        <p class="muted">Sua matriz e seus dados ficam vinculados somente à sua conta.</p>
+        <form id="emailRegisterForm" class="form-grid auth-form">
+          <label class="field full"><span>Nome</span><input id="registerName" required placeholder="Como quer ser chamado?"></label>
+          <label class="field full"><span>E-mail</span><input id="registerEmail" type="email" required placeholder="voce@email.com"></label>
+          <label class="field full"><span>Senha</span><input id="registerPassword" type="password" required minlength="6" placeholder="Mínimo de 6 caracteres"></label>
+          <button class="btn btn-primary full">Criar minha conta</button>
+        </form>
+        <p class="auth-switch">Já tem uma conta? <button id="showLoginBtn" class="text-link" type="button">Entrar</button></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div id="appShell" class="app-shell hidden">
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-top">
+      <div class="brand official-brand"><img src="./assets/focca-mark.png" class="sidebar-mark" alt="Focca"><div class="brand-copy-side"><strong>Focca</strong><span>foque no que importa.</span></div></div>
+      
+    </div>
+    <button id="collapseSidebarBtn" class="sidebar-edge-toggle" type="button" aria-label="Recolher menu" title="Recolher menu"><span>‹</span></button>
+    <nav class="nav grouped-nav">
+      <div class="nav-group">
+        <span class="nav-group-title">Meu dia</span>
+        <button class="nav-item" data-view="today"><span class="nav-emoji">☀️</span><span class="nav-label">Hoje</span></button>
+        <button class="nav-item active" data-view="dashboard"><span class="nav-emoji">🏠</span><span class="nav-label">Visão geral</span></button>
+        <button class="nav-item" data-view="agenda"><span class="nav-emoji">📝</span><span class="nav-label">Agenda</span></button>
+        <button class="nav-item" data-view="schedule"><span class="nav-emoji">🗓️</span><span class="nav-label">Horários</span></button>
+      </div>
+
+      <div class="nav-group">
+        <span class="nav-group-title">Acadêmico</span>
+        <button class="nav-item" data-view="subjects"><span class="nav-emoji">📚</span><span class="nav-label">Disciplinas atuais</span></button>
+        <button class="nav-item" data-view="curriculum"><span class="nav-emoji">🧩</span><span class="nav-label">Minha matriz</span></button>
+        <button class="nav-item" data-view="degree"><span class="nav-emoji">🎓</span><span class="nav-label">Minha Graduação</span></button>
+        <button class="nav-item" data-view="grades"><span class="nav-emoji">📊</span><span class="nav-label">Notas</span></button>
+        <button class="nav-item" data-view="attendance"><span class="nav-emoji">✅</span><span class="nav-label">Faltas</span></button>
+      </div>
+
+      <div class="nav-group">
+        <span class="nav-group-title">Estudos</span>
+        <button class="nav-item" data-view="study"><span class="nav-emoji">🎯</span><span class="nav-label">Modo Foco</span></button>
+        <button class="nav-item" data-view="materials"><span class="nav-emoji">📎</span><span class="nav-label">Materiais</span></button>
+      </div>
+
+      <div class="nav-group">
+        <span class="nav-group-title">Focca</span>
+        <button class="nav-item" data-view="university"><span class="nav-emoji">🏛️</span><span class="nav-label">Universidade</span></button>
+        <button class="nav-item" data-view="settings"><span class="nav-emoji">⚙️</span><span class="nav-label">Configurações</span></button>
+      </div>
+    </nav>
+    
+  </aside>
+  <button id="sidebarBackdrop" class="sidebar-backdrop hidden" type="button" aria-label="Fechar menu"></button>
+
+  <main class="main">
+    <header class="topbar">
+      <button id="menuBtn" class="icon-btn" aria-label="Abrir menu" title="Menu">☰</button>
+      <div class="topbar-context">
+          <p class="eyebrow" id="courseEyebrow">FOCCA · MEU DIA</p>
+          <div class="topbar-title-row"><h2 id="viewTitle">Visão geral</h2><span id="topbarContext" class="topbar-context-chip">Hoje</span></div>
+        </div>
+      <div class="topbar-tools">
+        <button id="globalSearchBtn" class="topbar-tool" type="button" title="Buscar no Focca">🔎</button>
+        <button id="notificationsBtn" class="topbar-tool notification-tool" type="button" title="Notificações">🔔<span id="notificationBadge" class="tool-badge hidden">0</span></button>
+      </div>
+      
+        <div class="topbar-account-actions">
+          <button id="themeBtn" class="topbar-action-btn" type="button" title="Alternar tema" aria-label="Alternar tema">🌙</button>
+          <button id="logoutBtn" class="topbar-action-btn logout" type="button" title="Sair" aria-label="Sair">↪</button>
+        </div>
+<div class="user-chip"><img id="userPhoto" class="avatar hidden" alt=""><div><strong id="userName">Estudante</strong><span id="userEmail"></span></div></div>
+    </header>
+
+
+    <section id="view-today" class="view">
+      <div class="today-hub-hero">
+        <div>
+          <p class="eyebrow">HOJE NO FOCCA</p>
+          <h1 id="todayHubTitle">Seu dia acadêmico</h1>
+          <p id="todayHubSubtitle" class="muted">Aulas, entregas e prioridades em um só lugar.</p>
+        </div>
+        <div class="today-clock">
+          <strong id="todayClockTime">--:--</strong>
+          <span id="todayClockDate">Hoje</span>
+        </div>
+      </div>
+
+      <div id="dynamicHomeStrip" class="dynamic-home-strip section-gap">
+        <div><span id="dynamicHomeEmoji">☀️</span><div><strong id="dynamicHomeTitle">Seu dia acadêmico</strong><small id="dynamicHomeText">Tudo pronto para começar.</small></div></div>
+        <button class="text-link" data-jump="agenda">Ver agenda →</button>
+      </div>
+<div class="today-highlight-grid section-gap">
+        <article class="today-highlight primary">
+          <div class="today-highlight-icon">🧑‍🏫</div>
+          <div><span>Próxima aula</span><strong id="todayNextClassName">Nenhuma aula</strong><small id="todayNextClassMeta">—</small></div>
+          <button class="text-link" data-jump="schedule">Horários →</button>
+        </article>
+        <article class="today-highlight">
+          <div class="today-highlight-icon">📝</div>
+          <div><span>Entregas hoje</span><strong id="todayTaskTotal">0</strong><small>atividade(s)</small></div>
+          <button class="text-link" data-jump="agenda">Agenda →</button>
+        </article>
+        <article class="today-highlight">
+          <div class="today-highlight-icon">🔔</div>
+          <div><span>Atenção</span><strong id="todayAlertTotal">0</strong><small>alerta(s) ativos</small></div>
+          <button id="todayOpenNotifications" class="text-link" type="button">Ver alertas →</button>
+        </article>
+      </div>
+
+      <div class="today-hub-layout section-gap">
+        <div class="today-hub-main">
+          <article class="card">
+            <div class="card-header"><div><p class="eyebrow">CRONOLOGIA</p><h3>Minha agenda de hoje</h3></div></div>
+            <div id="todayTimeline" class="today-timeline"></div>
+          </article>
+
+          
+          <article class="card section-gap focca-week-card">
+            <div class="card-header">
+              <div><p class="eyebrow">SEMANA FOCCA</p><h3>Minha semana</h3></div>
+              <button class="text-link" data-jump="schedule">Ver horários →</button>
+            </div>
+            <div id="foccaWeekStrip" class="focca-week-strip"></div>
+          </article>
+
+          <article class="card section-gap">
+            <div class="card-header"><div><p class="eyebrow">PRÓXIMOS 7 DIAS</p><h3>O que vem por aí</h3></div><button class="text-link" data-jump="agenda">Abrir agenda →</button></div>
+            <div id="todayUpcoming" class="today-upcoming"></div>
+          </article>
+        </div>
+
+        <aside class="today-hub-side">
+          <article class="card">
+            <div class="card-header"><div><p class="eyebrow">PRIORIDADES</p><h3>O que merece atenção</h3></div></div>
+            <div id="todayAttentionList" class="today-attention-list"></div>
+          </article>
+          <article class="card section-gap">
+            <div class="card-header"><div><p class="eyebrow">SEMESTRE</p><h3>Disciplinas atuais</h3></div><button class="text-link" data-jump="subjects">Abrir →</button></div>
+            <div id="todayCurrentSubjects" class="today-subject-list"></div>
+          </article>
+        </aside>
+      </div>
+    </section>
+
+    <section id="view-dashboard" class="view active-view">
+
+      <section class="semester-spotlight section-gap" id="semesterSpotlight">
+        <div class="semester-ring" id="semesterRing" style="--semester-progress:0">
+          <div><strong id="semesterRingValue">0%</strong><span>da graduação</span></div>
+        </div>
+        <div class="semester-spotlight-copy">
+          <p class="eyebrow">MEU MOMENTO</p>
+          <h2 id="semesterSpotlightTitle">Sua graduação em um olhar</h2>
+          <p class="muted">Acompanhe o semestre atual sem perder de vista o caminho até a conclusão.</p>
+          <div class="semester-inline-stats">
+            <span><b id="semesterCurrentCount">0</b> cursando</span>
+            <span><b id="semesterDoneCount">0</b> concluídas</span>
+            <span><b id="semesterPendingCount">0</b> restantes</span>
+          </div>
+        </div>
+        <button class="btn btn-secondary" data-jump="curriculum">Ver trajetória →</button>
+      </section>
+
+      <div class="hub-hero">
+        <div>
+          <p class="eyebrow" id="termLabel">Seu período</p>
+          <h1 id="dashboardTitle">Seu hub na UFRPE</h1>
+          <p id="dashboardSubtitle">Computação na UFRPE, organizada em um só lugar.</p>
+        </div>
+        <div class="hero-actions">
+          <button class="btn btn-secondary" data-jump="agenda">+ Nova atividade</button>
+          <button class="btn btn-primary" data-jump="schedule">Ver minha semana</button>
+          <button id="customizeDashboardBtn" class="btn btn-ghost">⚙️ Personalizar</button>
+        </div>
+      </div>
+
+      <div class="dashboard-quick-actions" data-widget="quick-actions">
+        <button class="dash-action" data-jump="agenda"><span>➕</span><div><b>Nova atividade</b><small>Prova, trabalho ou prazo</small></div></button>
+        <button class="dash-action" data-jump="grades"><span>🧮</span><div><b>Lançar nota</b><small>Atualize seu desempenho</small></div></button>
+        <button class="dash-action" data-jump="attendance"><span>🙋</span><div><b>Registrar falta</b><small>Controle sua frequência</small></div></button>
+        <button class="dash-action" data-jump="schedule"><span>🕒</span><div><b>Editar horários</b><small>Organize sua semana</small></div></button>
+      </div>
+
+      <div class="metric-grid" data-widget="metrics">
+        <article class="metric-card clickable" data-jump="curriculum">
+          <div class="metric-icon">🎯</div><div><span>Progresso do curso</span><strong id="overallPercent">0%</strong>
+          <div class="linear-progress"><i id="overallBar"></i></div><small id="overallHours">0 / 0 h</small></div>
+        </article>
+        <article class="metric-card clickable" data-jump="subjects">
+          <div class="metric-icon">🏁</div><div><span>Concluídas</span><strong id="doneCount">0</strong><small>disciplinas</small></div>
+        </article>
+        <article class="metric-card clickable" data-jump="subjects">
+          <div class="metric-icon">📖</div><div><span>Em andamento</span><strong id="currentCount">0</strong><small>neste período</small></div>
+        </article>
+        <article class="metric-card clickable" data-jump="agenda">
+          <div class="metric-icon">⏰</div><div><span>Próximas entregas</span><strong id="pendingTaskCount">0</strong><small>atividades abertas</small></div>
+        </article>
+      </div>
+
+      <div class="dashboard-layout section-gap">
+        <div class="dashboard-main" id="dashboardMainWidgets">
+          <article class="card today-card" data-widget="today" draggable="true">
+            <div class="card-header"><div><p class="eyebrow">HOJE</p><h3>Seu dia no Focca</h3></div><span id="todayDateLabel" class="badge"></span></div>
+            <div id="todayOverview" class="today-overview"></div>
+          </article>
+          <article class="card chart-card section-gap" data-widget="period-chart" draggable="true">
+            <div class="card-header">
+              <div><p class="eyebrow">EVOLUÇÃO ACADÊMICA</p><h3>Conclusão por período</h3></div>
+              <button class="text-link" data-jump="curriculum">Abrir matriz →</button>
+            </div>
+            <div id="periodChart" class="period-chart"></div>
+          </article>
+
+          <div class="two-col section-gap" data-widget="analytics" draggable="true">
+            <article class="card chart-card">
+              <div class="card-header"><div><p class="eyebrow">VISÃO GERAL</p><h3>Status da matriz</h3></div></div>
+              <div class="donut-layout"><div id="statusDonut" class="donut"><span id="donutCenter">0%</span></div><div id="statusLegend" class="chart-legend"></div></div>
+            </article>
+            <article class="card chart-card">
+              <div class="card-header"><div><p class="eyebrow">DESEMPENHO</p><h3>Médias deste período</h3></div><button class="text-link" data-jump="grades">Ver notas →</button></div>
+              <div id="gradeChart" class="grade-chart"></div>
+            </article>
+          </div>
+
+          <article class="card section-gap" data-widget="current-subjects" draggable="true">
+            <div class="card-header"><div><p class="eyebrow">SEMESTRE ATUAL</p><h3>Minhas disciplinas</h3></div><button class="text-link" data-jump="subjects">Gerenciar →</button></div>
+            <div id="currentPreview" class="discipline-grid compact-grid"></div>
+          </article>
+        </div>
+
+        <aside class="dashboard-side" id="dashboardSideWidgets">
+          <article class="card next-class-card" data-widget="next-class" draggable="true">
+            <div class="card-header"><div><p class="eyebrow">AGORA</p><h3>Próxima aula</h3></div><button class="text-link" data-jump="schedule">Grade →</button></div>
+            <div id="nextClassPreview" class="next-class-preview"></div>
+          </article>
+
+          <article class="card section-gap" data-widget="tasks" draggable="true">
+            <div class="card-header"><div><p class="eyebrow">PRÓXIMAS</p><h3>Atividades</h3></div><button class="text-link" data-jump="agenda">Agenda →</button></div>
+            <div id="dashboardTaskList" class="mini-task-list"></div>
+          </article>
+
+          <article class="card section-gap" data-widget="projection" draggable="true">
+            <div class="card-header"><div><p class="eyebrow">PROJEÇÃO</p><h3>Ao concluir o período</h3></div><strong id="projectedPercent">0%</strong></div>
+            <div class="linear-progress big"><i id="projectedBar"></i></div><p id="projectionText" class="muted">—</p>
+          </article>
+
+          <article class="card section-gap" data-widget="university" draggable="true">
+            <div class="card-header"><div><p class="eyebrow">ACESSO RÁPIDO</p><h3>Universidade</h3></div></div>
+            <div class="quick-grid">
+              <a class="quick-card quick-link" href="https://sigs.ufrpe.br/sigaa/verTelaLogin.do" target="_blank" rel="noopener"><span>🎓</span><div><b>SIGAA</b><small>Portal acadêmico</small></div><i>↗</i></a>
+              <a class="quick-card quick-link" href="https://ava.ufrpe.br/login/index.php" target="_blank" rel="noopener"><span>💻</span><div><b>Ambiente Virtual</b><small>AVA UFRPE</small></div><i>↗</i></a>
+              <a class="quick-card quick-link" href="https://www.instagram.com/progestiru/" target="_blank" rel="noopener"><span>🍽️</span><div><b>Cardápio do RU</b><small>PROGESTI</small></div><i>↗</i></a>
+              <button class="quick-card quick-link" data-jump="university"><span>📅</span><div><b>Calendário</b><small>Calendário acadêmico</small></div><i>→</i></button>
+            </div>
+          </article>
+        </aside>
+      </div>
+    </section>
+
+    <section id="view-curriculum" class="view">
+      <div id="matrixModeSwitch" class="matrix-mode-switch">
+        <button class="active" data-matrix-mode="visual">🧩 Visual</button>
+        <button data-matrix-mode="list">☷ Lista</button>
+      </div>
+      <div id="matrixListMode" class="matrix-list-mode hidden"></div>
+
+      <div class="curriculum-toolbar">
+        <div><p class="eyebrow">MATRIZ CURRICULAR</p><h1 id="matrixCourseTitle">Computação</h1><p class="muted">A matriz-base de Computação já vem pronta. Personalize apenas a sua trajetória acadêmica.</p></div>
+        <div class="toolbar-actions"><button id="trajectorySetupBtn" class="btn btn-secondary">Configurar minha trajetória</button><button id="semesterSetupBtnTop" class="btn btn-primary">Configurar semestre atual</button></div>
+      </div>
+      <div id="matrixLegend" class="legend-row"><span><i class="dot done"></i>Concluída</span><span><i class="dot final"></i>Aprovada na final</span><span><i class="dot current"></i>Cursando</span><span><i class="dot failed"></i>Reprovada</span><span><i class="dot pending"></i>Pendente</span></div>
+      <div id="curriculumGrid" class="curriculum-grid section-gap"></div>
+    </section>
+
+    <section id="view-subjects" class="view">
+      <div class="page-head subjects-current-head">
+        <div>
+          <p class="eyebrow">MEU SEMESTRE</p>
+          <h1>Disciplinas atuais</h1>
+          <p class="muted">Esta aba mostra somente as matérias do semestre atual. Para ver concluídas, pendentes e toda a trajetória, use Minha matriz.</p>
+        </div>
+        <div class="toolbar-actions">
+          <button id="semesterSetupBtn" class="btn btn-primary">✏️ Configurar semestre atual</button>
+        </div>
+      </div>
+
+      <div class="current-subject-summary section-gap">
+        <article class="current-summary-card">
+          <span>📚</span>
+          <div><strong id="currentSubjectCount">0</strong><small>disciplinas cursando</small></div>
+        </article>
+        <article class="current-summary-card">
+          <span>⏱️</span>
+          <div><strong id="currentHoursCount">0 h</strong><small>carga horária do semestre</small></div>
+        </article>
+        <article class="current-summary-card">
+          <span>⭐</span>
+          <div><strong id="currentFavoriteCount">0</strong><small>favoritas</small></div>
+        </article>
+      </div>
+
+      <div class="subjects-current-toolbar section-gap">
+        <div class="subjects-search-wrap">
+          <span>🔎</span>
+          <input id="subjectSearch" class="input search" placeholder="Buscar entre as disciplinas atuais...">
+        </div>
+        <button id="currentFavoritesToggle" class="btn btn-secondary" type="button">⭐ Mostrar favoritas</button>
+      </div>
+
+      <div id="subjectGrid" class="discipline-grid section-gap"></div>
+
+      <div class="subjects-matrix-hint">
+        <div>
+          <span class="hint-icon">🧩</span>
+          <div><strong>Procurando disciplinas concluídas ou pendentes?</strong><p>Veja a matriz curricular para acompanhar toda a graduação.</p></div>
+        </div>
+        <button class="btn btn-secondary" data-jump="curriculum">Abrir minha matriz →</button>
+      </div>
+    </section>
+
+    <section id="view-subject-detail" class="view">
+      <div class="subject-page-head">
+        <button id="subjectPageBackBtn" class="btn btn-ghost subject-back-btn" type="button">← Disciplinas atuais</button>
+        <div class="subject-page-actions">
+          <button id="subjectPageFavoriteBtn" class="btn btn-secondary" type="button">☆ Favoritar</button>
+          <button id="subjectPageEditBtn" class="btn btn-primary" type="button">✏️ Editar informações</button>
+        </div>
+      </div>
+
+      <div id="subjectPageHero" class="subject-page-hero section-gap"></div>
+<div id="subjectPageTabs" class="subject-page-tabs section-gap">
+        <button class="active" data-subject-tab="overview">Visão geral</button>
+        <button data-subject-tab="grades">Notas</button>
+        <button data-subject-tab="attendance">Faltas</button>
+        <button data-subject-tab="materials">Materiais</button>
+      </div>
+
+      <div class="subject-page-metrics section-gap">
+        <article><span>📊 Média atual</span><strong id="subjectPageAverage">—</strong><small id="subjectPageGradeCount">0 avaliações</small></article>
+        <article><span>🙋 Faltas</span><strong id="subjectPageAbsences">—</strong><small id="subjectPageAttendanceMode">controle ativo</small></article>
+        <article><span>📝 Pendências</span><strong id="subjectPageTasks">0</strong><small>atividades abertas</small></article>
+        <article><span>🗓️ Aulas</span><strong id="subjectPageSchedules">0</strong><small>horários semanais</small></article>
+      </div>
+
+      <div class="subject-page-layout section-gap">
+        <div class="subject-page-main">
+          <article class="card">
+            <div class="card-header"><div><p class="eyebrow">SEMANA</p><h3>Horários e locais</h3></div><button class="text-link" data-jump="schedule">Editar horários →</button></div>
+            <div id="subjectPageSchedule" class="subject-page-list"></div>
+          </article>
+
+          <article class="card section-gap">
+            <div class="card-header"><div><p class="eyebrow">DESEMPENHO</p><h3>Avaliações e notas</h3></div><button class="text-link" data-jump="grades">Lançar nota →</button></div>
+            <div id="subjectPageGrades" class="subject-page-list"></div>
+          </article>
+
+          <article class="card section-gap">
+            <div class="card-header"><div><p class="eyebrow">AGENDA</p><h3>Atividades da disciplina</h3></div><button class="text-link" data-jump="agenda">Nova atividade →</button></div>
+            <div id="subjectPageTaskList" class="subject-page-list"></div>
+          </article>
+        </div>
+
+        <aside class="subject-page-side">
+          <article class="card">
+            <div class="card-header"><div><p class="eyebrow">PROFESSOR</p><h3>Contato e informações</h3></div></div>
+            <div id="subjectPageProfessor" class="professor-card-content"></div>
+          </article>
+
+          <article class="card section-gap">
+            <div class="card-header"><div><p class="eyebrow">LINKS</p><h3>Acessos da disciplina</h3></div></div>
+            <div id="subjectPageLinks" class="subject-link-list"></div>
+          </article>
+
+          <article class="card section-gap">
+            <div class="card-header"><div><p class="eyebrow">ANOTAÇÕES</p><h3>Observações</h3></div></div>
+            <div id="subjectPageNotes" class="subject-notes-box"></div>
+          </article>
+        </aside>
+      </div>
+    </section>
+
+<section id="view-grades" class="view">
+
+      <section class="card grade-rules-card section-gap">
+        <div class="card-header">
+          <div>
+            <p class="eyebrow">SITUAÇÃO ACADÊMICA</p>
+            <h3>Calculadora de aprovação</h3>
+            <p class="muted">1ª VA + 2ª VA → 3ª VA substitui a menor nota se for maior → Final com média mínima 5.</p>
+          </div>
+        </div>
+
+        <div class="grade-rule-form">
+          <label class="field">
+            <span>Disciplina</span>
+            <select id="gradeRuleSubject"></select>
+          </label>
+          <label class="field">
+            <span>1ª VA</span>
+            <input id="gradeVA1" type="number" min="0" max="10" step="0.1" placeholder="0,0">
+          </label>
+          <label class="field">
+            <span>2ª VA</span>
+            <input id="gradeVA2" type="number" min="0" max="10" step="0.1" placeholder="0,0">
+          </label>
+          <label class="field">
+            <span>3ª VA</span>
+            <input id="gradeVA3" type="number" min="0" max="10" step="0.1" placeholder="Opcional">
+          </label>
+          <label class="field">
+            <span>Final</span>
+            <input id="gradeFinal" type="number" min="0" max="10" step="0.1" placeholder="Opcional">
+          </label>
+        </div>
+
+        <div id="gradeSituationResult" class="grade-situation-result"></div>
+      </section>
+<div class="two-col">
+      <article class="card"><div class="card-header"><div><p class="eyebrow">NOTAS</p><h3>Adicionar avaliação</h3></div></div><form id="assessmentForm" class="form-grid"><label class="field full"><span>Disciplina</span><select id="assessmentSubject" required></select></label><label class="field full"><span>Avaliação</span><input id="assessmentTitle" required placeholder="Ex.: Prova 1"></label><label class="field full"><span>Nota</span><input id="assessmentGrade" type="number" min="0" max="10" step="0.01" required></label><button class="btn btn-primary full">Salvar</button></form></article>
+      <article class="card"><div class="card-header"><div><p class="eyebrow">RESUMO</p><h3>Médias do período</h3></div></div><div id="gradeSummary" class="stack-list"></div></article>
+    </div>
+    <article class="card section-gap"><div class="card-header"><div><p class="eyebrow">EVOLUÇÃO</p><h3>Evolução das notas</h3></div></div><div id="gradeEvolution" class="evolution-chart"></div></article>
+    <div id="assessmentList" class="discipline-grid section-gap"></div></section>
+
+    <section id="view-attendance" class="view"><div class="two-col">
+      <article class="card"><div class="card-header"><div><p class="eyebrow">FREQUÊNCIA</p><h3>Registrar falta</h3></div></div><form id="absenceForm" class="form-grid"><label class="field full"><span>Disciplina</span><select id="absenceSubject" required></select></label><label class="field"><span>Data</span><input id="absenceDate" type="date" required></label><label class="field"><span>Quantidade</span><input id="absenceCount" type="number" min="1" value="1" required></label><label class="field full"><span>Professor faz chamada?</span><select id="professorCalls"><option value="yes">Sim</option><option value="no">Não</option></select></label><button class="btn btn-primary full">Salvar</button></form></article>
+      <article class="card"><div class="card-header"><div><p class="eyebrow">RESUMO</p><h3>Faltas por disciplina</h3></div></div><div id="absenceSummary" class="stack-list"></div></article>
+    </div>
+    <article class="card section-gap"><div class="card-header"><div><p class="eyebrow">VISÃO GERAL</p><h3>Faltas registradas por disciplina</h3></div></div><div id="absenceChart" class="absence-chart"></div></article>
+    <div class="card section-gap"><div class="card-header"><h3>Registros</h3></div><div id="absenceHistory" class="stack-list"></div></div></section>
+
+    <section id="view-agenda" class="view"><div class="two-col">
+      <article class="card"><div class="card-header"><div><p class="eyebrow">AGENDA</p><h3>Nova atividade</h3></div></div><form id="taskForm" class="form-grid"><label class="field full"><span>Disciplina</span><select id="taskSubject" required></select></label><label class="field full"><span>Título</span><input id="taskTitle" required></label><label class="field"><span>Data</span><input id="taskDate" type="date" required></label><label class="field"><span>Hora</span><input id="taskTime" type="time" value="09:00" required></label><label class="field"><span>Lembrar</span><input id="reminderValue" type="number" min="0" max="28" value="1"></label><label class="field"><span>Unidade</span><select id="reminderUnit"><option value="days">dia(s)</option><option value="hours">hora(s)</option><option value="minutes">minuto(s)</option></select></label><label class="field full"><span>Observações</span><textarea id="taskNotes" rows="3"></textarea></label><label class="checkbox-row full"><input id="addToCalendar" type="checkbox" checked><span>Adicionar ao Google Agenda</span></label><button class="btn btn-primary full">Salvar atividade</button></form></article>
+      <article class="card"><div class="card-header"><div><p class="eyebrow">PRÓXIMAS</p><h3>Atividades</h3></div><span id="taskCount" class="badge">0</span></div><div id="taskList" class="task-list"></div></article>
+    </div></section>
+
+    <section id="view-schedule" class="view">
+      <div class="page-head">
+        <div><p class="eyebrow">MEU SEMESTRE</p><h1>Grade de horários</h1><p class="muted">Uma visão clara da sua semana, com disciplina, horário e local.</p></div>
+        <button class="btn btn-primary" id="scheduleFocusFormBtn">+ Adicionar aula</button>
+      </div>
+      <div class="schedule-modern-layout section-gap">
+        <article class="card schedule-main-card">
+          <div class="card-header"><div><p class="eyebrow">SEMANA</p><h3 id="scheduleWeekTitle">Minha grade</h3></div><span class="badge" id="weeklyHoursBadge">0h</span></div>
+          <div id="scheduleBoard" class="schedule-board"></div>
+          <div id="scheduleMobile" class="schedule-mobile"></div>
+        </article>
+        <aside class="schedule-side">
+          <article class="card">
+            <div class="card-header"><div><p class="eyebrow">RESUMO</p><h3>Disciplinas da semana</h3></div></div>
+            <div id="scheduleOverview" class="schedule-overview"></div>
+          </article>
+          <article class="card section-gap" id="scheduleFormCard">
+            <div class="card-header"><div><p class="eyebrow">NOVO HORÁRIO</p><h3>Adicionar aula</h3></div></div>
+            <form id="scheduleForm" class="form-grid">
+              <input type="hidden" id="scheduleEditId">
+              <label class="field full"><span>Disciplina</span><select id="scheduleSubject" required></select></label>
+              <label class="field"><span>Dia</span><select id="scheduleDay"><option>Segunda</option><option>Terça</option><option>Quarta</option><option>Quinta</option><option>Sexta</option><option>Sábado</option></select></label>
+              <label class="field"><span>Local / sala</span><input id="scheduleLocation" placeholder="Ex.: Lab 35"></label>
+              <label class="field"><span>Início</span><input id="scheduleStart" type="time" value="18:30" required></label>
+              <label class="field"><span>Fim</span><input id="scheduleEnd" type="time" value="20:10" required></label>
+              <button id="scheduleSubmitBtn" class="btn btn-primary full" type="submit">Adicionar à grade</button>
+              <button id="scheduleCancelEditBtn" class="btn btn-secondary full hidden" type="button">Cancelar edição</button>
+            </form>
+            <div id="scheduleList" class="stack-list section-gap"></div>
+          </article>
+        </aside>
+      </div>
+    </section>
+
+
+    <section id="view-university" class="view">
+      <div class="page-head"><div><p class="eyebrow">UNIVERSIDADE</p><h1>Seu campus digital</h1><p class="muted">Centralize os serviços que você usa para estudar, organizar a rotina e acompanhar a universidade.</p></div></div>
+      <div class="university-grid section-gap" id="universityLinks"></div>
+      <div class="two-col section-gap">
+        <article class="card clickable" data-jump="agenda"><div class="hub-icon">📝</div><h3>Agenda acadêmica</h3><p class="muted">Provas, entregas e compromissos sincronizados com o Google Agenda.</p><span class="text-link">Abrir agenda →</span></article>
+        <article class="card clickable" data-jump="schedule"><div class="hub-icon">🗓️</div><h3>Minha semana</h3><p class="muted">Horários, salas e disciplinas do período em uma visão única.</p><span class="text-link">Abrir horários →</span></article>
+        <article class="card clickable" data-jump="curriculum"><div class="hub-icon">🎓</div><h3>Minha formação</h3><p class="muted">Veja sua matriz inteira e acompanhe a conclusão do curso.</p><span class="text-link">Abrir matriz →</span></article>
+        <article class="card clickable" data-jump="grades"><div class="hub-icon">📊</div><h3>Desempenho</h3><p class="muted">Notas e médias das disciplinas que você está cursando.</p><span class="text-link">Abrir notas →</span></article>
+      </div>
+    </section>
+
+
+    <section id="view-study" class="view">
+      <div class="page-head">
+        <div>
+          <p class="eyebrow">STUDY HUB</p>
+          <h1>🎯 Modo Foco</h1>
+          <p class="muted">Estude com intenção e acompanhe o tempo dedicado às disciplinas do semestre.</p>
+        </div>
+      </div>
+
+      <div class="focus-layout section-gap">
+        <article class="card focus-timer-card">
+          <p class="eyebrow">SESSÃO ATUAL</p>
+
+          <label class="field">
+            <span>Disciplina</span>
+            <select id="focusSubjectSelect"></select>
+          </label>
+
+          <label class="field">
+            <span>O que você vai estudar?</span>
+            <input id="focusTopicInput" placeholder="Ex.: Lista 03, Redes Neurais, capítulo 4...">
+          </label>
+
+          <div id="focusTimer" class="focus-timer">25:00</div>
+
+          <div class="focus-presets">
+            <button type="button" data-focus-min="25">25 min</button>
+            <button type="button" data-focus-min="45">45 min</button>
+            <button type="button" data-focus-min="60">60 min</button>
+            <button type="button" data-focus-min="0">Tempo livre</button>
+          </div>
+
+          <div class="focus-actions section-gap">
+            <button id="focusStartBtn" class="btn btn-primary" type="button">▶ Iniciar foco</button>
+            <button id="focusFinishBtn" class="btn btn-secondary" type="button">✓ Finalizar sessão</button>
+          </div>
+        </article>
+
+        <aside class="focus-side">
+          <article class="card">
+            <p class="eyebrow">ESTA SEMANA</p>
+            <h2 id="focusWeekTotal">0 min</h2>
+            <p class="muted">Tempo de foco registrado.</p>
+          </article>
+
+          <article class="card section-gap">
+            <div class="card-header">
+              <div><p class="eyebrow">HISTÓRICO</p><h3>Sessões recentes</h3></div>
+            </div>
+            <div id="focusRecentList" class="subject-page-list"></div>
+          </article>
+        </aside>
+      </div>
+    </section>
+
+    <section id="view-materials" class="view">
+      <div class="page-head">
+        <div>
+          <p class="eyebrow">STUDY HUB</p>
+          <h1>📎 Materiais</h1>
+          <p class="muted">Centralize links, slides, listas, livros e referências das suas disciplinas.</p>
+        </div>
+        <button id="addMaterialBtn" class="btn btn-primary" type="button">＋ Adicionar material</button>
+      </div>
+
+      <div class="materials-toolbar section-gap">
+        <div class="materials-search">
+          <span>🔎</span>
+          <input id="materialSearch" class="input" placeholder="Buscar materiais...">
+        </div>
+
+        <label class="materials-filter">
+          <span>Disciplina</span>
+          <select id="materialSubjectFilter" class="input">
+            <option value="">Todas as disciplinas</option>
+          </select>
+        </label>
+
+        <label class="materials-filter">
+          <span>Tipo</span>
+          <select id="materialTypeFilter" class="input">
+            <option value="">Todos os tipos</option>
+            <option>Link</option>
+            <option>Slides</option>
+            <option>Lista</option>
+            <option>Livro</option>
+            <option>Prova anterior</option>
+            <option>Outro</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="materials-view-head section-gap">
+        <div><p class="eyebrow">SUA BIBLIOTECA</p><h3>Materiais salvos</h3></div>
+        <div id="materialsViewSwitch" class="view-switch">
+          <button class="active" data-material-view="cards" type="button">▦ Cards</button>
+          <button data-material-view="list" type="button">☷ Lista</button>
+        </div>
+      </div>
+      <div id="materialsGrid" class="materials-grid section-gap"></div>
+    </section>
+
+    <section id="view-degree" class="view">
+      <div class="page-head">
+        <div>
+          <p class="eyebrow">MINHA TRAJETÓRIA</p>
+          <h1>🎓 Minha Graduação</h1>
+          <p class="muted">Computação · UFRPE</p>
+        </div>
+      </div>
+
+      <section class="degree-hero section-gap">
+        <div id="degreeRing" class="degree-ring" style="--degree-progress:0">
+          <div>
+            <strong id="degreePct">0%</strong>
+            <span>concluído</span>
+          </div>
+        </div>
+        <div>
+          <p class="eyebrow">PROGRESSO GERAL</p>
+          <h2>Seu caminho pela graduação</h2>
+          <p class="muted">Acompanhe o que já concluiu, o que está cursando e o que ainda falta.</p>
+        </div>
+      </section>
+
+      <div class="degree-metrics section-gap">
+        <article><span>✅ Concluídas</span><strong id="degreeDone">0</strong></article>
+        <article><span>📚 Cursando</span><strong id="degreeCurrent">0</strong></article>
+        <article><span>🧩 Restantes</span><strong id="degreeRemaining">0</strong></article>
+        <article><span>🎯 Foco na semana</span><strong id="degreeFocus">0 min</strong></article>
+      </div>
+
+      <article class="card section-gap">
+        <div class="card-header">
+          <div><p class="eyebrow">TRAJETÓRIA</p><h3>Progresso por período</h3></div>
+          <button class="text-link" data-jump="curriculum" type="button">Abrir matriz →</button>
+        </div>
+        <div id="degreePeriods" class="degree-periods"></div>
+      </article>
+    </section>
+
+    <section id="view-settings" class="view">
+      <article class="card interface-preferences-card">
+        <div class="card-header">
+          <div><p class="eyebrow">INTERFACE</p><h3>Seu Focca, do seu jeito</h3></div>
+        </div>
+        <div class="interface-preferences-grid">
+          <button type="button" id="settingsThemeShortcut"><span>🌗</span><div><strong>Tema</strong><small>Alternar entre claro e escuro</small></div><i>→</i></button>
+          <button type="button" id="settingsDashboardShortcut"><span>🧱</span><div><strong>Dashboard</strong><small>Escolher e reorganizar widgets</small></div><i>→</i></button>
+          <button type="button" id="settingsSearchShortcut"><span>⌘</span><div><strong>Command Center</strong><small>Busca e ações rápidas</small></div><i>→</i></button>
+        </div>
+      </article>
+
+
+      <article class="card academic-profile-card section-gap">
+        <div class="card-header"><div><p class="eyebrow">MEU FOCCA</p><h3>Perfil acadêmico</h3></div></div>
+        <div class="academic-profile-body">
+          <div class="academic-profile-avatar">🎓</div>
+          <div>
+            <strong>Computação · UFRPE</strong>
+            <p class="muted">Seu panorama acadêmico calculado a partir da matriz cadastrada.</p>
+          </div>
+          <div class="academic-profile-numbers">
+            <span><b id="profileProgress">0%</b> concluído</span>
+            <span><b id="profileCurrent">0</b> cursando</span>
+            <span><b id="profileRemaining">0</b> restantes</span>
+          </div>
+        </div>
+      </article>
+<div class="two-col">
+      <article class="card"><div class="card-header"><div><p class="eyebrow">PERSONALIZAÇÃO</p><h3>Meu curso</h3></div></div><form id="profileForm" class="form-grid">
+      <div class="fixed-academic-profile full">
+        <div class="fixed-profile-row"><span>Instituição</span><strong>UFRPE</strong></div>
+        <div class="fixed-profile-row"><span>Curso</span><strong>Computação</strong></div>
+      </div>
+      <label class="field"><span>Período atual</span><input id="termInput" placeholder="Ex.: 2026.2"></label>
+      <label class="field"><span>Nome exibido</span><input id="displayNameInput"></label>
+
+      <div class="form-section-title full">Links da universidade</div>
+
+      <div class="fixed-link-card full">
+        <div><span>SIGAA</span><strong>Portal acadêmico oficial</strong></div>
+        <a href="https://sigs.ufrpe.br/sigaa/verTelaLogin.do" target="_blank" rel="noopener">Abrir ↗</a>
+      </div>
+
+      <div class="fixed-link-card full">
+        <div><span>Ambiente Virtual</span><strong>AVA UFRPE</strong></div>
+        <a href="https://ava.ufrpe.br/login/index.php" target="_blank" rel="noopener">Abrir ↗</a>
+      </div>
+
+      <div class="fixed-link-card full">
+        <div><span>Cardápio do RU</span><strong>Instagram da PROGESTI/RU</strong></div>
+        <a href="https://www.instagram.com/progestiru/" target="_blank" rel="noopener">Abrir ↗</a>
+      </div>
+
+      <label class="field full">
+        <span>Calendário acadêmico atual</span>
+        <input id="calendarUrlInput" type="url" placeholder="https://...">
+        <small>O calendário oficial já vem preenchido, mas você pode alterar quando a UFRPE publicar uma nova versão.</small>
+      </label>
+
+      <button class="btn btn-primary full">Salvar configurações</button>
+    </form></article>
+      <article class="card"><div class="card-header"><div><p class="eyebrow">MATRIZ BASE</p><h3>Computação</h3></div></div><p class="muted">O Focca usa uma matriz-base fixa de Computação. Você personaliza status, semestre atual, notas, faltas, horários e histórico.</p><div class="button-stack"><button id="settingsTrajectoryBtn" class="btn btn-secondary">Configurar minha trajetória</button><button id="settingsSemesterBtn" class="btn btn-ghost">Configurar semestre atual</button><button id="resetBaseMatrixBtn" class="btn btn-ghost">Restaurar matriz-base</button></div></article>
+    </div></section>
+  </main>
+</div>
+
+<div id="onboardingModal" class="modal hidden"><div class="modal-card onboarding-card"><p class="eyebrow">BEM-VINDO AO FOCCA</p><h2>Vamos montar sua trajetória em Computação</h2><p class="muted">A matriz curricular já está pronta. Informe seus dados e depois marque o que já concluiu e o que está cursando.</p><form id="onboardingForm" class="form-grid section-gap"><label class="field full"><span>Instituição de ensino</span><input id="onboardingInstitution" placeholder="Ex.: UFRPE"></label><label class="field full"><span>Curso</span><input value="Computação" readonly></label><label class="field"><span>Período/semestre atual</span><input id="onboardingTerm" placeholder="Ex.: 2026.2"></label><label class="field"><span>Nome exibido</span><input id="onboardingDisplayName" placeholder="Como quer aparecer no app"></label><button class="btn btn-primary full">Continuar</button></form></div></div>
+
+<div id="trajectoryModal" class="modal hidden"><div class="modal-card wide"><button class="modal-close" data-close="trajectoryModal">×</button><p class="eyebrow">MINHA TRAJETÓRIA</p><h2>Como está cada disciplina?</h2><p class="muted">Marque o status atual de cada matéria. Você pode voltar e alterar isso a qualquer momento.</p><div class="trajectory-help"><span class="status-pill done">Aprovada</span><span class="status-pill final">Aprovada na final</span><span class="status-pill current">Cursando</span><span class="status-pill failed">Reprovada</span><span class="status-pill pending">Pendente</span></div><div id="trajectoryList" class="trajectory-list section-gap"></div><div class="modal-actions sticky-actions"><button id="saveTrajectoryBtn" class="btn btn-primary">Salvar trajetória</button></div></div></div>
+
+<div id="semesterModal" class="modal hidden"><div class="modal-card wide"><button class="modal-close" data-close="semesterModal">×</button><p class="eyebrow">SEMESTRE ATUAL</p><h2>Quais disciplinas você está cursando?</h2><p class="muted">Selecione as matérias deste período. Se uma disciplina ainda não estiver na matriz, você pode cadastrá-la e depois voltar aqui.</p><div class="semester-toolbar"><label class="field"><span>Período atual</span><input id="semesterTermInput" placeholder="Ex.: 2026.2"></label><button id="semesterAddSubjectBtn" class="btn btn-secondary">+ Nova disciplina</button></div><div id="semesterSubjectList" class="semester-subject-list section-gap"></div><div class="modal-actions"><button id="saveSemesterBtn" class="btn btn-primary">Salvar semestre atual</button></div></div></div>
+
+<div id="subjectModal" class="modal hidden"><div class="modal-card"><button class="modal-close" data-close="subjectModal">×</button><p class="eyebrow">DISCIPLINA</p><h2 id="subjectModalTitle">Editar disciplina</h2><form id="subjectForm" class="form-grid"><input id="subjectId" type="hidden"><label class="field full"><span>Nome</span><input id="subjectName" required></label><label class="field"><span>Código</span><input id="subjectCode"></label><label class="field"><span>Carga horária</span><input id="subjectHours" type="number" min="0" required></label><label class="field"><span>Período</span><input id="subjectPeriod" placeholder="Ex.: 4"></label><label class="field"><span>Tipo</span><select id="subjectType"><option value="mandatory">Obrigatória</option><option value="elective">Optativa/Eletiva</option><option value="complementary">Complementar</option><option value="internship">Estágio</option><option value="tcc">TCC</option><option value="other">Outro requisito</option></select></label><label class="field full"><span>Situação atual</span><select id="subjectStatus"><option value="pending">Pendente</option><option value="current">Cursando</option><option value="approved">Aprovada</option><option value="approved_final">Aprovada por nota/final</option><option value="failed">Reprovada</option><option value="withdrawn">Trancada</option><option value="exempt">Dispensada/Aproveitada</option></select></label><button class="btn btn-primary full">Salvar disciplina</button></form></div></div>
+<script type="module" src="./auth-ui.js?v=20260825-auth62"></script>
+  <script type="module" src="./app.js?v=20260825-auth62"></script>
+
+<div id="subjectDetailsModal" class="modal hidden">
+  <div class="modal-card subject-detail-modal">
+    <button class="modal-close" type="button" data-close="subjectDetailsModal">×</button>
+    <p class="eyebrow">DISCIPLINA</p>
+    <h2 id="subjectDetailTitle">Informações da disciplina</h2>
+    <p class="muted" id="subjectDetailMeta"></p><div id="subject360Summary" class="subject360-summary"></div>
+    <form id="subjectDetailsForm" class="form-grid section-gap">
+      <input type="hidden" id="subjectDetailsId">
+      <label class="field full"><span>Nome da disciplina</span><input id="subjectDetailsName" required></label>
+      <label class="field"><span>Professor(a)</span><input id="subjectProfessor" placeholder="Nome do professor"></label>
+      <label class="field"><span>E-mail do professor</span><input id="subjectProfessorEmail" type="email" placeholder="professor@ufrpe.br"></label>
+      <label class="field full"><span>Características / observações do professor</span><textarea id="subjectProfessorNotes" rows="3" placeholder="Ex.: faz chamada, prefere trabalhos, responde rápido por e-mail..."></textarea></label>
+      <label class="field"><span>Sala / local físico</span><input id="subjectRoom" placeholder="Ex.: Lab 35 - CEAGRI II"></label>
+      <label class="field"><span>Sala virtual / link</span><input id="subjectVirtualRoom" type="url" placeholder="https://meet.google.com/..."></label>
+      <label class="field"><span>Plataforma</span><input id="subjectPlatform" placeholder="Ex.: AVA, Classroom, Meet"></label>
+      <label class="field"><span>Código / turma</span><input id="subjectClassCode" placeholder="Ex.: 14074 - Turma 02"></label>
+      <label class="field full"><span>Observações gerais</span><textarea id="subjectGeneralNotes" rows="3" placeholder="Links, combinados, informações úteis..."></textarea></label>
+      <div class="full modal-actions">
+        <button type="button" class="btn btn-secondary" data-close="subjectDetailsModal">Cancelar</button>
+        <button type="submit" class="btn btn-primary">Salvar informações</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+
+<div id="globalSearchPanel" class="floating-panel search-panel hidden">
+  <div class="floating-head"><div><p class="eyebrow">BUSCA GLOBAL</p><h3>Encontre qualquer coisa</h3></div><button id="closeSearchBtn" class="icon-btn" type="button">×</button></div>
+  <input id="globalSearchInput" class="input" placeholder="Disciplina, professor, tarefa, sala..." autocomplete="off">
+  <div id="globalSearchResults" class="global-results"></div>
+</div>
+<div id="notificationsPanel" class="floating-panel notifications-panel hidden">
+  <div class="floating-head"><div><p class="eyebrow">CENTRAL</p><h3>Notificações</h3></div><button id="closeNotificationsBtn" class="icon-btn" type="button">×</button></div>
+  <div id="notificationsList" class="notifications-list"></div>
+</div>
+<div id="dashboardCustomizeModal" class="modal hidden">
+  <div class="modal-card customize-modal">
+    <button class="modal-close" type="button" data-close="dashboardCustomizeModal">×</button>
+    <p class="eyebrow">DASHBOARD</p><h2>Personalizar visão geral</h2><p class="muted">Escolha o que aparece. Nos blocos principais, você também pode arrastar os cards para reorganizar.</p>
+    <div id="dashboardWidgetOptions" class="widget-options"></div>
+    <button id="resetDashboardBtn" class="btn btn-secondary full" type="button">Restaurar padrão</button>
+  </div>
+</div>
+
+
+  <button id="commandCenterBtn" class="command-fab" type="button" title="Ações rápidas" aria-label="Abrir ações rápidas">+</button>
+
+  <div id="commandCenterModal" class="modal hidden">
+    <div class="modal-card command-center-modal">
+      <button class="modal-close" type="button" data-close="commandCenterModal">×</button>
+      <p class="eyebrow">COMMAND CENTER</p>
+      <h2>O que você quer fazer?</h2>
+      <p class="muted">Ações rápidas sem precisar procurar a tela certa.</p>
+      <div class="command-grid section-gap">
+        <button type="button" data-command="task"><span>📝</span><div><b>Nova atividade</b><small>Prova, trabalho ou prazo</small></div></button>
+        <button type="button" data-command="grade"><span>📊</span><div><b>Lançar nota</b><small>Registrar avaliação</small></div></button>
+        <button type="button" data-command="absence"><span>🙋</span><div><b>Registrar falta</b><small>Atualizar frequência</small></div></button>
+        <button type="button" data-command="schedule"><span>🕒</span><div><b>Editar horários</b><small>Organizar a semana</small></div></button>
+        <button type="button" data-command="semester"><span>📚</span><div><b>Semestre atual</b><small>Escolher matérias cursando</small></div></button>
+        <button type="button" data-command="search"><span>🔎</span><div><b>Buscar no Focca</b><small>Matéria, professor, tarefa...</small></div></button><button type="button" data-command="focus"><span>🎯</span><div><b>Iniciar foco</b><small>Abrir modo de estudo</small></div></button><button type="button" data-command="material"><span>📎</span><div><b>Adicionar material</b><small>Salvar link ou referência</small></div></button>
+      </div>
+    </div>
+  </div>
+
+  <nav id="mobileBottomNav" class="mobile-bottom-nav" aria-label="Navegação principal">
+    <button type="button" data-mobile-view="today"><span>☀️</span><small>Hoje</small></button>
+    <button type="button" data-mobile-view="subjects"><span>📚</span><small>Disciplinas</small></button>
+    <button type="button" data-mobile-view="agenda"><span>📝</span><small>Agenda</small></button>
+    <button type="button" data-mobile-view="curriculum"><span>🧩</span><small>Matriz</small></button>
+    <button id="mobileMoreBtn" type="button"><span>☰</span><small>Mais</small></button>
+  </nav>
+
+
+  <div id="materialModal" class="modal hidden">
+    <div class="modal-card">
+      <button class="modal-close" type="button" data-close-material>×</button>
+      <p class="eyebrow">MATERIAL</p><h2>Adicionar material</h2>
+      <div class="form-grid section-gap"><label class="field"><span>Título</span><input id="materialTitle" placeholder="Ex.: Slides — Redes Neurais"></label><label class="field"><span>Disciplina</span><select id="materialSubject"></select></label><label class="field"><span>Tipo</span><select id="materialType"><option>Link</option><option>Slides</option><option>Lista</option><option>Livro</option><option>Prova anterior</option><option>Outro</option></select></label><label class="field"><span>URL</span><input id="materialUrl" placeholder="https://..."></label></div>
+      <div class="modal-actions"><button class="btn btn-secondary" type="button" data-close-material>Cancelar</button><button id="materialSaveBtn" class="btn btn-primary" type="button">Salvar material</button></div>
+    </div>
+  </div>
+
+
+  <div id="focusFullscreen" class="focus-fullscreen hidden">
+    <button id="focusFullscreenClose" class="focus-fullscreen-close" type="button">×</button>
+    <div class="focus-fullscreen-inner">
+      <img src="./assets/focca-mark.png" alt="Focca" class="focus-fullscreen-mark">
+      <p class="eyebrow">MODO FOCO</p>
+      <h2 id="focusFullscreenSubject">Estudo livre</h2>
+      <p id="focusFullscreenTopic" class="muted">Sessão de estudo</p>
+      <div id="focusFullscreenTimer" class="focus-fullscreen-timer">25:00</div>
+      <div class="focus-fullscreen-actions">
+        <button id="focusFullscreenPause" class="btn btn-primary">⏸ Pausar</button>
+        <button id="focusFullscreenFinish" class="btn btn-secondary">✓ Encerrar sessão</button>
+      </div>
+    </div>
+  </div>
+
+</body></html>
