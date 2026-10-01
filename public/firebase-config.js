@@ -16,7 +16,7 @@ export const firebaseConfig = {
 // configurado para o domínio oficial do Focca. Enquanto isso, o app continua
 // funcionando normalmente; somente "Adicionar ao Google Agenda" exigirá
 // concluir essa configuração.
-export const GOOGLE_CLIENT_ID = "";
+export const GOOGLE_CLIENT_ID = "115877907995-k4iijpbmpgjbnuqsga21t5l210n91gfu.apps.googleusercontent.com";
 
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);

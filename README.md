@@ -243,3 +243,11 @@ Segurança:
 - firebase-service.js não alterado.
 - firebase-config.js não alterado.
 - calendar.js não alterado.
+
+
+## Testes
+Os cálculos acadêmicos (progresso, médias, aprovação e próxima aula) ficam em
+`public/academic.js` e têm testes em `tests/`. Para rodar (Node 22 ou mais novo):
+```bash
+npm test
+```

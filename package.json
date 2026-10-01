@@ -1,0 +1,9 @@
+{
+  "name": "focca",
+  "private": true,
+  "type": "module",
+  "description": "Focca — hub universitário (Firebase Hosting + Firestore)",
+  "scripts": {
+    "test": "node --test \"tests/**/*.test.js\""
+  }
+}
