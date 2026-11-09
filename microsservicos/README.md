@@ -26,7 +26,7 @@ Decisões principais:
 - **Cada serviço tem seu próprio processo, sua porta e seu banco** (*database per service*). Notas grava em `servico-notas/dados/notas.db` e Frequência em `servico-frequencia/dados/frequencia.db`. Um serviço nunca acessa o banco do outro.
 - **O cliente só fala com o gateway.** Uma chamada a `/api/<serviço>/...` faz o gateway perguntar à descoberta onde está uma instância ativa do serviço. Se houver mais de uma, ele escolhe em rodízio (*round-robin*) e encaminha a chamada. A resposta traz o cabeçalho `X-Servico-Atendente` dizendo qual instância atendeu.
 - **Registro com expiração.** Cada serviço se registra na descoberta ao iniciar e renova o registro a cada 10 s. Um serviço que cai sai da lista depois de 30 s. Se não há instância ativa, o gateway responde 503.
-- **Regras de negócio.** São as mesmas do app Focca (`public/academic.js`), agora isoladas dentro de cada serviço:
+- **Regras de negócio.** Seguem a mesma regra do app web (`public/academic.js`) e ficam dentro de cada serviço:
   - `servico-notas/src/regras.js` contém a EstrategiaCalculoNotas, com a regra da UFRPE para VA1, VA2, 3ª VA e Final.
   - `servico-frequencia/src/regras.js` contém o resumo de frequência, com limite de 25% da carga horária.
 

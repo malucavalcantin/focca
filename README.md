@@ -52,6 +52,7 @@ public/
   matrix-parser.js      leitura da matriz curricular a partir de PDF ou imagem
   base-matrix.js        matriz base de Computação
 tests/                  testes dos cálculos acadêmicos e da agenda
+microsservicos/         Serviço de Notas e Serviço de Frequência (ver abaixo)
 firestore.rules         regras de acesso do Firestore
 ```
 

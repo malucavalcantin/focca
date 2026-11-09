@@ -1,5 +1,5 @@
 // Estratégia de cálculo de notas da UFRPE (EstrategiaCalculoNotas).
-// Mesma regra usada no app Focca (public/academic.js), agora no serviço:
+// Mesma regra usada no app web (public/academic.js):
 //  - média das duas VAs >= 7 aprova direto;
 //  - a 3ª VA substitui a menor nota, se for maior;
 //  - abaixo de 7 após a 3ª VA, vai para a Final e (média + Final) / 2 >= 5 aprova.
