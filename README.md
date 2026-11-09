@@ -251,3 +251,6 @@ Os cálculos acadêmicos (progresso, médias, aprovação e próxima aula) ficam
 ```bash
 npm test
 ```
+
+## Microsserviços (Entrega Parcial 2 de APSOO)
+A pasta `microsservicos/` tem o Serviço de Notas e o Serviço de Frequência como microsserviços em Node.js, com API Gateway e Serviço de Descoberta. Veja `microsservicos/README.md` para executar e publicar. Essa pasta não entra no Firebase Hosting, que publica só `public/`.

@@ -1,0 +1,19 @@
+{
+  "name": "focca-microsservicos",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Focca: Serviço de Notas e Serviço de Frequência como microsserviços, com API Gateway e Serviço de Descoberta",
+  "engines": {
+    "node": ">=22.13"
+  },
+  "scripts": {
+    "start": "node iniciar.js",
+    "descoberta": "node descoberta/src/index.js",
+    "gateway": "node gateway/src/index.js",
+    "notas": "node servico-notas/src/index.js",
+    "frequencia": "node servico-frequencia/src/index.js",
+    "demo": "node demonstracao.js",
+    "test": "node --test"
+  }
+}
