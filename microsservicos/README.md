@@ -54,6 +54,22 @@ npm test
 
 Variáveis de ambiente opcionais: `PORTA`, `BD` (caminho do banco, ou `:memory:`), `DESCOBERTA_URL` e `HOST`.
 
+## Como executar com Docker
+
+Cada componente tem seu próprio `Dockerfile`, baseado em `node:24-alpine`. O `docker-compose.yml` sobe os quatro, cada um em um contêiner separado:
+
+```bash
+docker compose up --build
+```
+
+- Só o gateway fica exposto, em `http://localhost:8080`. Descoberta e serviços se comunicam pela rede interna do Compose.
+- Cada serviço guarda o seu banco SQLite num volume próprio: `dados-notas` e `dados-frequencia`.
+- Os serviços se registram na descoberta pelo nome do contêiner (`http://notas:3001` e `http://frequencia:3002`).
+- Logo depois de subir, espere alguns segundos até os serviços aparecerem em `GET /saude`. O registro é renovado a cada 10 s.
+- Com os contêineres no ar, `npm run demo` funciona do mesmo jeito.
+
+Para encerrar, use `docker compose down`. Para apagar também os bancos, use `docker compose down -v`.
+
 ## API (pelo gateway, `http://localhost:8080`)
 
 ### Serviço de Notas (`/api/notas`)
@@ -110,11 +126,12 @@ curl -X PUT http://localhost:8080/api/notas/estudantes/maria/disciplinas/apsoo/n
 
 ```
 compartilhado/       utilitários HTTP, validação (componente global) e cliente de registro
-descoberta/src/      Serviço de Descoberta
-gateway/src/         API Gateway Focca
-servico-notas/src/   app.js (rotas), regras.js (cálculo), repositorio.js (SQLite), index.js
-servico-frequencia/src/  mesma organização
+descoberta/          Serviço de Descoberta
+gateway/             API Gateway Focca
+servico-notas/       src/app.js (rotas), src/regras.js (cálculo), src/repositorio.js (SQLite), src/index.js
+servico-frequencia/  mesma organização
 testes/              testes de regras e de integração
 iniciar.js           sobe todos os componentes
 demonstracao.js      roteiro de chamadas para apresentação
+docker-compose.yml   sobe os quatro componentes em contêineres (cada pasta tem seu Dockerfile)
 ```

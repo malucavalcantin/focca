@@ -1,0 +1,55 @@
+# Sobe os quatro componentes, cada um em seu contêiner:
+#   docker compose up --build
+# Só o gateway fica exposto (http://localhost:8080). Cada serviço guarda o seu
+# banco em um volume próprio (database per service).
+
+services:
+  descoberta:
+    build:
+      context: .
+      dockerfile: descoberta/Dockerfile
+    restart: unless-stopped
+
+  notas:
+    build:
+      context: .
+      dockerfile: servico-notas/Dockerfile
+    environment:
+      HOST: notas
+      DESCOBERTA_URL: http://descoberta:3000
+    volumes:
+      - dados-notas:/dados
+    depends_on:
+      - descoberta
+    restart: unless-stopped
+
+  frequencia:
+    build:
+      context: .
+      dockerfile: servico-frequencia/Dockerfile
+    environment:
+      HOST: frequencia
+      DESCOBERTA_URL: http://descoberta:3000
+    volumes:
+      - dados-frequencia:/dados
+    depends_on:
+      - descoberta
+    restart: unless-stopped
+
+  gateway:
+    build:
+      context: .
+      dockerfile: gateway/Dockerfile
+    environment:
+      DESCOBERTA_URL: http://descoberta:3000
+    ports:
+      - "8080:8080"
+    depends_on:
+      - descoberta
+      - notas
+      - frequencia
+    restart: unless-stopped
+
+volumes:
+  dados-notas:
+  dados-frequencia:

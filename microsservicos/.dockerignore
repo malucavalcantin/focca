@@ -1,0 +1,5 @@
+**/dados
+**/*.db
+node_modules
+testes
+.git
