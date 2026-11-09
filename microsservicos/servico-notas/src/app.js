@@ -22,34 +22,34 @@ const comSituacao = registro => ({ ...registro, situacao: calcularSituacao(regis
 
 export function criarServicoNotas(repositorio) {
   return criarServidor({
-    'GET /saude': () => ({ servico: 'notas', status: 'ok' }),
+    'GET /saude': () => ({ servico: 'notas', status: 'ok', banco: repositorio.tipo }),
 
     // Calcular situação acadêmica sem gravar nada (simulação).
     'POST /situacao': ({ corpo }) => calcularSituacao(validarNotas(corpo)),
 
-    'GET /estudantes/:estudanteId/notas': ({ params }) => {
+    'GET /estudantes/:estudanteId/notas': async ({ params }) => {
       validarIds(params);
-      const disciplinas = repositorio.listar(params.estudanteId).map(comSituacao);
+      const disciplinas = (await repositorio.listar(params.estudanteId)).map(comSituacao);
       return { estudanteId: params.estudanteId, disciplinas };
     },
 
-    'GET /estudantes/:estudanteId/disciplinas/:disciplinaId/notas': ({ params }) => {
+    'GET /estudantes/:estudanteId/disciplinas/:disciplinaId/notas': async ({ params }) => {
       validarIds(params);
-      const registro = repositorio.buscar(params.estudanteId, params.disciplinaId);
+      const registro = await repositorio.buscar(params.estudanteId, params.disciplinaId);
       if (!registro) throw new ErroHttp(404, 'Nenhuma nota lançada para esta disciplina');
       return comSituacao(registro);
     },
 
     // Lança ou substitui as notas da disciplina (campos ausentes ficam sem nota).
-    'PUT /estudantes/:estudanteId/disciplinas/:disciplinaId/notas': ({ params, corpo }) => {
+    'PUT /estudantes/:estudanteId/disciplinas/:disciplinaId/notas': async ({ params, corpo }) => {
       validarIds(params);
       const notas = validarNotas(corpo);
-      return comSituacao(repositorio.salvar({ ...params, ...notas }));
+      return comSituacao(await repositorio.salvar({ ...params, ...notas }));
     },
 
-    'DELETE /estudantes/:estudanteId/disciplinas/:disciplinaId/notas': ({ params }) => {
+    'DELETE /estudantes/:estudanteId/disciplinas/:disciplinaId/notas': async ({ params }) => {
       validarIds(params);
-      if (!repositorio.remover(params.estudanteId, params.disciplinaId)) {
+      if (!(await repositorio.remover(params.estudanteId, params.disciplinaId))) {
         throw new ErroHttp(404, 'Nenhuma nota lançada para esta disciplina');
       }
       return { status: 204, corpo: undefined };

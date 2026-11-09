@@ -3,15 +3,13 @@
 FROM node:24-alpine
 
 WORKDIR /app
-COPY package.json ./
+COPY package.json package-lock.json ./
+RUN npm ci --omit=dev
 COPY compartilhado ./compartilhado
 COPY servico-notas/src ./servico-notas/src
 
-# Banco SQLite próprio do serviço, em volume
-RUN mkdir -p /dados && chown node:node /dados
-ENV NODE_ENV=production PORTA=3001 BD=/dados/notas.db
-VOLUME /dados
-
+# O banco do serviço é o PostgreSQL próprio (DATABASE_URL, definido no docker-compose)
+ENV NODE_ENV=production PORTA=3001
 USER node
 EXPOSE 3001
 CMD ["node", "servico-notas/src/index.js"]

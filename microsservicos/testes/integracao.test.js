@@ -1,19 +1,19 @@
-// Sobe descoberta, os dois serviços (cada um com seu BD) e o gateway em portas
+// Sobe o Discovery, os dois serviços (cada um com seu BD) e o gateway em portas
 // livres e testa as chamadas de ponta a ponta, sempre pelo gateway.
 import { test, before, after } from 'node:test';
 import assert from 'node:assert/strict';
 import { once } from 'node:events';
-import { criarServicoDescoberta } from '../descoberta/src/app.js';
+import { criarDiscovery } from '../discovery/src/app.js';
 import { criarGateway } from '../gateway/src/app.js';
 import { criarServicoNotas } from '../servico-notas/src/app.js';
 import { abrirRepositorio as repoNotas } from '../servico-notas/src/repositorio.js';
 import { criarServicoFrequencia } from '../servico-frequencia/src/app.js';
 import { abrirRepositorio as repoFrequencia } from '../servico-frequencia/src/repositorio.js';
-import { registrarNaDescoberta } from '../compartilhado/registro.js';
+import { registrarNoDiscovery } from '../compartilhado/registro.js';
 
 const servidores = [];
 const cancelamentos = [];
-let gateway, descoberta;
+let gateway, discovery;
 
 async function subir(servidor) {
   servidor.listen(0);
@@ -23,12 +23,12 @@ async function subir(servidor) {
 }
 
 before(async () => {
-  descoberta = await subir(criarServicoDescoberta());
-  const notas = await subir(criarServicoNotas(repoNotas(':memory:')));
-  const frequencia = await subir(criarServicoFrequencia(repoFrequencia(':memory:')));
-  cancelamentos.push(await registrarNaDescoberta({ nome: 'notas', url: notas, descobertaUrl: descoberta }));
-  cancelamentos.push(await registrarNaDescoberta({ nome: 'frequencia', url: frequencia, descobertaUrl: descoberta }));
-  gateway = await subir(criarGateway({ descobertaUrl: descoberta }));
+  discovery = await subir(criarDiscovery());
+  const notas = await subir(criarServicoNotas(await repoNotas()));
+  const frequencia = await subir(criarServicoFrequencia(await repoFrequencia()));
+  cancelamentos.push(await registrarNoDiscovery({ nome: 'notas', url: notas, discoveryUrl: discovery }));
+  cancelamentos.push(await registrarNoDiscovery({ nome: 'frequencia', url: frequencia, discoveryUrl: discovery }));
+  gateway = await subir(criarGateway({ discoveryUrl: discovery }));
 });
 
 after(async () => {
@@ -46,9 +46,9 @@ async function chamar(metodo, caminho, corpo) {
   return { status: resp.status, corpo: texto ? JSON.parse(texto) : null };
 }
 
-test('descoberta conhece os dois serviços', async () => {
+test('Discovery conhece os dois serviços', async () => {
   const { corpo } = await chamar('GET', '/saude');
-  assert.equal(corpo.descoberta, 'ok');
+  assert.equal(corpo.discovery, 'ok');
   assert.deepEqual(Object.keys(corpo.servicos).sort(), ['frequencia', 'notas']);
 });
 
@@ -117,7 +117,7 @@ test('frequência: validação recusa data mal formatada', async () => {
 test('gateway: serviço desconhecido dá 404 e serviço fora do ar dá 503', async () => {
   assert.equal((await chamar('GET', '/api/agenda/x')).status, 404);
   // remove o registro real do serviço de notas e confirma que o gateway responde 503
-  const lista = await (await fetch(`${descoberta}/servicos`)).json();
-  await fetch(`${descoberta}/servicos/notas?url=${encodeURIComponent(lista.notas[0])}`, { method: 'DELETE' });
+  const lista = await (await fetch(`${discovery}/servicos`)).json();
+  await fetch(`${discovery}/servicos/notas?url=${encodeURIComponent(lista.notas[0])}`, { method: 'DELETE' });
   assert.equal((await chamar('GET', '/api/notas/estudantes/ana/notas')).status, 503);
 });

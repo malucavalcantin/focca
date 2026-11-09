@@ -1,17 +1,17 @@
 // API Gateway Focca: implementa a interface IApiGateway.
 // O cliente só conhece o gateway. Uma chamada a /api/<serviço>/<caminho> é
-// encaminhada para uma instância do serviço, localizada no Serviço de Descoberta.
+// encaminhada para uma instância do serviço, localizada no Discovery.
 import http from 'node:http';
 import { enviarJson } from '../../compartilhado/http.js';
 
-/** Nomes públicos aceitos na URL -> nome do serviço registrado na descoberta. */
+/** Nomes públicos aceitos na URL -> nome do serviço registrado no Discovery. */
 export const ROTAS = { notas: 'notas', frequencia: 'frequencia' };
 
-export function criarGateway({ descobertaUrl }) {
+export function criarGateway({ discoveryUrl }) {
   const proxima = new Map(); // nome -> índice para round-robin
 
   async function localizar(nome) {
-    const resp = await fetch(`${descobertaUrl}/servicos/${encodeURIComponent(nome)}`);
+    const resp = await fetch(`${discoveryUrl}/servicos/${encodeURIComponent(nome)}`);
     if (!resp.ok) return null;
     const { instancias } = await resp.json();
     const i = (proxima.get(nome) ?? 0) % instancias.length;
@@ -32,9 +32,9 @@ export function criarGateway({ descobertaUrl }) {
     const url = new URL(req.url, 'http://localhost');
     try {
       if (url.pathname === '/saude') {
-        const resp = await fetch(`${descobertaUrl}/servicos`).catch(() => null);
+        const resp = await fetch(`${discoveryUrl}/servicos`).catch(() => null);
         const servicos = resp?.ok ? await resp.json() : null;
-        return enviarJson(res, 200, { servico: 'gateway', status: 'ok', descoberta: servicos ? 'ok' : 'indisponível', servicos });
+        return enviarJson(res, 200, { servico: 'gateway', status: 'ok', discovery: servicos ? 'ok' : 'indisponível', servicos });
       }
 
       const [, prefixo, publico, ...resto] = url.pathname.split('/');

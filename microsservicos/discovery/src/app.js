@@ -1,4 +1,4 @@
-// Serviço de Descoberta: implementa a interface IRegistroServicos.
+// Discovery: implementa a interface IRegistroServicos.
 // Os serviços se registram ao iniciar e renovam o registro a cada 10 s;
 // um registro sem renovação por mais de TTL_MS deixa de ser devolvido.
 import { criarServidor, ErroHttp } from '../../compartilhado/http.js';
@@ -6,7 +6,7 @@ import { validar, obrigatorio } from '../../compartilhado/validacao.js';
 
 export const TTL_MS = 30_000;
 
-export function criarServicoDescoberta({ agora = () => Date.now(), ttlMs = TTL_MS } = {}) {
+export function criarDiscovery({ agora = () => Date.now(), ttlMs = TTL_MS } = {}) {
   /** nome -> Map(url -> último contato em ms) */
   const registros = new Map();
 
@@ -18,7 +18,7 @@ export function criarServicoDescoberta({ agora = () => Date.now(), ttlMs = TTL_M
   };
 
   return criarServidor({
-    'GET /saude': () => ({ servico: 'descoberta', status: 'ok' }),
+    'GET /saude': () => ({ servico: 'discovery', status: 'ok' }),
 
     'POST /servicos': ({ corpo }) => {
       const { nome, url } = corpo;
@@ -41,5 +41,5 @@ export function criarServicoDescoberta({ agora = () => Date.now(), ttlMs = TTL_M
       registros.get(params.nome)?.delete(query.url);
       return { status: 204, corpo: undefined };
     },
-  }, { nome: 'descoberta' });
+  }, { nome: 'discovery' });
 }

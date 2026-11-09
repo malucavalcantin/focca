@@ -29,5 +29,5 @@ await chamar('POST', '/api/frequencia/estudantes/maria/disciplinas/apsoo/faltas'
 await chamar('POST', '/api/frequencia/estudantes/maria/disciplinas/apsoo/faltas', { data: '2026-11-05', quantidade: 6 });
 await chamar('GET', '/api/frequencia/estudantes/maria/disciplinas/apsoo/frequencia');
 
-console.log('\n== Gateway e Descoberta ==');
+console.log('\n== Gateway e Discovery ==');
 await chamar('GET', '/saude');

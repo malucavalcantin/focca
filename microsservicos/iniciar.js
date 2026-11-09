@@ -1,11 +1,11 @@
 // Sobe todos os componentes, cada um em seu próprio processo:
-// Serviço de Descoberta, Serviço de Notas, Serviço de Frequência e API Gateway.
+// Discovery, Serviço de Notas, Serviço de Frequência e API Gateway.
 // Ctrl+C encerra todos.
 import { spawn } from 'node:child_process';
 import { setTimeout as esperar } from 'node:timers/promises';
 
 const componentes = [
-  ['descoberta', 'descoberta/src/index.js'],
+  ['discovery', 'discovery/src/index.js'],
   ['notas', 'servico-notas/src/index.js'],
   ['frequencia', 'servico-frequencia/src/index.js'],
   ['gateway', 'gateway/src/index.js'],
@@ -19,7 +19,7 @@ for (const [nome, arquivo] of componentes) {
   const filho = spawn(process.execPath, [arquivo], { stdio: 'inherit', env });
   filho.on('exit', codigo => { if (codigo) console.error(`[${nome}] terminou com código ${codigo}`); });
   processos.push(filho);
-  if (nome === 'descoberta') await esperar(500); // a descoberta precisa estar no ar antes dos registros
+  if (nome === 'discovery') await esperar(500); // o Discovery precisa estar no ar antes dos registros
 }
 
 const encerrar = () => {

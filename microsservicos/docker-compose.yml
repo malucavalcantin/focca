@@ -1,13 +1,40 @@
-# Sobe os quatro componentes, cada um em seu contêiner:
+# Sobe o Focca em microsserviços, cada componente em seu contêiner:
 #   docker compose up --build
-# Só o gateway fica exposto (http://localhost:8080). Cada serviço guarda o seu
-# banco em um volume próprio (database per service).
+#
+# Só o gateway fica exposto (http://localhost:8080).
+# Database per service: cada microsserviço tem o SEU servidor PostgreSQL
+# (db-notas e db-frequencia), com volume, usuário e senha próprios. Um serviço
+# não conhece o endereço nem as credenciais do banco do outro.
+#
+# Ordem de inicialização garantida por healthchecks: os bancos e o Discovery
+# ficam saudáveis antes dos serviços subirem, e o gateway só sobe depois que
+# Notas e Frequência estão saudáveis.
 
 services:
-  descoberta:
+  discovery:
     build:
       context: .
-      dockerfile: descoberta/Dockerfile
+      dockerfile: discovery/Dockerfile
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://localhost:3000/saude').then(r => process.exit(r.ok ? 0 : 1), () => process.exit(1))"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+
+  db-notas:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: notas
+      POSTGRES_USER: servico_notas
+      POSTGRES_PASSWORD: notas_senha_local
+    volumes:
+      - dados-db-notas:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U servico_notas -d notas"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
     restart: unless-stopped
 
   notas:
@@ -16,11 +43,33 @@ services:
       dockerfile: servico-notas/Dockerfile
     environment:
       HOST: notas
-      DESCOBERTA_URL: http://descoberta:3000
-    volumes:
-      - dados-notas:/dados
+      DISCOVERY_URL: http://discovery:3000
+      DATABASE_URL: postgres://servico_notas:notas_senha_local@db-notas:5432/notas
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://localhost:3001/saude').then(r => process.exit(r.ok ? 0 : 1), () => process.exit(1))"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
     depends_on:
-      - descoberta
+      discovery:
+        condition: service_healthy
+      db-notas:
+        condition: service_healthy
+    restart: unless-stopped
+
+  db-frequencia:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: frequencia
+      POSTGRES_USER: servico_frequencia
+      POSTGRES_PASSWORD: frequencia_senha_local
+    volumes:
+      - dados-db-frequencia:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U servico_frequencia -d frequencia"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
     restart: unless-stopped
 
   frequencia:
@@ -29,11 +78,18 @@ services:
       dockerfile: servico-frequencia/Dockerfile
     environment:
       HOST: frequencia
-      DESCOBERTA_URL: http://descoberta:3000
-    volumes:
-      - dados-frequencia:/dados
+      DISCOVERY_URL: http://discovery:3000
+      DATABASE_URL: postgres://servico_frequencia:frequencia_senha_local@db-frequencia:5432/frequencia
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://localhost:3002/saude').then(r => process.exit(r.ok ? 0 : 1), () => process.exit(1))"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
     depends_on:
-      - descoberta
+      discovery:
+        condition: service_healthy
+      db-frequencia:
+        condition: service_healthy
     restart: unless-stopped
 
   gateway:
@@ -41,15 +97,18 @@ services:
       context: .
       dockerfile: gateway/Dockerfile
     environment:
-      DESCOBERTA_URL: http://descoberta:3000
+      DISCOVERY_URL: http://discovery:3000
     ports:
       - "8080:8080"
     depends_on:
-      - descoberta
-      - notas
-      - frequencia
+      discovery:
+        condition: service_healthy
+      notas:
+        condition: service_healthy
+      frequencia:
+        condition: service_healthy
     restart: unless-stopped
 
 volumes:
-  dados-notas:
-  dados-frequencia:
+  dados-db-notas:
+  dados-db-frequencia:
