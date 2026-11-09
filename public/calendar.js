@@ -22,7 +22,7 @@ function waitForGoogleIdentity(timeout = 10000) {
 }
 
 async function getToken() {
-  if (!GOOGLE_CLIENT_ID) throw new Error('Google Agenda ainda precisa ser conectado ao novo projeto Focca. Configure o OAuth Client ID em firebase-config.js.');
+  if (!GOOGLE_CLIENT_ID) throw new Error('A integração com o Google Agenda não está configurada. Informe o OAuth Client ID em firebase-config.js.');
   await waitForGoogleIdentity();
 
   if (accessToken) return accessToken;
