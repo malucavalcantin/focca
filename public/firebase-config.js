@@ -11,11 +11,7 @@ export const firebaseConfig = {
   appId: "1:203608441902:web:343ec5bdefdb9926e28bbf"
 };
 
-// IMPORTANTE:
-// Depois do primeiro deploy no focca-edu, substitua pelo Client ID OAuth
-// configurado para o domínio oficial do Focca. Enquanto isso, o app continua
-// funcionando normalmente; somente "Adicionar ao Google Agenda" exigirá
-// concluir essa configuração.
+// Client ID OAuth usado na sincronização com o Google Agenda.
 export const GOOGLE_CLIENT_ID = "115877907995-k4iijpbmpgjbnuqsga21t5l210n91gfu.apps.googleusercontent.com";
 
 const app = initializeApp(firebaseConfig);
