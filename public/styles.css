@@ -8118,3 +8118,38 @@ html[data-theme] body .mini-task>span {
   font-size:var(--text-xs)!important;
   font-variant-numeric:tabular-nums;
 }
+
+/* ---------- 9 · Detalhes ---------- */
+/* grade de horários: colunas cabem no card (a última não é cortada) */
+html[data-theme] body :is(.schedule-head,.schedule-canvas) {
+  grid-template-columns:64px repeat(var(--days),minmax(0,1fr))!important;
+}
+/* primeiro horário do eixo não fica cortado no topo */
+html[data-theme] body .time-axis span:first-child {
+  transform:none!important;
+}
+/* espaço no fim da página para o botão flutuante não cobrir conteúdo */
+@media(min-width:761px) {
+  html[data-theme] body .view.active-view {
+    padding-bottom:96px!important;
+  }
+}
+/* acessos rápidos na coluna lateral: uma coluna, sem texto truncado */
+html[data-theme] body .dashboard-side .quick-grid {
+  grid-template-columns:1fr!important;
+}
+html[data-theme] body .quick-card :is(b,small) {
+  white-space:normal!important;
+  overflow:visible!important;
+  text-overflow:clip!important;
+}
+/* hover e foco discretos e iguais em toda a interface */
+html[data-theme] body :is(button,a,[tabindex]):focus-visible {
+  outline:2px solid var(--primary)!important;
+  outline-offset:2px;
+  box-shadow:none!important;
+}
+html[data-theme] body :is(.today-group>button,#todayTimeline>button,#todayUpcoming>button,#todayAttentionList>button,#todayCurrentSubjects>button,.stack-item,.mini-task,.global-result,.notification-item,.schedule-overview-item):hover {
+  background:var(--fill-2)!important;
+  transform:none!important;
+}
