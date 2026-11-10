@@ -8153,3 +8153,11 @@ html[data-theme] body :is(.today-group>button,#todayTimeline>button,#todayUpcomi
   background:var(--fill-2)!important;
   transform:none!important;
 }
+@media(max-width:760px) {
+  html[data-theme] body .view :is(.dash-action b,.quick-card b) {
+    font-size:var(--text-sm)!important;
+  }
+  html[data-theme] body .view :is(.dash-action,.quick-card) {
+    min-width:0;
+  }
+}
