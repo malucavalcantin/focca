@@ -7759,3 +7759,93 @@ html[data-theme] body .command-fab {
 html[data-theme] body .sidebar-edge-toggle {
   box-shadow:none!important;
 }
+
+/* ---------- 3 · Cor ----------
+   Base neutra + uma cor de destaque (roxo Focca: marca do app).
+   Verde/vermelho/laranja só para estado. Categoria = ponto, não fundo. */
+:root {
+  --accent:var(--primary);
+  --accent-soft:color-mix(in srgb,var(--primary) 10%,transparent);
+}
+/* estado da disciplina: ponto + texto, sem fundo colorido */
+html[data-theme] body .status-pill {
+  background:transparent!important;
+  color:var(--muted)!important;
+  padding:0!important;
+  display:inline-flex!important;
+  align-items:center;
+  gap:6px;
+  border-radius:0!important;
+}
+html[data-theme] body .status-pill:before {
+  content:"";
+  width:8px;
+  height:8px;
+  border-radius:50%;
+  background:var(--pending);
+  flex:none;
+}
+html[data-theme] body .status-pill.done:before { background:var(--done); }
+html[data-theme] body .status-pill.current:before { background:var(--current); }
+html[data-theme] body .status-pill.failed:before { background:var(--failed); }
+html[data-theme] body .status-pill.final:before { background:var(--final); }
+html[data-theme] body .status-pill.withdrawn:before { background:var(--muted-2); }
+html[data-theme] body :is(.status-pill.done,.status-pill.current,.status-pill.failed,.status-pill.final,.status-pill.pending,.status-pill.withdrawn) {
+  background:transparent!important;
+  color:var(--muted)!important;
+}
+html[data-theme] body :is(.subject-card.done,.subject-card.approved,.subject-card.current,.subject-card.pending,.subject-card.withdrawn,.subject-card.failed,.subject-card.final) {
+  background:var(--panel)!important;
+}
+/* blocos da grade: superfície neutra, cor da disciplina só na barra lateral */
+html[data-theme] body .class-block[class*="tone-"] {
+  background:var(--fill-2)!important;
+  color:var(--text)!important;
+}
+html[data-theme] body .class-block.tone-0 { border-left-color:var(--sys-green)!important; }
+html[data-theme] body .class-block.tone-1 { border-left-color:var(--sys-blue)!important; }
+html[data-theme] body .class-block.tone-2 { border-left-color:var(--sys-purple)!important; }
+html[data-theme] body .class-block.tone-3 { border-left-color:var(--sys-orange)!important; }
+html[data-theme] body .class-block.tone-4 { border-left-color:var(--sys-teal)!important; }
+html[data-theme] body .class-block :is(span,small) {
+  color:var(--muted)!important;
+  opacity:1;
+}
+/* botões secundários neutros: o roxo fica para a ação principal */
+html[data-theme] body :is(.btn-secondary,.btn-ghost) {
+  background:var(--panel)!important;
+  color:var(--text)!important;
+  border:1px solid var(--line-strong)!important;
+}
+html[data-theme] body :is(.btn-secondary,.btn-ghost):hover {
+  background:var(--fill-2)!important;
+  filter:none!important;
+}
+/* sair não é erro: ícone neutro */
+html[data-theme] body .topbar-action-btn.logout {
+  color:var(--muted)!important;
+}
+/* caixas de ícone neutras */
+html[data-theme] body :is(.metric-icon,.hub-icon,.quick-card>span,.dash-action>span,.material-icon,.current-summary-card>span,.today-highlight-icon,.hint-icon) {
+  background:var(--fill-2)!important;
+  color:var(--muted)!important;
+}
+/* anéis de progresso: centro na cor da superfície (sem azul-marinho antigo) */
+html[data-theme] body :is(.semester-ring,.donut,.degree-ring):after {
+  background:var(--panel)!important;
+}
+html[data-theme] body :is(.semester-ring,.donut,.degree-ring) > * {
+  background:transparent!important;
+}
+/* item ativo do menu: texto na cor de destaque, fundo neutro */
+html[data-theme] body .nav-item.active {
+  background:var(--fill)!important;
+}
+/* contraste AA: botão primário sempre no roxo forte (texto branco 5,6:1) */
+html[data-theme] body :is(.btn-primary,.command-fab) {
+  background:#5847ff!important;
+  color:#fff!important;
+}
+html[data-theme] body :is(.nav-group-title,.eyebrow) {
+  color:var(--muted)!important;
+}
