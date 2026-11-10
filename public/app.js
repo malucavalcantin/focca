@@ -79,7 +79,7 @@ function renderHeader(){
   const p=state.profile||{};
   $('userName').textContent=p.displayName||state.user?.displayName||'Estudante';
   $('userEmail').textContent=state.user?.email||'';
-  $('courseEyebrow').textContent='COMPUTAÇÃO · UFRPE';
+  $('courseEyebrow').textContent='Computação · UFRPE';
   $('termLabel').textContent=p.currentTerm||'Seu período';
   $('dashboardTitle').textContent=`Olá, ${esc((p.displayName||state.user?.displayName||'estudante').split(' ')[0])}!`;
   $('dashboardSubtitle').textContent='Seu hub de Computação na UFRPE.';
@@ -899,7 +899,7 @@ function applySubjectTab(tab){
     }
     const s=state.subjects.find(x=>x.id===state.selectedSubjectId);
     const mats=(window.studyHub?.materials||[]).filter(m=>m.subjectId===s?.id);
-    panel.innerHTML=`<div class="card-header"><div><p class="eyebrow">MATERIAIS</p><h3>Materiais da disciplina</h3></div><button class="text-link" data-jump="materials">Abrir central →</button></div><div class="subject-page-list">${mats.length?mats.map(m=>`<div class="subject-page-row"><span>${ico(m.type==='Link'?'link':'file')}</span><div><strong>${esc(m.title)}</strong><small>${esc(m.type)}</small></div>${m.url?`<a href="${esc(m.url)}" target="_blank" rel="noopener" aria-label="Abrir">${ico('external')}</a>`:''}</div>`).join(''):'<div class="empty-state">Nenhum material vinculado ainda.</div>'}</div>`;
+    panel.innerHTML=`<div class="card-header"><div><p class="eyebrow">Materiais</p><h3>Materiais da disciplina</h3></div><button class="text-link" data-jump="materials">Abrir central →</button></div><div class="subject-page-list">${mats.length?mats.map(m=>`<div class="subject-page-row"><span>${ico(m.type==='Link'?'link':'file')}</span><div><strong>${esc(m.title)}</strong><small>${esc(m.type)}</small></div>${m.url?`<a href="${esc(m.url)}" target="_blank" rel="noopener" aria-label="Abrir">${ico('external')}</a>`:''}</div>`).join(''):'<div class="empty-state">Nenhum material vinculado ainda.</div>'}</div>`;
     panel.classList.remove('subject-tab-force-hide');
   }else if(tab==='attendance'){
     document.querySelectorAll('#view-subject-detail .card').forEach(c=>c.classList.add('subject-tab-force-hide'));
@@ -908,7 +908,7 @@ function applySubjectTab(tab){
     if(!panel){panel=document.createElement('article');panel.id='subjectAttendanceTabPanel';panel.className='card';container?.prepend(panel)}
     const s=state.subjects.find(x=>x.id===state.selectedSubjectId);
     const abs=state.absences.filter(a=>a.subjectId===s?.id).reduce((n,a)=>n+Number(a.absences||0),0);
-    panel.innerHTML=`<div class="card-header"><div><p class="eyebrow">FREQUÊNCIA</p><h3>Controle de faltas</h3></div><button class="text-link" data-jump="attendance">Abrir faltas →</button></div><div class="subject-attendance-summary"><span>${ico('check')}</span><div><strong>${settingFor(s?.id)?abs:'—'} faltas</strong><small>${settingFor(s?.id)?'Controle ativo':'Professor marcado como sem chamada'}</small></div></div>`;
+    panel.innerHTML=`<div class="card-header"><div><p class="eyebrow">Frequência</p><h3>Controle de faltas</h3></div><button class="text-link" data-jump="attendance">Abrir faltas →</button></div><div class="subject-attendance-summary"><span>${ico('check')}</span><div><strong>${settingFor(s?.id)?abs:'—'} faltas</strong><small>${settingFor(s?.id)?'Controle ativo':'Professor marcado como sem chamada'}</small></div></div>`;
     panel.classList.remove('subject-tab-force-hide');
   }else{
     document.querySelectorAll('#view-subject-detail .card').forEach(c=>c.classList.remove('subject-tab-force-hide'));
@@ -953,24 +953,24 @@ const uiRefine={
 };
 
 const viewGroups={
-  today:['FOCCA · MEU DIA','Hoje'],
-  dashboard:['FOCCA · MEU DIA','Resumo'],
-  agenda:['FOCCA · MEU DIA','Organização'],
-  schedule:['FOCCA · MEU DIA','Semana'],
-  subjects:['FOCCA · ACADÊMICO','Semestre atual'],
-  curriculum:['FOCCA · ACADÊMICO','Formação'],
-  degree:['FOCCA · ACADÊMICO','Trajetória'],
-  grades:['FOCCA · ACADÊMICO','Desempenho'],
-  attendance:['FOCCA · ACADÊMICO','Frequência'],
-  study:['FOCCA · ESTUDOS','Foco'],
-  materials:['FOCCA · ESTUDOS','Biblioteca'],
-  university:['FOCCA · UNIVERSIDADE','Acessos'],
-  settings:['FOCCA','Preferências'],
-  'subject-detail':['FOCCA · DISCIPLINA','Visão 360º']
+  today:['Focca · meu dia','Hoje'],
+  dashboard:['Focca · meu dia','Resumo'],
+  agenda:['Focca · meu dia','Organização'],
+  schedule:['Focca · meu dia','Semana'],
+  subjects:['Focca · acadêmico','Semestre atual'],
+  curriculum:['Focca · acadêmico','Formação'],
+  degree:['Focca · acadêmico','Trajetória'],
+  grades:['Focca · acadêmico','Desempenho'],
+  attendance:['Focca · acadêmico','Frequência'],
+  study:['Focca · estudos','Foco'],
+  materials:['Focca · estudos','Biblioteca'],
+  university:['Focca · universidade','Acessos'],
+  settings:['Focca','Preferências'],
+  'subject-detail':['Focca · disciplina','Visão 360º']
 };
 
 function updateTopbarContext(view){
-  const meta=viewGroups[view]||['FOCCA',''];
+  const meta=viewGroups[view]||['Focca',''];
   if($('courseEyebrow'))$('courseEyebrow').textContent=meta[0];
   if($('topbarContext'))$('topbarContext').textContent=meta[1];
 }

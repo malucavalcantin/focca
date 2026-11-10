@@ -7985,3 +7985,93 @@ html[data-theme] body .subject-card .mini-btn:hover {
 html[data-theme] body #notificationBadge {
   font-variant-numeric:tabular-nums;
 }
+
+/* ---------- 6 · Tipografia ----------
+   Uma família (sistema/SF). Hierarquia por tamanho e peso.
+   Escala: 12 · 13 · 15 · 17 · 20 · 28 */
+:root {
+  --text-xs:12px;
+  --text-sm:13px;
+  --text-md:15px;
+  --text-lg:17px;
+  --text-xl:20px;
+  --text-2xl:28px;
+}
+/* rótulos em sentence case, sem caixa alta nem tracking */
+html[data-theme] body :is(.eyebrow,.nav-group-title,.today-group>span,th,.schedule-head span,.focca-week-day small,.focca-week-day b) {
+  text-transform:none!important;
+  letter-spacing:0!important;
+}
+html[data-theme] body .eyebrow {
+  font-size:var(--text-sm)!important;
+  font-weight:500!important;
+}
+html[data-theme] body .topbar .eyebrow {
+  font-size:var(--text-xs)!important;
+}
+html[data-theme] body .today-group>span {
+  font-size:var(--text-sm)!important;
+  font-weight:500!important;
+  color:var(--muted)!important;
+}
+/* títulos */
+html[data-theme] body .topbar :is(h2,#viewTitle) {
+  font-size:var(--text-xl)!important;
+  font-weight:600!important;
+  letter-spacing:-.01em!important;
+}
+html[data-theme] body .view :is(.hub-hero h1,.today-hub-hero h1,.view-head h1,.degree-hero h1,.focus-head h1,.materials-head h1,section>div>h1,.page-head h1,h1) {
+  font-size:var(--text-2xl)!important;
+  font-weight:700!important;
+  letter-spacing:-.02em!important;
+  line-height:1.15!important;
+}
+html[data-theme] body .view :is(h2) {
+  font-size:var(--text-xl)!important;
+  font-weight:600!important;
+}
+html[data-theme] body .view :is(.card-header h3,.card>h3,.semester-spotlight h2,.semester-spotlight h3) {
+  font-size:var(--text-lg)!important;
+  font-weight:600!important;
+  letter-spacing:-.01em!important;
+}
+/* texto pequeno nunca abaixo de 12px */
+html[data-theme] body .view :is(small,.focca-week-items>span,.class-block :is(span,small),.semester-ring small,.donut small,.today-highlight span,.metric-card span) {
+  font-size:var(--text-xs)!important;
+}
+html[data-theme] body .view :is(.dash-action small,.quick-card small,.today-highlight small,.stack-item small,.task-card small) {
+  font-size:var(--text-xs)!important;
+}
+html[data-theme] body .view :is(.dash-action b,.quick-card b) {
+  font-size:var(--text-md)!important;
+  font-weight:600!important;
+}
+/* números: tabulares, cor do texto (destaque por tamanho, não por cor) */
+html[data-theme] body :is(.metric-card strong,.today-clock strong,.next-class-time,.semester-ring strong,.donut strong,.degree-ring strong,time,.today-highlight strong,.absence-tile strong,.grade-row strong,.cra-value,#overallPercent,.badge,.class-block span,.schedule-overview-item span,.time-axis span) {
+  font-variant-numeric:tabular-nums!important;
+}
+html[data-theme] body .next-class-time {
+  color:var(--text)!important;
+  font-size:var(--text-2xl)!important;
+  font-weight:700!important;
+  letter-spacing:-.02em!important;
+}
+html[data-theme] body .metric-card strong {
+  font-size:var(--text-2xl)!important;
+  font-weight:700!important;
+}
+html[data-theme] body .view .muted:not(small) {
+  font-size:var(--text-md);
+}
+/* data do relógio: "Terça-feira, 10 de novembro" (não Title Case) */
+html[data-theme] body #todayClockDate {
+  text-transform:none!important;
+  display:block;
+}
+html[data-theme] body #todayClockDate::first-letter {
+  text-transform:uppercase;
+}
+html[data-theme] body .today-clock strong {
+  font-size:var(--text-2xl)!important;
+  font-weight:700!important;
+}
