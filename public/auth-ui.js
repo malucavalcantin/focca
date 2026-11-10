@@ -114,7 +114,7 @@ function bindAuth(){
       );
       if (name) await updateProfile(result.user, { displayName: name });
       await ensureUserDocument(result.user, { displayName: name });
-      showToast('Conta criada. Bem-vindo ao Focca!');
+      showToast('Conta criada.');
     } catch (error) {
       showToast(friendlyError(error), true);
     } finally {

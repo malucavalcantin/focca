@@ -7507,3 +7507,657 @@ html[data-theme] body .cra-grade-row input { text-align: center; padding: 8px; b
   .cra-main strong { font-size: 44px; }
   .cra-grade-list { grid-template-columns: 1fr; }
 }
+
+/* ============================================================
+   Focca — Unslop
+   Última camada: tira ruído visual e dá consistência.
+   Só aparência. Tokens primeiro, depois uma seção por passada.
+   ============================================================ */
+
+/* ---------- Tokens ---------- */
+:root {
+  /* escala de espaço (base 4) */
+  --space-1:4px;
+  --space-2:8px;
+  --space-3:12px;
+  --space-4:16px;
+  --space-5:24px;
+  --space-6:32px;
+  --space-7:48px;
+  /* padding de superfícies */
+  --pad-card:var(--space-5);
+  --pad-item:var(--space-4);
+  --gap-grid:var(--space-4);
+  --gap-section:var(--space-5);
+}
+@media(max-width:760px) {
+  :root {
+    --pad-card:var(--space-4);
+    --pad-item:var(--space-3);
+    --gap-grid:var(--space-3);
+    --gap-section:var(--space-4);
+  }
+}
+
+/* ---------- 1 · Espaçamento e alinhamento ---------- */
+html[data-theme] body .view.active-view {
+  padding-top:var(--gap-section)!important;
+  padding-left:var(--gap-section)!important;
+  padding-right:var(--gap-section)!important;
+}
+html[data-theme] body .main {
+  padding-left:0!important;
+  padding-right:0!important;
+}
+html[data-theme] body .view > .section-gap,
+html[data-theme] body .view .section-gap {
+  margin-top:var(--gap-section);
+}
+html[data-theme] body .view > .section-gap:first-child {
+  margin-top:0;
+}
+/* bloco seguido de bloco sem section-gap (ex.: Notas) também respira */
+html[data-theme] body .view > * + * {
+  margin-top:var(--gap-section);
+}
+/* superfícies de nível 1: mesmo padding */
+html[data-theme] body :is(.card,.metric-card,.today-highlight,.university-link-card,.current-summary-card,.subjects-matrix-hint,.absence-tile,.today-hub-hero,.semester-spotlight,.degree-hero) {
+  padding:var(--pad-card)!important;
+}
+/* itens e atalhos: padding menor, igual entre si */
+html[data-theme] body :is(.subject-card,.dash-action,.quick-card,.fixed-link-card,.dynamic-home-strip,.material-card) {
+  padding:var(--pad-item)!important;
+}
+/* grades e listas de cards: um único gap */
+html[data-theme] body :is(.today-highlight-grid,.dashboard-quick-actions,.metric-grid,.two-col,.discipline-grid,.quick-grid,.schedule-modern-layout,.current-subject-summary,.absence-overview,.attendance-layout,.focus-layout,.university-grid,.dashboard-layout,.today-hub-layout,.degree-metrics,.materials-grid,.curriculum-grid) {
+  gap:var(--gap-grid)!important;
+}
+html[data-theme] body :is(.dashboard-main,.dashboard-side,.today-hub-main,.today-hub-side) {
+  display:flex;
+  flex-direction:column;
+  gap:var(--gap-grid);
+}
+html[data-theme] body :is(.dashboard-main,.dashboard-side,.today-hub-main,.today-hub-side) > * {
+  margin-top:0!important;
+}
+html[data-theme] body .period-list {
+  gap:var(--space-2)!important;
+}
+/* cabeçalho de card: rótulo colado ao título, respiro fixo até o conteúdo */
+html[data-theme] body .card-header {
+  padding-bottom:0;
+  margin-bottom:var(--space-4);
+  align-items:flex-start;
+  gap:var(--space-3);
+}
+html[data-theme] body .card-header .eyebrow {
+  margin:0 0 var(--space-1)!important;
+}
+html[data-theme] body .card-header :is(h2,h3) {
+  margin:0!important;
+}
+html[data-theme] body .card-header p.muted {
+  margin:var(--space-2) 0 0!important;
+}
+html[data-theme] body .card-header + .section-gap {
+  margin-top:0;
+}
+
+/* sidebar: marca, grupos e itens na mesma linha vertical */
+html[data-theme] body .sidebar {
+  padding:var(--space-4) var(--space-3)!important;
+}
+html[data-theme] body .sidebar .brand {
+  padding:0 var(--space-3) var(--space-4)!important;
+  gap:var(--space-3)!important;
+  margin:0!important;
+}
+html[data-theme] body .nav-group {
+  padding:var(--space-3) 0 0!important;
+  margin:0!important;
+  display:grid;
+  gap:2px;
+}
+html[data-theme] body .nav-group-title {
+  padding:0 var(--space-3)!important;
+  margin:0 0 var(--space-1)!important;
+}
+html[data-theme] body .nav-item {
+  padding:var(--space-2) var(--space-3)!important;
+  min-height:36px;
+  gap:var(--space-3)!important;
+  margin:0!important;
+}
+
+/* barra superior: título à esquerda, ferramentas e conta agrupadas à direita */
+html[data-theme] body .topbar {
+  min-height:64px!important;
+  padding:var(--space-3) var(--space-5)!important;
+  gap:var(--space-2)!important;
+}
+html[data-theme] body .topbar-context {
+  margin-right:auto!important;
+}
+html[data-theme] body :is(.topbar-tools,.topbar-account-actions) {
+  margin:0!important;
+  gap:var(--space-2)!important;
+  position:static!important;
+  transform:none!important;
+}
+html[data-theme] body .topbar .user-chip {
+  margin-left:var(--space-3)!important;
+}
+
+/* ---------- 2 · Efeitos e superfícies ---------- */
+:root {
+  --radius:12px;
+  --radius-sm:8px;
+  --radius-xs:6px;
+  --shadow:none;
+  --shadow-hover:none;
+  --shadow-float:0 8px 24px rgba(0,0,0,.12),0 1px 3px rgba(0,0,0,.08);
+  --line:rgba(60,60,67,.12);
+  --line-strong:rgba(60,60,67,.22);
+}
+html[data-theme="dark"] {
+  --line:rgba(255,255,255,.08);
+  --line-strong:rgba(255,255,255,.16);
+  --shadow-float:0 8px 24px rgba(0,0,0,.5);
+}
+/* barras e toast: superfícies sólidas, sem desfoque */
+html[data-theme] body :is(.sidebar,.topbar,.toast,.mobile-bottom-nav) {
+  -webkit-backdrop-filter:none!important;
+  backdrop-filter:none!important;
+}
+html[data-theme] body .sidebar {
+  background:var(--bg)!important;
+  border-right:1px solid var(--line)!important;
+}
+html[data-theme] body .topbar {
+  background:var(--bg)!important;
+  border-bottom:1px solid var(--line)!important;
+}
+html[data-theme] body .mobile-bottom-nav {
+  background:var(--panel)!important;
+  border-top:1px solid var(--line)!important;
+  box-shadow:none!important;
+}
+/* cards: plano, borda de 1px, sem sombra; hover só muda a borda */
+html[data-theme] body :is(.card,.metric-card,.quick-card,.dash-action,.today-highlight,.university-link-card,.fixed-link-card,.schedule-main-card,.current-summary-card,.subjects-matrix-hint,.current-empty-state,.material-card,.subject-page-metrics article,.setup-choice,.trajectory-period,.focca-week-day,.absence-tile,.hub-hero,.dynamic-home-strip,.semester-spotlight,.subject-page-hero,.degree-hero,.today-hub-hero),
+html[data-theme] body #view-today .today-hub-hero,
+html[data-theme] body #view-subjects .subject-card.current {
+  background:var(--panel)!important;
+  border:1px solid var(--line)!important;
+  border-radius:var(--radius)!important;
+  box-shadow:none!important;
+  transform:none!important;
+}
+html[data-theme] body .view .hub-hero {
+  background:transparent!important;
+  border:0!important;
+  padding:0!important;
+}
+/* marca d'água da foca atrás do relógio */
+html[data-theme] body #view-today .today-hub-hero:after {
+  display:none!important;
+}
+html[data-theme] body :is(.card,.quick-card,.dash-action,.university-link-card,.fixed-link-card,.material-card,.metric-card.clickable,.subject-card,.absence-tile):hover {
+  box-shadow:none!important;
+  transform:none!important;
+  border-color:var(--line-strong)!important;
+}
+/* itens internos: mesmo raio menor */
+html[data-theme] body :is(.subject-card,.stack-item,.task-card,.mini-task,.global-result,.notification-item,.schedule-overview-item,.mobile-class,.class-block,.today-group>button,#todayTimeline>button,#todayUpcoming>button,#todayAttentionList>button,#todayCurrentSubjects>button,.grade-status,.semester-subject) {
+  border-radius:var(--radius-sm)!important;
+  box-shadow:none!important;
+}
+html[data-theme] body .subject-card {
+  border:1px solid var(--line)!important;
+}
+/* faixa colorida decorativa no topo dos cards de disciplina */
+html[data-theme] body #view-subjects .subject-card:before {
+  background:var(--subject-accent,var(--primary))!important;
+}
+/* controles: raio único */
+html[data-theme] body :is(.btn,.mini-btn,input,select,textarea,.input,.segmented,.view-switch,.matrix-mode-switch,.subject-page-tabs,.today-clock,.metric-icon,.hub-icon,.quick-card>span,.dash-action>span,.material-icon,.current-summary-card>span) {
+  border-radius:var(--radius-sm)!important;
+}
+html[data-theme] body :is(.segmented,.view-switch,.matrix-mode-switch,.subject-page-tabs) button {
+  border-radius:var(--radius-xs)!important;
+}
+html[data-theme] body :is(.segmented,.view-switch,.matrix-mode-switch,.subject-page-tabs) button.active {
+  box-shadow:0 1px 2px rgba(0,0,0,.08)!important;
+}
+/* botões redondos da barra: quadrado arredondado, sem fundo até o hover */
+html[data-theme] body :is(.topbar-tool,.topbar-action-btn,.icon-btn) {
+  background:transparent!important;
+  border-radius:var(--radius-sm)!important;
+}
+html[data-theme] body :is(.topbar-tool,.topbar-action-btn,.icon-btn):hover {
+  background:var(--fill-2)!important;
+  filter:none!important;
+}
+/* gradientes decorativos fora */
+html[data-theme] body :is(.academic-profile-avatar,.degree-progress i,.matrix-list-progress i,.linear-progress i,.grade-track i,.absence-track i,.period-bar-track i) {
+  background:var(--primary)!important;
+}
+html[data-theme] body .focus-fullscreen {
+  background:var(--bg)!important;
+}
+html[data-theme] body :is(.login-screen,.focca-auth) {
+  background:var(--bg)!important;
+}
+html[data-theme] body :is(.login-card,.official-login) {
+  border:1px solid var(--line)!important;
+  border-radius:16px!important;
+  box-shadow:none!important;
+}
+/* elevação real só em camadas flutuantes */
+html[data-theme] body :is(.modal-card,.floating-panel,.toast) {
+  box-shadow:var(--shadow-float)!important;
+  border-radius:var(--radius)!important;
+}
+html[data-theme] body .command-fab {
+  box-shadow:var(--shadow-float)!important;
+}
+html[data-theme] body .sidebar-edge-toggle {
+  box-shadow:none!important;
+}
+
+/* ---------- 3 · Cor ----------
+   Base neutra + uma cor de destaque (roxo Focca: marca do app).
+   Verde/vermelho/laranja só para estado. Categoria = ponto, não fundo. */
+:root {
+  --accent:var(--primary);
+  --accent-soft:color-mix(in srgb,var(--primary) 10%,transparent);
+}
+/* estado da disciplina: ponto + texto, sem fundo colorido */
+html[data-theme] body .status-pill {
+  background:transparent!important;
+  color:var(--muted)!important;
+  padding:0!important;
+  display:inline-flex!important;
+  align-items:center;
+  gap:6px;
+  border-radius:0!important;
+}
+html[data-theme] body .status-pill:before {
+  content:"";
+  width:8px;
+  height:8px;
+  border-radius:50%;
+  background:var(--pending);
+  flex:none;
+}
+html[data-theme] body .status-pill.done:before { background:var(--done); }
+html[data-theme] body .status-pill.current:before { background:var(--current); }
+html[data-theme] body .status-pill.failed:before { background:var(--failed); }
+html[data-theme] body .status-pill.final:before { background:var(--final); }
+html[data-theme] body .status-pill.withdrawn:before { background:var(--muted-2); }
+html[data-theme] body :is(.status-pill.done,.status-pill.current,.status-pill.failed,.status-pill.final,.status-pill.pending,.status-pill.withdrawn) {
+  background:transparent!important;
+  color:var(--muted)!important;
+}
+html[data-theme] body :is(.subject-card.done,.subject-card.approved,.subject-card.current,.subject-card.pending,.subject-card.withdrawn,.subject-card.failed,.subject-card.final) {
+  background:var(--panel)!important;
+}
+/* blocos da grade: superfície neutra, cor da disciplina só na barra lateral */
+html[data-theme] body .class-block[class*="tone-"] {
+  background:var(--fill-2)!important;
+  color:var(--text)!important;
+}
+html[data-theme] body .class-block.tone-0 { border-left-color:var(--sys-green)!important; }
+html[data-theme] body .class-block.tone-1 { border-left-color:var(--sys-blue)!important; }
+html[data-theme] body .class-block.tone-2 { border-left-color:var(--sys-purple)!important; }
+html[data-theme] body .class-block.tone-3 { border-left-color:var(--sys-orange)!important; }
+html[data-theme] body .class-block.tone-4 { border-left-color:var(--sys-teal)!important; }
+html[data-theme] body .class-block :is(span,small) {
+  color:var(--muted)!important;
+  opacity:1;
+}
+/* botões secundários neutros: o roxo fica para a ação principal */
+html[data-theme] body :is(.btn-secondary,.btn-ghost) {
+  background:var(--panel)!important;
+  color:var(--text)!important;
+  border:1px solid var(--line-strong)!important;
+}
+html[data-theme] body :is(.btn-secondary,.btn-ghost):hover {
+  background:var(--fill-2)!important;
+  filter:none!important;
+}
+/* sair não é erro: ícone neutro */
+html[data-theme] body .topbar-action-btn.logout {
+  color:var(--muted)!important;
+}
+/* caixas de ícone neutras */
+html[data-theme] body :is(.metric-icon,.hub-icon,.quick-card>span,.dash-action>span,.material-icon,.current-summary-card>span,.today-highlight-icon,.hint-icon) {
+  background:var(--fill-2)!important;
+  color:var(--muted)!important;
+}
+/* anéis de progresso: centro na cor da superfície (sem azul-marinho antigo) */
+html[data-theme] body :is(.semester-ring,.donut,.degree-ring):after {
+  background:var(--panel)!important;
+}
+html[data-theme] body :is(.semester-ring,.donut,.degree-ring) > * {
+  background:transparent!important;
+}
+/* item ativo do menu: texto na cor de destaque, fundo neutro */
+html[data-theme] body .nav-item.active {
+  background:var(--fill)!important;
+}
+/* contraste AA: botão primário sempre no roxo forte (texto branco 5,6:1) */
+html[data-theme] body :is(.btn-primary,.command-fab) {
+  background:#5847ff!important;
+  color:#fff!important;
+}
+html[data-theme] body :is(.nav-group-title,.eyebrow) {
+  color:var(--muted)!important;
+}
+
+/* ---------- 4 · Ícones ----------
+   Um único set (traço Lucide, 1.8) no lugar dos emojis. */
+html[data-theme] body :is(.today-highlight-icon,.hub-icon,.quick-card>span,.dash-action>span,.material-icon,.current-summary-card>span,.hint-icon,.empty-mascot,.professor-avatar,.academic-profile-avatar,#dynamicHomeEmoji,.subject-page-row>span,.global-result>span,.notification-item>span,.today-group>button>span,#todayTimeline>button>span,#todayAttentionList>button>span,#todayCurrentSubjects>button>span,.grade-status>span,.absence-tile>span,.subject-attendance-summary>span,.interface-preferences-grid button>span,.search-field>span,.university-link-card .hub-icon) {
+  display:inline-grid!important;
+  place-items:center;
+  font-size:0!important;
+  line-height:0;
+  color:var(--muted);
+}
+html[data-theme] body :is(.today-highlight-icon,.hub-icon,.quick-card>span,.dash-action>span,.material-icon,.current-summary-card>span,.professor-avatar,.academic-profile-avatar) {
+  width:36px!important;
+  height:36px!important;
+  min-width:36px;
+  border-radius:var(--radius-sm)!important;
+  background:var(--fill-2)!important;
+}
+html[data-theme] body :is(.today-highlight-icon,.hub-icon,.quick-card>span,.dash-action>span,.material-icon,.current-summary-card>span,.professor-avatar,.academic-profile-avatar,.empty-mascot) .ico {
+  width:18px;
+  height:18px;
+}
+html[data-theme] body :is(#dynamicHomeEmoji,.subject-page-row>span,.global-result>span,.notification-item>span,.today-group>button>span,#todayTimeline>button>span,#todayAttentionList>button>span,#todayCurrentSubjects>button>span,.grade-status>span,.absence-tile>span,.subject-attendance-summary>span,.interface-preferences-grid button>span,.search-field>span,.hint-icon) .ico {
+  width:18px;
+  height:18px;
+}
+html[data-theme] body .grade-status.success>span { color:var(--done); }
+html[data-theme] body .grade-status.warning>span { color:var(--pending); }
+html[data-theme] body .grade-status.danger>span { color:var(--failed); }
+html[data-theme] body #todayAttentionList>button.danger>span { color:var(--failed); }
+html[data-theme] body #todayAttentionList>button.warning>span { color:var(--pending); }
+/* ícones dentro de botões e links externos */
+html[data-theme] body :is(.btn,[data-matrix-mode],[data-material-view]) .ico {
+  width:16px;
+  height:16px;
+  display:inline-block;
+  vertical-align:-3px;
+  margin-right:6px;
+}
+html[data-theme] body :is(.quick-link>i,.university-link-card>span:last-child,.subject-page-links i,.subject-page-row a) .ico {
+  width:14px;
+  height:14px;
+  color:var(--muted);
+}
+/* favorito: estrela de traço; preenchida quando ativa */
+html[data-theme] body .favorite-btn {
+  display:inline-grid;
+  place-items:center;
+  color:var(--muted-2);
+  font-size:0;
+}
+html[data-theme] body .favorite-btn .ico {
+  width:16px;
+  height:16px;
+}
+html[data-theme] body .favorite-btn.active {
+  color:var(--pending);
+}
+html[data-theme] body .favorite-btn.active .ico {
+  fill:currentColor;
+}
+html[data-theme] body .matrix-status {
+  display:inline-grid;
+  place-items:center;
+  width:16px;
+}
+html[data-theme] body .matrix-status .dot {
+  width:8px;
+  height:8px;
+  border-radius:50%;
+  display:block;
+}
+
+/* ---------- 5 · Badges e contadores ---------- */
+/* selo decorativo ao lado do título da página */
+html[data-theme] body .topbar-context-chip {
+  display:none!important;
+}
+/* contagens e datas: texto discreto alinhado à direita, sem pílula */
+html[data-theme] body .view .badge {
+  background:transparent!important;
+  border:0!important;
+  padding:0!important;
+  color:var(--muted)!important;
+  font-size:13px!important;
+  font-weight:500!important;
+  white-space:nowrap;
+  font-variant-numeric:tabular-nums;
+  box-shadow:none!important;
+}
+html[data-theme] body :is(.semester-inline-stats,.academic-profile-numbers) {
+  display:flex!important;
+  flex-wrap:wrap;
+  gap:0 var(--space-3)!important;
+}
+html[data-theme] body :is(.semester-inline-stats>span,.academic-profile-numbers>span) {
+  background:transparent!important;
+  border:0!important;
+  padding:0!important;
+  border-radius:0!important;
+  font-size:13px!important;
+  color:var(--muted)!important;
+  width:auto!important;
+  text-align:left!important;
+  font-variant-numeric:tabular-nums;
+}
+html[data-theme] body :is(.semester-inline-stats>span,.academic-profile-numbers>span) b,
+html[data-theme] body :is(.semester-inline-stats>span,.academic-profile-numbers>span) strong {
+  color:var(--text);
+  font-weight:600;
+}
+/* itens da semana: lista simples, não pílulas */
+html[data-theme] body .focca-week-items>span {
+  border-radius:var(--radius-xs)!important;
+  background:var(--fill-2)!important;
+}
+/* ação "Status" do card: botão de texto discreto */
+html[data-theme] body .subject-card .mini-btn {
+  background:transparent!important;
+  border:1px solid var(--line)!important;
+  color:var(--muted)!important;
+  font-weight:500!important;
+  padding:2px 8px!important;
+  border-radius:var(--radius-xs)!important;
+}
+html[data-theme] body .subject-card .mini-btn:hover {
+  color:var(--text)!important;
+  border-color:var(--line-strong)!important;
+}
+/* único badge que pede atenção: notificações */
+html[data-theme] body #notificationBadge {
+  font-variant-numeric:tabular-nums;
+}
+
+/* ---------- 6 · Tipografia ----------
+   Uma família (sistema/SF). Hierarquia por tamanho e peso.
+   Escala: 12 · 13 · 15 · 17 · 20 · 28 */
+:root {
+  --text-xs:12px;
+  --text-sm:13px;
+  --text-md:15px;
+  --text-lg:17px;
+  --text-xl:20px;
+  --text-2xl:28px;
+}
+/* rótulos em sentence case, sem caixa alta nem tracking */
+html[data-theme] body :is(.eyebrow,.nav-group-title,.today-group>span,th,.schedule-head span,.focca-week-day small,.focca-week-day b) {
+  text-transform:none!important;
+  letter-spacing:0!important;
+}
+html[data-theme] body .eyebrow {
+  font-size:var(--text-sm)!important;
+  font-weight:500!important;
+}
+html[data-theme] body .topbar .eyebrow {
+  font-size:var(--text-xs)!important;
+}
+html[data-theme] body .today-group>span {
+  font-size:var(--text-sm)!important;
+  font-weight:500!important;
+  color:var(--muted)!important;
+}
+/* títulos */
+html[data-theme] body .topbar :is(h2,#viewTitle) {
+  font-size:var(--text-xl)!important;
+  font-weight:600!important;
+  letter-spacing:-.01em!important;
+}
+html[data-theme] body .view :is(.hub-hero h1,.today-hub-hero h1,.view-head h1,.degree-hero h1,.focus-head h1,.materials-head h1,section>div>h1,.page-head h1,h1) {
+  font-size:var(--text-2xl)!important;
+  font-weight:700!important;
+  letter-spacing:-.02em!important;
+  line-height:1.15!important;
+}
+html[data-theme] body .view :is(h2) {
+  font-size:var(--text-xl)!important;
+  font-weight:600!important;
+}
+html[data-theme] body .view :is(.card-header h3,.card>h3,.semester-spotlight h2,.semester-spotlight h3) {
+  font-size:var(--text-lg)!important;
+  font-weight:600!important;
+  letter-spacing:-.01em!important;
+}
+/* texto pequeno nunca abaixo de 12px */
+html[data-theme] body .view :is(small,.focca-week-items>span,.class-block :is(span,small),.semester-ring small,.donut small,.today-highlight span,.metric-card span) {
+  font-size:var(--text-xs)!important;
+}
+html[data-theme] body .view :is(.dash-action small,.quick-card small,.today-highlight small,.stack-item small,.task-card small) {
+  font-size:var(--text-xs)!important;
+}
+html[data-theme] body .view :is(.dash-action b,.quick-card b) {
+  font-size:var(--text-md)!important;
+  font-weight:600!important;
+}
+/* números: tabulares, cor do texto (destaque por tamanho, não por cor) */
+html[data-theme] body :is(.metric-card strong,.today-clock strong,.next-class-time,.semester-ring strong,.donut strong,.degree-ring strong,time,.today-highlight strong,.absence-tile strong,.grade-row strong,.cra-value,#overallPercent,.badge,.class-block span,.schedule-overview-item span,.time-axis span) {
+  font-variant-numeric:tabular-nums!important;
+}
+html[data-theme] body .next-class-time {
+  color:var(--text)!important;
+  font-size:var(--text-2xl)!important;
+  font-weight:700!important;
+  letter-spacing:-.02em!important;
+}
+html[data-theme] body .metric-card strong {
+  font-size:var(--text-2xl)!important;
+  font-weight:700!important;
+}
+html[data-theme] body .view .muted:not(small) {
+  font-size:var(--text-md);
+}
+/* data do relógio: "Terça-feira, 10 de novembro" (não Title Case) */
+html[data-theme] body #todayClockDate {
+  text-transform:none!important;
+  display:block;
+}
+html[data-theme] body #todayClockDate::first-letter {
+  text-transform:uppercase;
+}
+html[data-theme] body .today-clock strong {
+  font-size:var(--text-2xl)!important;
+  font-weight:700!important;
+}
+
+/* ---------- 7 · Texto ---------- */
+/* a data virou o título da página Hoje; o relógio mostra só a hora */
+html[data-theme] body #todayClockDate {
+  display:none!important;
+}
+html[data-theme] body #dashboardSubtitle:empty {
+  display:none;
+}
+
+/* ---------- 8 · Gráficos e dados ---------- */
+/* barras por período: marca simples, sem pílula; 0% fica vazio */
+html[data-theme] body .period-bar-track {
+  border-radius:var(--radius-xs)!important;
+  background:var(--fill-2)!important;
+}
+html[data-theme] body .period-bar-track i {
+  border-radius:var(--radius-xs) var(--radius-xs) 0 0!important;
+  background:var(--primary)!important;
+  box-shadow:none!important;
+}
+html[data-theme] body .period-bar-meta :is(b,span) {
+  font-variant-numeric:tabular-nums;
+  font-size:var(--text-xs)!important;
+}
+html[data-theme] body .period-bar-meta span {
+  color:var(--muted)!important;
+}
+/* barras de progresso finas e retas */
+html[data-theme] body :is(.linear-progress,.grade-track,.absence-track,.degree-progress,.matrix-list-progress,.absence-meter) {
+  border-radius:var(--radius-xs)!important;
+}
+html[data-theme] body :is(.linear-progress,.grade-track,.absence-track,.degree-progress,.matrix-list-progress,.absence-meter) i {
+  border-radius:var(--radius-xs)!important;
+}
+/* datas das próximas atividades: texto discreto, sem caixa alta */
+html[data-theme] body .mini-task>span {
+  text-transform:none!important;
+  color:var(--muted)!important;
+  font-weight:500!important;
+  font-size:var(--text-xs)!important;
+  font-variant-numeric:tabular-nums;
+}
+
+/* ---------- 9 · Detalhes ---------- */
+/* grade de horários: colunas cabem no card (a última não é cortada) */
+html[data-theme] body :is(.schedule-head,.schedule-canvas) {
+  grid-template-columns:64px repeat(var(--days),minmax(0,1fr))!important;
+}
+/* primeiro horário do eixo não fica cortado no topo */
+html[data-theme] body .time-axis span:first-child {
+  transform:none!important;
+}
+/* espaço no fim da página para o botão flutuante não cobrir conteúdo */
+@media(min-width:761px) {
+  html[data-theme] body .view.active-view {
+    padding-bottom:96px!important;
+  }
+}
+/* acessos rápidos na coluna lateral: uma coluna, sem texto truncado */
+html[data-theme] body .dashboard-side .quick-grid {
+  grid-template-columns:1fr!important;
+}
+html[data-theme] body .quick-card :is(b,small) {
+  white-space:normal!important;
+  overflow:visible!important;
+  text-overflow:clip!important;
+}
+/* hover e foco discretos e iguais em toda a interface */
+html[data-theme] body :is(button,a,[tabindex]):focus-visible {
+  outline:2px solid var(--primary)!important;
+  outline-offset:2px;
+  box-shadow:none!important;
+}
+html[data-theme] body :is(.today-group>button,#todayTimeline>button,#todayUpcoming>button,#todayAttentionList>button,#todayCurrentSubjects>button,.stack-item,.mini-task,.global-result,.notification-item,.schedule-overview-item):hover {
+  background:var(--fill-2)!important;
+  transform:none!important;
+}
+@media(max-width:760px) {
+  html[data-theme] body .view :is(.dash-action b,.quick-card b) {
+    font-size:var(--text-sm)!important;
+  }
+  html[data-theme] body .view :is(.dash-action,.quick-card) {
+    min-width:0;
+  }
+}
