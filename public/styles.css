@@ -7643,3 +7643,119 @@ html[data-theme] body :is(.topbar-tools,.topbar-account-actions) {
 html[data-theme] body .topbar .user-chip {
   margin-left:var(--space-3)!important;
 }
+
+/* ---------- 2 · Efeitos e superfícies ---------- */
+:root {
+  --radius:12px;
+  --radius-sm:8px;
+  --radius-xs:6px;
+  --shadow:none;
+  --shadow-hover:none;
+  --shadow-float:0 8px 24px rgba(0,0,0,.12),0 1px 3px rgba(0,0,0,.08);
+  --line:rgba(60,60,67,.12);
+  --line-strong:rgba(60,60,67,.22);
+}
+html[data-theme="dark"] {
+  --line:rgba(255,255,255,.08);
+  --line-strong:rgba(255,255,255,.16);
+  --shadow-float:0 8px 24px rgba(0,0,0,.5);
+}
+/* barras e toast: superfícies sólidas, sem desfoque */
+html[data-theme] body :is(.sidebar,.topbar,.toast,.mobile-bottom-nav) {
+  -webkit-backdrop-filter:none!important;
+  backdrop-filter:none!important;
+}
+html[data-theme] body .sidebar {
+  background:var(--bg)!important;
+  border-right:1px solid var(--line)!important;
+}
+html[data-theme] body .topbar {
+  background:var(--bg)!important;
+  border-bottom:1px solid var(--line)!important;
+}
+html[data-theme] body .mobile-bottom-nav {
+  background:var(--panel)!important;
+  border-top:1px solid var(--line)!important;
+  box-shadow:none!important;
+}
+/* cards: plano, borda de 1px, sem sombra; hover só muda a borda */
+html[data-theme] body :is(.card,.metric-card,.quick-card,.dash-action,.today-highlight,.university-link-card,.fixed-link-card,.schedule-main-card,.current-summary-card,.subjects-matrix-hint,.current-empty-state,.material-card,.subject-page-metrics article,.setup-choice,.trajectory-period,.focca-week-day,.absence-tile,.hub-hero,.dynamic-home-strip,.semester-spotlight,.subject-page-hero,.degree-hero,.today-hub-hero),
+html[data-theme] body #view-today .today-hub-hero,
+html[data-theme] body #view-subjects .subject-card.current {
+  background:var(--panel)!important;
+  border:1px solid var(--line)!important;
+  border-radius:var(--radius)!important;
+  box-shadow:none!important;
+  transform:none!important;
+}
+html[data-theme] body .view .hub-hero {
+  background:transparent!important;
+  border:0!important;
+  padding:0!important;
+}
+/* marca d'água da foca atrás do relógio */
+html[data-theme] body #view-today .today-hub-hero:after {
+  display:none!important;
+}
+html[data-theme] body :is(.card,.quick-card,.dash-action,.university-link-card,.fixed-link-card,.material-card,.metric-card.clickable,.subject-card,.absence-tile):hover {
+  box-shadow:none!important;
+  transform:none!important;
+  border-color:var(--line-strong)!important;
+}
+/* itens internos: mesmo raio menor */
+html[data-theme] body :is(.subject-card,.stack-item,.task-card,.mini-task,.global-result,.notification-item,.schedule-overview-item,.mobile-class,.class-block,.today-group>button,#todayTimeline>button,#todayUpcoming>button,#todayAttentionList>button,#todayCurrentSubjects>button,.grade-status,.semester-subject) {
+  border-radius:var(--radius-sm)!important;
+  box-shadow:none!important;
+}
+html[data-theme] body .subject-card {
+  border:1px solid var(--line)!important;
+}
+/* faixa colorida decorativa no topo dos cards de disciplina */
+html[data-theme] body #view-subjects .subject-card:before {
+  background:var(--subject-accent,var(--primary))!important;
+}
+/* controles: raio único */
+html[data-theme] body :is(.btn,.mini-btn,input,select,textarea,.input,.segmented,.view-switch,.matrix-mode-switch,.subject-page-tabs,.today-clock,.metric-icon,.hub-icon,.quick-card>span,.dash-action>span,.material-icon,.current-summary-card>span) {
+  border-radius:var(--radius-sm)!important;
+}
+html[data-theme] body :is(.segmented,.view-switch,.matrix-mode-switch,.subject-page-tabs) button {
+  border-radius:var(--radius-xs)!important;
+}
+html[data-theme] body :is(.segmented,.view-switch,.matrix-mode-switch,.subject-page-tabs) button.active {
+  box-shadow:0 1px 2px rgba(0,0,0,.08)!important;
+}
+/* botões redondos da barra: quadrado arredondado, sem fundo até o hover */
+html[data-theme] body :is(.topbar-tool,.topbar-action-btn,.icon-btn) {
+  background:transparent!important;
+  border-radius:var(--radius-sm)!important;
+}
+html[data-theme] body :is(.topbar-tool,.topbar-action-btn,.icon-btn):hover {
+  background:var(--fill-2)!important;
+  filter:none!important;
+}
+/* gradientes decorativos fora */
+html[data-theme] body :is(.academic-profile-avatar,.degree-progress i,.matrix-list-progress i,.linear-progress i,.grade-track i,.absence-track i,.period-bar-track i) {
+  background:var(--primary)!important;
+}
+html[data-theme] body .focus-fullscreen {
+  background:var(--bg)!important;
+}
+html[data-theme] body :is(.login-screen,.focca-auth) {
+  background:var(--bg)!important;
+}
+html[data-theme] body :is(.login-card,.official-login) {
+  border:1px solid var(--line)!important;
+  border-radius:16px!important;
+  box-shadow:none!important;
+}
+/* elevação real só em camadas flutuantes */
+html[data-theme] body :is(.modal-card,.floating-panel,.toast) {
+  box-shadow:var(--shadow-float)!important;
+  border-radius:var(--radius)!important;
+}
+html[data-theme] body .command-fab {
+  box-shadow:var(--shadow-float)!important;
+}
+html[data-theme] body .sidebar-edge-toggle {
+  box-shadow:none!important;
+}
