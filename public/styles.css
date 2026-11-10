@@ -7507,3 +7507,139 @@ html[data-theme] body .cra-grade-row input { text-align: center; padding: 8px; b
   .cra-main strong { font-size: 44px; }
   .cra-grade-list { grid-template-columns: 1fr; }
 }
+
+/* ============================================================
+   Focca — Unslop
+   Última camada: tira ruído visual e dá consistência.
+   Só aparência. Tokens primeiro, depois uma seção por passada.
+   ============================================================ */
+
+/* ---------- Tokens ---------- */
+:root {
+  /* escala de espaço (base 4) */
+  --space-1:4px;
+  --space-2:8px;
+  --space-3:12px;
+  --space-4:16px;
+  --space-5:24px;
+  --space-6:32px;
+  --space-7:48px;
+  /* padding de superfícies */
+  --pad-card:var(--space-5);
+  --pad-item:var(--space-4);
+  --gap-grid:var(--space-4);
+  --gap-section:var(--space-5);
+}
+@media(max-width:760px) {
+  :root {
+    --pad-card:var(--space-4);
+    --pad-item:var(--space-3);
+    --gap-grid:var(--space-3);
+    --gap-section:var(--space-4);
+  }
+}
+
+/* ---------- 1 · Espaçamento e alinhamento ---------- */
+html[data-theme] body .view.active-view {
+  padding-top:var(--gap-section);
+  padding-left:var(--gap-section);
+  padding-right:var(--gap-section);
+}
+html[data-theme] body .view > .section-gap,
+html[data-theme] body .view .section-gap {
+  margin-top:var(--gap-section);
+}
+html[data-theme] body .view > .section-gap:first-child {
+  margin-top:0;
+}
+/* bloco seguido de bloco sem section-gap (ex.: Notas) também respira */
+html[data-theme] body .view > * + * {
+  margin-top:var(--gap-section);
+}
+/* superfícies de nível 1: mesmo padding */
+html[data-theme] body :is(.card,.metric-card,.today-highlight,.university-link-card,.current-summary-card,.subjects-matrix-hint,.absence-tile,.today-hub-hero,.semester-spotlight,.degree-hero) {
+  padding:var(--pad-card)!important;
+}
+/* itens e atalhos: padding menor, igual entre si */
+html[data-theme] body :is(.subject-card,.dash-action,.quick-card,.fixed-link-card,.dynamic-home-strip,.material-card) {
+  padding:var(--pad-item)!important;
+}
+/* grades e listas de cards: um único gap */
+html[data-theme] body :is(.today-highlight-grid,.dashboard-quick-actions,.metric-grid,.two-col,.discipline-grid,.quick-grid,.schedule-modern-layout,.current-subject-summary,.absence-overview,.attendance-layout,.focus-layout,.university-grid,.dashboard-layout,.today-hub-layout,.degree-metrics,.materials-grid,.curriculum-grid) {
+  gap:var(--gap-grid)!important;
+}
+html[data-theme] body :is(.dashboard-main,.dashboard-side,.today-hub-main,.today-hub-side) {
+  display:flex;
+  flex-direction:column;
+  gap:var(--gap-grid);
+}
+html[data-theme] body :is(.dashboard-main,.dashboard-side,.today-hub-main,.today-hub-side) > * {
+  margin-top:0!important;
+}
+html[data-theme] body .period-list {
+  gap:var(--space-2)!important;
+}
+/* cabeçalho de card: rótulo colado ao título, respiro fixo até o conteúdo */
+html[data-theme] body .card-header {
+  padding-bottom:0;
+  margin-bottom:var(--space-4);
+  align-items:flex-start;
+  gap:var(--space-3);
+}
+html[data-theme] body .card-header .eyebrow {
+  margin:0 0 var(--space-1)!important;
+}
+html[data-theme] body .card-header :is(h2,h3) {
+  margin:0!important;
+}
+html[data-theme] body .card-header p.muted {
+  margin:var(--space-2) 0 0!important;
+}
+html[data-theme] body .card-header + .section-gap {
+  margin-top:0;
+}
+
+/* sidebar: marca, grupos e itens na mesma linha vertical */
+html[data-theme] body .sidebar {
+  padding:var(--space-4) var(--space-3)!important;
+}
+html[data-theme] body .sidebar .brand {
+  padding:0 var(--space-3) var(--space-4)!important;
+  gap:var(--space-3)!important;
+  margin:0!important;
+}
+html[data-theme] body .nav-group {
+  padding:var(--space-3) 0 0!important;
+  margin:0!important;
+  display:grid;
+  gap:2px;
+}
+html[data-theme] body .nav-group-title {
+  padding:0 var(--space-3)!important;
+  margin:0 0 var(--space-1)!important;
+}
+html[data-theme] body .nav-item {
+  padding:var(--space-2) var(--space-3)!important;
+  min-height:36px;
+  gap:var(--space-3)!important;
+  margin:0!important;
+}
+
+/* barra superior: título à esquerda, ferramentas e conta agrupadas à direita */
+html[data-theme] body .topbar {
+  min-height:64px!important;
+  padding:var(--space-3) var(--space-5)!important;
+  gap:var(--space-2)!important;
+}
+html[data-theme] body .topbar-context {
+  margin-right:auto!important;
+}
+html[data-theme] body :is(.topbar-tools,.topbar-account-actions) {
+  margin:0!important;
+  gap:var(--space-2)!important;
+  position:static!important;
+  transform:none!important;
+}
+html[data-theme] body .topbar .user-chip {
+  margin-left:var(--space-3)!important;
+}
