@@ -8084,3 +8084,37 @@ html[data-theme] body #todayClockDate {
 html[data-theme] body #dashboardSubtitle:empty {
   display:none;
 }
+
+/* ---------- 8 · Gráficos e dados ---------- */
+/* barras por período: marca simples, sem pílula; 0% fica vazio */
+html[data-theme] body .period-bar-track {
+  border-radius:var(--radius-xs)!important;
+  background:var(--fill-2)!important;
+}
+html[data-theme] body .period-bar-track i {
+  border-radius:var(--radius-xs) var(--radius-xs) 0 0!important;
+  background:var(--primary)!important;
+  box-shadow:none!important;
+}
+html[data-theme] body .period-bar-meta :is(b,span) {
+  font-variant-numeric:tabular-nums;
+  font-size:var(--text-xs)!important;
+}
+html[data-theme] body .period-bar-meta span {
+  color:var(--muted)!important;
+}
+/* barras de progresso finas e retas */
+html[data-theme] body :is(.linear-progress,.grade-track,.absence-track,.degree-progress,.matrix-list-progress,.absence-meter) {
+  border-radius:var(--radius-xs)!important;
+}
+html[data-theme] body :is(.linear-progress,.grade-track,.absence-track,.degree-progress,.matrix-list-progress,.absence-meter) i {
+  border-radius:var(--radius-xs)!important;
+}
+/* datas das próximas atividades: texto discreto, sem caixa alta */
+html[data-theme] body .mini-task>span {
+  text-transform:none!important;
+  color:var(--muted)!important;
+  font-weight:500!important;
+  font-size:var(--text-xs)!important;
+  font-variant-numeric:tabular-nums;
+}

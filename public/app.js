@@ -89,7 +89,7 @@ function renderHeader(){
 }
 function statusCounts(){return countStatuses(state.subjects)}
 function currentAverage(subjectId){return subjectAverage(state.assessments,subjectId)}
-function renderPeriodChart(){const root=$('periodChart');if(!root)return;const periods=[...new Set(state.subjects.map(s=>s.period).filter(Boolean))].sort((a,b)=>Number(a)-Number(b));root.innerHTML=periods.map(period=>{const list=state.subjects.filter(s=>s.period===period);const total=list.reduce((a,s)=>a+Number(s.hours||0),0);const done=list.filter(s=>doneStatuses.has(s.status)).reduce((a,s)=>a+Number(s.hours||0),0);const pct=total?done/total*100:0;return `<button class="period-bar-item" data-jump="curriculum"><div class="period-bar-meta"><b>${esc(period)}º</b><span>${Math.round(pct)}%</span></div><div class="period-bar-track"><i style="height:${Math.max(5,pct)}%"></i></div></button>`}).join('')}
+function renderPeriodChart(){const root=$('periodChart');if(!root)return;const periods=[...new Set(state.subjects.map(s=>s.period).filter(Boolean))].sort((a,b)=>Number(a)-Number(b));root.innerHTML=periods.map(period=>{const list=state.subjects.filter(s=>s.period===period);const total=list.reduce((a,s)=>a+Number(s.hours||0),0);const done=list.filter(s=>doneStatuses.has(s.status)).reduce((a,s)=>a+Number(s.hours||0),0);const pct=total?done/total*100:0;return `<button class="period-bar-item" data-jump="curriculum"><div class="period-bar-meta"><b>${esc(period)}º</b><span>${Math.round(pct)}%</span></div><div class="period-bar-track"><i style="height:${pct}%"></i></div></button>`}).join('')}
 function renderStatusChart(p){const c=statusCounts(),total=Math.max(1,c.done+c.current+c.failed+c.pending);const d=c.done/total*100,cu=c.current/total*100,f=c.failed/total*100;const donut=$('statusDonut');if(donut)donut.style.background=`conic-gradient(var(--done) 0 ${d}%,var(--current) ${d}% ${d+cu}%,var(--failed) ${d+cu}% ${d+cu+f}%,var(--pending) ${d+cu+f}% 100%)`;if($('donutCenter'))$('donutCenter').textContent=percentLabel(p.pct);if($('statusLegend'))$('statusLegend').innerHTML=[['Concluídas',c.done,'done'],['Cursando',c.current,'current'],['Pendentes',c.pending,'pending'],['Reprovadas',c.failed,'failed']].map(x=>`<div><span><i class="dot ${x[2]}"></i>${x[0]}</span><b>${x[1]}</b></div>`).join('')}
 function renderGradeChart(){const root=$('gradeChart');if(!root)return;const curr=currentSubjects();root.innerHTML=curr.length?curr.map(s=>{const avg=currentAverage(s.id);return `<button class="grade-row" data-jump="grades"><div><b>${esc(s.name)}</b><span>${avg==null?'Sem notas lançadas':`${avg.toFixed(1).replace('.',',')} de 10`}</span></div><div class="grade-track"><i style="width:${avg==null?0:Math.max(0,Math.min(100,avg*10))}%"></i></div></button>`}).join(''):'<div class="empty-state">Marque as disciplinas do semestre para acompanhar suas médias.</div>'}
 function resolveScheduleSubject(x){const direct=state.subjects.find(v=>v.id===x.subjectId);if(direct)return direct;if(x.subjectName){const norm=v=>String(v||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');return state.subjects.find(v=>norm(v.name)===norm(x.subjectName))||{name:x.subjectName,id:x.subjectId}}return null}
@@ -440,6 +440,9 @@ function renderSchedule(){
   for(let m=start;m<=end;m+=60)board+=`<span style="top:${((m-start)/span)*100}%">${String(Math.floor(m/60)).padStart(2,'0')}:00</span>`;
   board+='</div>';
 
+  // mesma cor por disciplina na grade e no resumo (ordem de primeira aparição)
+  const toneOf=new Map();
+  state.schedule.forEach(x=>{const s=resolveScheduleSubject(x);const n=s?.name||x.subjectName||'Disciplina';if(!toneOf.has(n))toneOf.set(n,toneOf.size%5)});
   cols.forEach((day,di)=>{
     board+=`<div class="day-column" style="grid-column:${di+2}">`;
     state.schedule.filter(x=>x.day===day&&x.start&&x.end).forEach((x,idx)=>{
@@ -448,7 +451,7 @@ function renderSchedule(){
       const location=x.location||s?.room||'Local não informado';
       const top=((min(x.start)-start)/span)*100;
       const height=((min(x.end)-min(x.start))/span)*100;
-      board+=`<div class="class-block tone-${(di+idx)%5}" style="top:${top}%;height:${Math.max(height,9)}%" title="${esc(name)}"><strong>${esc(name)}</strong><span>${x.start}–${x.end}</span><small>${esc(location)}</small></div>`;
+      board+=`<div class="class-block tone-${toneOf.get(name)}" style="top:${top}%;height:${Math.max(height,9)}%" title="${esc(name)}"><strong>${esc(name)}</strong><span>${x.start}–${x.end}</span><small>${esc(location)}</small></div>`;
     });
     board+='</div>';
   });
