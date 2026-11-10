@@ -35,6 +35,21 @@
     <symbol id="i-logout" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></symbol>
     <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></symbol>
     <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></symbol>
+    <symbol id="i-star" viewBox="0 0 24 24"><path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z"/></symbol>
+    <symbol id="i-list" viewBox="0 0 24 24"><path d="M3 6h.01M3 12h.01M3 18h.01M8 6h13M8 12h13M8 18h13"/></symbol>
+    <symbol id="i-external" viewBox="0 0 24 24"><path d="M7 7h10v10M7 17 17 7"/></symbol>
+    <symbol id="i-monitor" viewBox="0 0 24 24"><rect width="20" height="14" x="2" y="3" rx="2"/><path d="M8 21h8M12 17v4"/></symbol>
+    <symbol id="i-utensils" viewBox="0 0 24 24"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2M7 2v20M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/></symbol>
+    <symbol id="i-alert" viewBox="0 0 24 24"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4M12 17h.01"/></symbol>
+    <symbol id="i-bell-off" viewBox="0 0 24 24"><path d="M10.268 21a2 2 0 0 0 3.464 0M17 17H4a1 1 0 0 1-.74-1.673C4.59 13.956 6 12.499 6 8a6 6 0 0 1 .258-1.742M2 2l20 20M8.668 3.01A6 6 0 0 1 18 8c0 2.687.77 4.653 1.707 6.05"/></symbol>
+    <symbol id="i-x-circle" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6M9 9l6 6"/></symbol>
+    <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></symbol>
+    <symbol id="i-pin" viewBox="0 0 24 24"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></symbol>
+    <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="5"/><path d="M20 21a8 8 0 0 0-16 0"/></symbol>
+    <symbol id="i-mail" viewBox="0 0 24 24"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></symbol>
+    <symbol id="i-link" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></symbol>
+    <symbol id="i-file" viewBox="0 0 24 24"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/></symbol>
   </defs>
 </svg>
 <div id="toast" class="toast" role="status" aria-live="polite"></div>
@@ -157,22 +172,22 @@
       </div>
 
       <div id="dynamicHomeStrip" class="dynamic-home-strip section-gap">
-        <div><span id="dynamicHomeEmoji">☀️</span><div><strong id="dynamicHomeTitle">Seu dia acadêmico</strong><small id="dynamicHomeText">Tudo pronto para começar.</small></div></div>
+        <div><span id="dynamicHomeEmoji"><svg class="ico" aria-hidden="true"><use href="#i-sun"/></svg></span><div><strong id="dynamicHomeTitle">Seu dia acadêmico</strong><small id="dynamicHomeText">Tudo pronto para começar.</small></div></div>
         <button class="text-link" data-jump="agenda">Ver agenda →</button>
       </div>
 <div class="today-highlight-grid section-gap">
         <article class="today-highlight primary">
-          <div class="today-highlight-icon">🧑‍🏫</div>
+          <div class="today-highlight-icon"><svg class="ico" aria-hidden="true"><use href="#i-calendar"/></svg></div>
           <div><span>Próxima aula</span><strong id="todayNextClassName">Nenhuma aula</strong><small id="todayNextClassMeta">—</small></div>
           <button class="text-link" data-jump="schedule">Horários →</button>
         </article>
         <article class="today-highlight">
-          <div class="today-highlight-icon">📝</div>
+          <div class="today-highlight-icon"><svg class="ico" aria-hidden="true"><use href="#i-checklist"/></svg></div>
           <div><span>Entregas hoje</span><strong id="todayTaskTotal">0</strong><small>atividade(s)</small></div>
           <button class="text-link" data-jump="agenda">Agenda →</button>
         </article>
         <article class="today-highlight">
-          <div class="today-highlight-icon">🔔</div>
+          <div class="today-highlight-icon"><svg class="ico" aria-hidden="true"><use href="#i-bell"/></svg></div>
           <div><span>Atenção</span><strong id="todayAlertTotal">0</strong><small>alerta(s) ativos</small></div>
           <button id="todayOpenNotifications" class="text-link" type="button">Ver alertas →</button>
         </article>
@@ -241,30 +256,30 @@
         <div class="hero-actions">
           <button class="btn btn-secondary" data-jump="agenda">+ Nova atividade</button>
           <button class="btn btn-primary" data-jump="schedule">Ver minha semana</button>
-          <button id="customizeDashboardBtn" class="btn btn-ghost">⚙️ Personalizar</button>
+          <button id="customizeDashboardBtn" class="btn btn-ghost">Personalizar</button>
         </div>
       </div>
 
       <div class="dashboard-quick-actions" data-widget="quick-actions">
-        <button class="dash-action" data-jump="agenda"><span>➕</span><div><b>Nova atividade</b><small>Prova, trabalho ou prazo</small></div></button>
-        <button class="dash-action" data-jump="grades"><span>🧮</span><div><b>Lançar nota</b><small>Atualize seu desempenho</small></div></button>
-        <button class="dash-action" data-jump="attendance"><span>🙋</span><div><b>Registrar falta</b><small>Controle sua frequência</small></div></button>
-        <button class="dash-action" data-jump="schedule"><span>🕒</span><div><b>Editar horários</b><small>Organize sua semana</small></div></button>
+        <button class="dash-action" data-jump="agenda"><span><svg class="ico" aria-hidden="true"><use href="#i-plus"/></svg></span><div><b>Nova atividade</b><small>Prova, trabalho ou prazo</small></div></button>
+        <button class="dash-action" data-jump="grades"><span><svg class="ico" aria-hidden="true"><use href="#i-chart"/></svg></span><div><b>Lançar nota</b><small>Atualize seu desempenho</small></div></button>
+        <button class="dash-action" data-jump="attendance"><span><svg class="ico" aria-hidden="true"><use href="#i-check"/></svg></span><div><b>Registrar falta</b><small>Controle sua frequência</small></div></button>
+        <button class="dash-action" data-jump="schedule"><span><svg class="ico" aria-hidden="true"><use href="#i-clock"/></svg></span><div><b>Editar horários</b><small>Organize sua semana</small></div></button>
       </div>
 
       <div class="metric-grid" data-widget="metrics">
         <article class="metric-card clickable" data-jump="curriculum">
-          <div class="metric-icon">🎯</div><div><span>Progresso do curso</span><strong id="overallPercent">0%</strong>
+          <div><span>Progresso do curso</span><strong id="overallPercent">0%</strong>
           <div class="linear-progress"><i id="overallBar"></i></div><small id="overallHours">0 / 0 h</small></div>
         </article>
         <article class="metric-card clickable" data-jump="subjects">
-          <div class="metric-icon">🏁</div><div><span>Concluídas</span><strong id="doneCount">0</strong><small>disciplinas</small></div>
+          <div><span>Concluídas</span><strong id="doneCount">0</strong><small>disciplinas</small></div>
         </article>
         <article class="metric-card clickable" data-jump="subjects">
-          <div class="metric-icon">📖</div><div><span>Em andamento</span><strong id="currentCount">0</strong><small>neste período</small></div>
+          <div><span>Em andamento</span><strong id="currentCount">0</strong><small>neste período</small></div>
         </article>
         <article class="metric-card clickable" data-jump="agenda">
-          <div class="metric-icon">⏰</div><div><span>Próximas entregas</span><strong id="pendingTaskCount">0</strong><small>atividades abertas</small></div>
+          <div><span>Próximas entregas</span><strong id="pendingTaskCount">0</strong><small>atividades abertas</small></div>
         </article>
       </div>
 
@@ -318,10 +333,10 @@
           <article class="card section-gap" data-widget="university" draggable="true">
             <div class="card-header"><div><p class="eyebrow">ACESSO RÁPIDO</p><h3>Universidade</h3></div></div>
             <div class="quick-grid">
-              <a class="quick-card quick-link" href="https://sigs.ufrpe.br/sigaa/verTelaLogin.do" target="_blank" rel="noopener"><span>🎓</span><div><b>SIGAA</b><small>Portal acadêmico</small></div><i>↗</i></a>
-              <a class="quick-card quick-link" href="https://ava.ufrpe.br/login/index.php" target="_blank" rel="noopener"><span>💻</span><div><b>Ambiente Virtual</b><small>AVA UFRPE</small></div><i>↗</i></a>
-              <a class="quick-card quick-link" href="https://www.instagram.com/progestiru/" target="_blank" rel="noopener"><span>🍽️</span><div><b>Cardápio do RU</b><small>PROGESTI</small></div><i>↗</i></a>
-              <button class="quick-card quick-link" data-jump="university"><span>📅</span><div><b>Calendário</b><small>Calendário acadêmico</small></div><i>→</i></button>
+              <a class="quick-card quick-link" href="https://sigs.ufrpe.br/sigaa/verTelaLogin.do" target="_blank" rel="noopener"><span><svg class="ico" aria-hidden="true"><use href="#i-cap"/></svg></span><div><b>SIGAA</b><small>Portal acadêmico</small></div><i><svg class="ico" aria-hidden="true"><use href="#i-external"/></svg></i></a>
+              <a class="quick-card quick-link" href="https://ava.ufrpe.br/login/index.php" target="_blank" rel="noopener"><span><svg class="ico" aria-hidden="true"><use href="#i-monitor"/></svg></span><div><b>Ambiente Virtual</b><small>AVA UFRPE</small></div><i><svg class="ico" aria-hidden="true"><use href="#i-external"/></svg></i></a>
+              <a class="quick-card quick-link" href="https://www.instagram.com/progestiru/" target="_blank" rel="noopener"><span><svg class="ico" aria-hidden="true"><use href="#i-utensils"/></svg></span><div><b>Cardápio do RU</b><small>PROGESTI</small></div><i><svg class="ico" aria-hidden="true"><use href="#i-external"/></svg></i></a>
+              <button class="quick-card quick-link" data-jump="university"><span><svg class="ico" aria-hidden="true"><use href="#i-calendar"/></svg></span><div><b>Calendário</b><small>Calendário acadêmico</small></div><i>→</i></button>
             </div>
           </article>
         </aside>
@@ -330,8 +345,8 @@
 
     <section id="view-curriculum" class="view">
       <div id="matrixModeSwitch" class="matrix-mode-switch">
-        <button class="active" data-matrix-mode="visual">🧩 Visual</button>
-        <button data-matrix-mode="list">☷ Lista</button>
+        <button class="active" data-matrix-mode="visual"><svg class="ico" aria-hidden="true"><use href="#i-grid"/></svg>Visual</button>
+        <button data-matrix-mode="list"><svg class="ico" aria-hidden="true"><use href="#i-list"/></svg>Lista</button>
       </div>
       <div id="matrixListMode" class="matrix-list-mode hidden"></div>
 
@@ -351,38 +366,38 @@
           <p class="muted">Esta aba mostra somente as matérias do semestre atual. Para ver concluídas, pendentes e toda a trajetória, use Minha matriz.</p>
         </div>
         <div class="toolbar-actions">
-          <button id="semesterSetupBtn" class="btn btn-primary">✏️ Configurar semestre atual</button>
+          <button id="semesterSetupBtn" class="btn btn-primary">Configurar semestre atual</button>
         </div>
       </div>
 
       <div class="current-subject-summary section-gap">
         <article class="current-summary-card">
-          <span>📚</span>
+          <span><svg class="ico" aria-hidden="true"><use href="#i-book"/></svg></span>
           <div><strong id="currentSubjectCount">0</strong><small>disciplinas cursando</small></div>
         </article>
         <article class="current-summary-card">
-          <span>⏱️</span>
+          <span><svg class="ico" aria-hidden="true"><use href="#i-clock"/></svg></span>
           <div><strong id="currentHoursCount">0 h</strong><small>carga horária do semestre</small></div>
         </article>
         <article class="current-summary-card">
-          <span>⭐</span>
+          <span><svg class="ico" aria-hidden="true"><use href="#i-star"/></svg></span>
           <div><strong id="currentFavoriteCount">0</strong><small>favoritas</small></div>
         </article>
       </div>
 
       <div class="subjects-current-toolbar section-gap">
         <div class="subjects-search-wrap">
-          <span>🔎</span>
+          <span><svg class="ico" aria-hidden="true"><use href="#i-search"/></svg></span>
           <input id="subjectSearch" class="input search" placeholder="Buscar entre as disciplinas atuais...">
         </div>
-        <button id="currentFavoritesToggle" class="btn btn-secondary" type="button">⭐ Mostrar favoritas</button>
+        <button id="currentFavoritesToggle" class="btn btn-secondary" type="button">Mostrar favoritas</button>
       </div>
 
       <div id="subjectGrid" class="discipline-grid section-gap"></div>
 
       <div class="subjects-matrix-hint">
         <div>
-          <span class="hint-icon">🧩</span>
+          <span class="hint-icon"><svg class="ico" aria-hidden="true"><use href="#i-grid"/></svg></span>
           <div><strong>Procurando disciplinas concluídas ou pendentes?</strong><p>Veja a matriz curricular para acompanhar toda a graduação.</p></div>
         </div>
         <button class="btn btn-secondary" data-jump="curriculum">Abrir minha matriz →</button>
@@ -393,8 +408,8 @@
       <div class="subject-page-head">
         <button id="subjectPageBackBtn" class="btn btn-ghost subject-back-btn" type="button">← Disciplinas atuais</button>
         <div class="subject-page-actions">
-          <button id="subjectPageFavoriteBtn" class="btn btn-secondary" type="button">☆ Favoritar</button>
-          <button id="subjectPageEditBtn" class="btn btn-primary" type="button">✏️ Editar informações</button>
+          <button id="subjectPageFavoriteBtn" class="btn btn-secondary" type="button">Favoritar</button>
+          <button id="subjectPageEditBtn" class="btn btn-primary" type="button">Editar informações</button>
         </div>
       </div>
 
@@ -407,10 +422,10 @@
       </div>
 
       <div class="subject-page-metrics section-gap">
-        <article><span>📊 Média atual</span><strong id="subjectPageAverage">—</strong><small id="subjectPageGradeCount">0 avaliações</small></article>
-        <article><span>🙋 Faltas</span><strong id="subjectPageAbsences">—</strong><small id="subjectPageAttendanceMode">controle ativo</small></article>
-        <article><span>📝 Pendências</span><strong id="subjectPageTasks">0</strong><small>atividades abertas</small></article>
-        <article><span>🗓️ Aulas</span><strong id="subjectPageSchedules">0</strong><small>horários semanais</small></article>
+        <article><span>Média atual</span><strong id="subjectPageAverage">—</strong><small id="subjectPageGradeCount">0 avaliações</small></article>
+        <article><span>Faltas</span><strong id="subjectPageAbsences">—</strong><small id="subjectPageAttendanceMode">controle ativo</small></article>
+        <article><span>Pendências</span><strong id="subjectPageTasks">0</strong><small>atividades abertas</small></article>
+        <article><span>Aulas</span><strong id="subjectPageSchedules">0</strong><small>horários semanais</small></article>
       </div>
 
       <div class="subject-page-layout section-gap">
@@ -560,10 +575,10 @@
       <div class="page-head"><div><p class="eyebrow">UNIVERSIDADE</p><h1>Seu campus digital</h1><p class="muted">Centralize os serviços que você usa para estudar, organizar a rotina e acompanhar a universidade.</p></div></div>
       <div class="university-grid section-gap" id="universityLinks"></div>
       <div class="two-col section-gap">
-        <article class="card clickable" data-jump="agenda"><div class="hub-icon">📝</div><h3>Agenda acadêmica</h3><p class="muted">Provas, entregas e compromissos sincronizados com o Google Agenda.</p><span class="text-link">Abrir agenda →</span></article>
-        <article class="card clickable" data-jump="schedule"><div class="hub-icon">🗓️</div><h3>Minha semana</h3><p class="muted">Horários, salas e disciplinas do período em uma visão única.</p><span class="text-link">Abrir horários →</span></article>
-        <article class="card clickable" data-jump="curriculum"><div class="hub-icon">🎓</div><h3>Minha formação</h3><p class="muted">Veja sua matriz inteira e acompanhe a conclusão do curso.</p><span class="text-link">Abrir matriz →</span></article>
-        <article class="card clickable" data-jump="grades"><div class="hub-icon">📊</div><h3>Desempenho</h3><p class="muted">Notas e médias das disciplinas que você está cursando.</p><span class="text-link">Abrir notas →</span></article>
+        <article class="card clickable" data-jump="agenda"><div class="hub-icon"><svg class="ico" aria-hidden="true"><use href="#i-checklist"/></svg></div><h3>Agenda acadêmica</h3><p class="muted">Provas, entregas e compromissos sincronizados com o Google Agenda.</p><span class="text-link">Abrir agenda →</span></article>
+        <article class="card clickable" data-jump="schedule"><div class="hub-icon"><svg class="ico" aria-hidden="true"><use href="#i-calendar"/></svg></div><h3>Minha semana</h3><p class="muted">Horários, salas e disciplinas do período em uma visão única.</p><span class="text-link">Abrir horários →</span></article>
+        <article class="card clickable" data-jump="curriculum"><div class="hub-icon"><svg class="ico" aria-hidden="true"><use href="#i-cap"/></svg></div><h3>Minha formação</h3><p class="muted">Veja sua matriz inteira e acompanhe a conclusão do curso.</p><span class="text-link">Abrir matriz →</span></article>
+        <article class="card clickable" data-jump="grades"><div class="hub-icon"><svg class="ico" aria-hidden="true"><use href="#i-chart"/></svg></div><h3>Desempenho</h3><p class="muted">Notas e médias das disciplinas que você está cursando.</p><span class="text-link">Abrir notas →</span></article>
       </div>
     </section>
 
@@ -572,7 +587,7 @@
       <div class="page-head">
         <div>
           <p class="eyebrow">STUDY HUB</p>
-          <h1>🎯 Modo Foco</h1>
+          <h1>Modo Foco</h1>
           <p class="muted">Estude com intenção e acompanhe o tempo dedicado às disciplinas do semestre.</p>
         </div>
       </div>
@@ -601,8 +616,8 @@
           </div>
 
           <div class="focus-actions section-gap">
-            <button id="focusStartBtn" class="btn btn-primary" type="button">▶ Iniciar foco</button>
-            <button id="focusFinishBtn" class="btn btn-secondary" type="button">✓ Finalizar sessão</button>
+            <button id="focusStartBtn" class="btn btn-primary" type="button">Iniciar foco</button>
+            <button id="focusFinishBtn" class="btn btn-secondary" type="button">Finalizar sessão</button>
           </div>
         </article>
 
@@ -627,7 +642,7 @@
       <div class="page-head">
         <div>
           <p class="eyebrow">STUDY HUB</p>
-          <h1>📎 Materiais</h1>
+          <h1>Materiais</h1>
           <p class="muted">Centralize links, slides, listas, livros e referências das suas disciplinas.</p>
         </div>
         <button id="addMaterialBtn" class="btn btn-primary" type="button">＋ Adicionar material</button>
@@ -635,7 +650,7 @@
 
       <div class="materials-toolbar section-gap">
         <div class="materials-search">
-          <span>🔎</span>
+          <span><svg class="ico" aria-hidden="true"><use href="#i-search"/></svg></span>
           <input id="materialSearch" class="input" placeholder="Buscar materiais...">
         </div>
 
@@ -664,7 +679,7 @@
         <div><p class="eyebrow">SUA BIBLIOTECA</p><h3>Materiais salvos</h3></div>
         <div id="materialsViewSwitch" class="view-switch">
           <button class="active" data-material-view="cards" type="button">▦ Cards</button>
-          <button data-material-view="list" type="button">☷ Lista</button>
+          <button data-material-view="list" type="button"><svg class="ico" aria-hidden="true"><use href="#i-list"/></svg>Lista</button>
         </div>
       </div>
       <div id="materialsGrid" class="materials-grid section-gap"></div>
@@ -674,7 +689,7 @@
       <div class="page-head">
         <div>
           <p class="eyebrow">MINHA TRAJETÓRIA</p>
-          <h1>🎓 Minha Graduação</h1>
+          <h1>Minha Graduação</h1>
           <p class="muted">Computação · UFRPE</p>
         </div>
       </div>
@@ -694,10 +709,10 @@
       </section>
 
       <div class="degree-metrics section-gap">
-        <article><span>✅ Concluídas</span><strong id="degreeDone">0</strong></article>
-        <article><span>📚 Cursando</span><strong id="degreeCurrent">0</strong></article>
-        <article><span>🧩 Restantes</span><strong id="degreeRemaining">0</strong></article>
-        <article><span>🎯 Foco na semana</span><strong id="degreeFocus">0 min</strong></article>
+        <article><span>Concluídas</span><strong id="degreeDone">0</strong></article>
+        <article><span>Cursando</span><strong id="degreeCurrent">0</strong></article>
+        <article><span>Restantes</span><strong id="degreeRemaining">0</strong></article>
+        <article><span>Foco na semana</span><strong id="degreeFocus">0 min</strong></article>
       </div>
 
       <article class="card section-gap cra-card">
@@ -738,8 +753,8 @@
           <div><p class="eyebrow">INTERFACE</p><h3>Seu Focca, do seu jeito</h3></div>
         </div>
         <div class="interface-preferences-grid">
-          <button type="button" id="settingsThemeShortcut"><span>🌗</span><div><strong>Tema</strong><small>Alternar entre claro e escuro</small></div><i>→</i></button>
-          <button type="button" id="settingsDashboardShortcut"><span>🧱</span><div><strong>Dashboard</strong><small>Escolher e reorganizar widgets</small></div><i>→</i></button>
+          <button type="button" id="settingsThemeShortcut"><span><svg class="ico" aria-hidden="true"><use href="#i-moon"/></svg></span><div><strong>Tema</strong><small>Alternar entre claro e escuro</small></div><i>→</i></button>
+          <button type="button" id="settingsDashboardShortcut"><span><svg class="ico" aria-hidden="true"><use href="#i-grid"/></svg></span><div><strong>Dashboard</strong><small>Escolher e reorganizar widgets</small></div><i>→</i></button>
           <button type="button" id="settingsSearchShortcut"><span>⌘</span><div><strong>Command Center</strong><small>Busca e ações rápidas</small></div><i>→</i></button>
         </div>
       </article>
@@ -748,7 +763,7 @@
       <article class="card academic-profile-card section-gap">
         <div class="card-header"><div><p class="eyebrow">MEU FOCCA</p><h3>Perfil acadêmico</h3></div></div>
         <div class="academic-profile-body">
-          <div class="academic-profile-avatar">🎓</div>
+          <div class="academic-profile-avatar"><svg class="ico" aria-hidden="true"><use href="#i-cap"/></svg></div>
           <div>
             <strong>Computação · UFRPE</strong>
             <p class="muted">Seu panorama acadêmico calculado a partir da matriz cadastrada.</p>
@@ -773,17 +788,17 @@
 
       <div class="fixed-link-card full">
         <div><span>SIGAA</span><strong>Portal acadêmico oficial</strong></div>
-        <a href="https://sigs.ufrpe.br/sigaa/verTelaLogin.do" target="_blank" rel="noopener">Abrir ↗</a>
+        <a href="https://sigs.ufrpe.br/sigaa/verTelaLogin.do" target="_blank" rel="noopener">Abrir</a>
       </div>
 
       <div class="fixed-link-card full">
         <div><span>Ambiente Virtual</span><strong>AVA UFRPE</strong></div>
-        <a href="https://ava.ufrpe.br/login/index.php" target="_blank" rel="noopener">Abrir ↗</a>
+        <a href="https://ava.ufrpe.br/login/index.php" target="_blank" rel="noopener">Abrir</a>
       </div>
 
       <div class="fixed-link-card full">
         <div><span>Cardápio do RU</span><strong>Instagram da PROGESTI/RU</strong></div>
-        <a href="https://www.instagram.com/progestiru/" target="_blank" rel="noopener">Abrir ↗</a>
+        <a href="https://www.instagram.com/progestiru/" target="_blank" rel="noopener">Abrir</a>
       </div>
 
       <label class="field full">
@@ -863,12 +878,12 @@
       <h2>O que você quer fazer?</h2>
       <p class="muted">Ações rápidas sem precisar procurar a tela certa.</p>
       <div class="command-grid section-gap">
-        <button type="button" data-command="task"><span>📝</span><div><b>Nova atividade</b><small>Prova, trabalho ou prazo</small></div></button>
-        <button type="button" data-command="grade"><span>📊</span><div><b>Lançar nota</b><small>Registrar avaliação</small></div></button>
-        <button type="button" data-command="absence"><span>🙋</span><div><b>Registrar falta</b><small>Atualizar frequência</small></div></button>
-        <button type="button" data-command="schedule"><span>🕒</span><div><b>Editar horários</b><small>Organizar a semana</small></div></button>
-        <button type="button" data-command="semester"><span>📚</span><div><b>Semestre atual</b><small>Escolher matérias cursando</small></div></button>
-        <button type="button" data-command="search"><span>🔎</span><div><b>Buscar no Focca</b><small>Matéria, professor, tarefa...</small></div></button><button type="button" data-command="focus"><span>🎯</span><div><b>Iniciar foco</b><small>Abrir modo de estudo</small></div></button><button type="button" data-command="material"><span>📎</span><div><b>Adicionar material</b><small>Salvar link ou referência</small></div></button>
+        <button type="button" data-command="task"><span><svg class="ico" aria-hidden="true"><use href="#i-checklist"/></svg></span><div><b>Nova atividade</b><small>Prova, trabalho ou prazo</small></div></button>
+        <button type="button" data-command="grade"><span><svg class="ico" aria-hidden="true"><use href="#i-chart"/></svg></span><div><b>Lançar nota</b><small>Registrar avaliação</small></div></button>
+        <button type="button" data-command="absence"><span><svg class="ico" aria-hidden="true"><use href="#i-check"/></svg></span><div><b>Registrar falta</b><small>Atualizar frequência</small></div></button>
+        <button type="button" data-command="schedule"><span><svg class="ico" aria-hidden="true"><use href="#i-clock"/></svg></span><div><b>Editar horários</b><small>Organizar a semana</small></div></button>
+        <button type="button" data-command="semester"><span><svg class="ico" aria-hidden="true"><use href="#i-book"/></svg></span><div><b>Semestre atual</b><small>Escolher matérias cursando</small></div></button>
+        <button type="button" data-command="search"><span><svg class="ico" aria-hidden="true"><use href="#i-search"/></svg></span><div><b>Buscar no Focca</b><small>Matéria, professor, tarefa...</small></div></button><button type="button" data-command="focus"><span><svg class="ico" aria-hidden="true"><use href="#i-target"/></svg></span><div><b>Iniciar foco</b><small>Abrir modo de estudo</small></div></button><button type="button" data-command="material"><span><svg class="ico" aria-hidden="true"><use href="#i-clip"/></svg></span><div><b>Adicionar material</b><small>Salvar link ou referência</small></div></button>
       </div>
     </div>
   </div>
@@ -901,8 +916,8 @@
       <p id="focusFullscreenTopic" class="muted">Sessão de estudo</p>
       <div id="focusFullscreenTimer" class="focus-fullscreen-timer">25:00</div>
       <div class="focus-fullscreen-actions">
-        <button id="focusFullscreenPause" class="btn btn-primary">⏸ Pausar</button>
-        <button id="focusFullscreenFinish" class="btn btn-secondary">✓ Encerrar sessão</button>
+        <button id="focusFullscreenPause" class="btn btn-primary">Pausar</button>
+        <button id="focusFullscreenFinish" class="btn btn-secondary">Encerrar sessão</button>
       </div>
     </div>
   </div>

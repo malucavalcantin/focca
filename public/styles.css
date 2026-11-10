@@ -7849,3 +7849,74 @@ html[data-theme] body :is(.btn-primary,.command-fab) {
 html[data-theme] body :is(.nav-group-title,.eyebrow) {
   color:var(--muted)!important;
 }
+
+/* ---------- 4 · Ícones ----------
+   Um único set (traço Lucide, 1.8) no lugar dos emojis. */
+html[data-theme] body :is(.today-highlight-icon,.hub-icon,.quick-card>span,.dash-action>span,.material-icon,.current-summary-card>span,.hint-icon,.empty-mascot,.professor-avatar,.academic-profile-avatar,#dynamicHomeEmoji,.subject-page-row>span,.global-result>span,.notification-item>span,.today-group>button>span,#todayTimeline>button>span,#todayAttentionList>button>span,#todayCurrentSubjects>button>span,.grade-status>span,.absence-tile>span,.subject-attendance-summary>span,.interface-preferences-grid button>span,.search-field>span,.university-link-card .hub-icon) {
+  display:inline-grid!important;
+  place-items:center;
+  font-size:0!important;
+  line-height:0;
+  color:var(--muted);
+}
+html[data-theme] body :is(.today-highlight-icon,.hub-icon,.quick-card>span,.dash-action>span,.material-icon,.current-summary-card>span,.professor-avatar,.academic-profile-avatar) {
+  width:36px!important;
+  height:36px!important;
+  min-width:36px;
+  border-radius:var(--radius-sm)!important;
+  background:var(--fill-2)!important;
+}
+html[data-theme] body :is(.today-highlight-icon,.hub-icon,.quick-card>span,.dash-action>span,.material-icon,.current-summary-card>span,.professor-avatar,.academic-profile-avatar,.empty-mascot) .ico {
+  width:18px;
+  height:18px;
+}
+html[data-theme] body :is(#dynamicHomeEmoji,.subject-page-row>span,.global-result>span,.notification-item>span,.today-group>button>span,#todayTimeline>button>span,#todayAttentionList>button>span,#todayCurrentSubjects>button>span,.grade-status>span,.absence-tile>span,.subject-attendance-summary>span,.interface-preferences-grid button>span,.search-field>span,.hint-icon) .ico {
+  width:18px;
+  height:18px;
+}
+html[data-theme] body .grade-status.success>span { color:var(--done); }
+html[data-theme] body .grade-status.warning>span { color:var(--pending); }
+html[data-theme] body .grade-status.danger>span { color:var(--failed); }
+html[data-theme] body #todayAttentionList>button.danger>span { color:var(--failed); }
+html[data-theme] body #todayAttentionList>button.warning>span { color:var(--pending); }
+/* ícones dentro de botões e links externos */
+html[data-theme] body :is(.btn,[data-matrix-mode],[data-material-view]) .ico {
+  width:16px;
+  height:16px;
+  display:inline-block;
+  vertical-align:-3px;
+  margin-right:6px;
+}
+html[data-theme] body :is(.quick-link>i,.university-link-card>span:last-child,.subject-page-links i,.subject-page-row a) .ico {
+  width:14px;
+  height:14px;
+  color:var(--muted);
+}
+/* favorito: estrela de traço; preenchida quando ativa */
+html[data-theme] body .favorite-btn {
+  display:inline-grid;
+  place-items:center;
+  color:var(--muted-2);
+  font-size:0;
+}
+html[data-theme] body .favorite-btn .ico {
+  width:16px;
+  height:16px;
+}
+html[data-theme] body .favorite-btn.active {
+  color:var(--pending);
+}
+html[data-theme] body .favorite-btn.active .ico {
+  fill:currentColor;
+}
+html[data-theme] body .matrix-status {
+  display:inline-grid;
+  place-items:center;
+  width:16px;
+}
+html[data-theme] body .matrix-status .dot {
+  width:8px;
+  height:8px;
+  border-radius:50%;
+  display:block;
+}
