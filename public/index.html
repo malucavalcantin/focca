@@ -9,7 +9,7 @@
   <title>Focca — foque no que importa</title>
   <link rel="icon" type="image/png" href="./assets/favicon.png">
   <link rel="apple-touch-icon" href="./assets/apple-touch-icon.png">
-  <link rel="stylesheet" href="./styles.css?v=20261001-hig2">
+  <link rel="stylesheet" href="./styles.css?v=20261110-unslop">
   <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
@@ -821,8 +821,8 @@
 <div id="semesterModal" class="modal hidden"><div class="modal-card wide"><button class="modal-close" data-close="semesterModal">×</button><p class="eyebrow">Semestre atual</p><h2>Quais disciplinas você está cursando?</h2><p class="muted">Selecione as matérias deste período. Se uma disciplina ainda não estiver na matriz, você pode cadastrá-la e depois voltar aqui.</p><div class="semester-toolbar"><label class="field"><span>Período atual</span><input id="semesterTermInput" placeholder="Ex.: 2026.2"></label><button id="semesterAddSubjectBtn" class="btn btn-secondary">+ Nova disciplina</button></div><div id="semesterSubjectList" class="semester-subject-list section-gap"></div><div class="modal-actions"><button id="saveSemesterBtn" class="btn btn-primary">Salvar semestre atual</button></div></div></div>
 
 <div id="subjectModal" class="modal hidden"><div class="modal-card"><button class="modal-close" data-close="subjectModal">×</button><p class="eyebrow">Disciplina</p><h2 id="subjectModalTitle">Editar disciplina</h2><form id="subjectForm" class="form-grid"><input id="subjectId" type="hidden"><label class="field full"><span>Nome</span><input id="subjectName" required></label><label class="field"><span>Código</span><input id="subjectCode"></label><label class="field"><span>Carga horária</span><input id="subjectHours" type="number" min="0" required></label><label class="field"><span>Período</span><input id="subjectPeriod" placeholder="Ex.: 4"></label><label class="field"><span>Tipo</span><select id="subjectType"><option value="mandatory">Obrigatória</option><option value="elective">Optativa/Eletiva</option><option value="complementary">Complementar</option><option value="internship">Estágio</option><option value="tcc">TCC</option><option value="other">Outro requisito</option></select></label><label class="field full"><span>Situação atual</span><select id="subjectStatus"><option value="pending">Pendente</option><option value="current">Cursando</option><option value="approved">Aprovada</option><option value="approved_final">Aprovada por nota/final</option><option value="failed">Reprovada</option><option value="withdrawn">Trancada</option><option value="exempt">Dispensada/Aproveitada</option></select></label><button class="btn btn-primary full">Salvar disciplina</button></form></div></div>
-<script type="module" src="./auth-ui.js?v=20260825-auth62"></script>
-  <script type="module" src="./app.js?v=20260825-auth62"></script>
+<script type="module" src="./auth-ui.js?v=20261110-unslop"></script>
+  <script type="module" src="./app.js?v=20261110-unslop"></script>
 
 <div id="subjectDetailsModal" class="modal hidden">
   <div class="modal-card subject-detail-modal">
