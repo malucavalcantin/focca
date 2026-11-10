@@ -7541,9 +7541,13 @@ html[data-theme] body .cra-grade-row input { text-align: center; padding: 8px; b
 
 /* ---------- 1 · Espaçamento e alinhamento ---------- */
 html[data-theme] body .view.active-view {
-  padding-top:var(--gap-section);
-  padding-left:var(--gap-section);
-  padding-right:var(--gap-section);
+  padding-top:var(--gap-section)!important;
+  padding-left:var(--gap-section)!important;
+  padding-right:var(--gap-section)!important;
+}
+html[data-theme] body .main {
+  padding-left:0!important;
+  padding-right:0!important;
 }
 html[data-theme] body .view > .section-gap,
 html[data-theme] body .view .section-gap {
@@ -7919,4 +7923,65 @@ html[data-theme] body .matrix-status .dot {
   height:8px;
   border-radius:50%;
   display:block;
+}
+
+/* ---------- 5 · Badges e contadores ---------- */
+/* selo decorativo ao lado do título da página */
+html[data-theme] body .topbar-context-chip {
+  display:none!important;
+}
+/* contagens e datas: texto discreto alinhado à direita, sem pílula */
+html[data-theme] body .view .badge {
+  background:transparent!important;
+  border:0!important;
+  padding:0!important;
+  color:var(--muted)!important;
+  font-size:13px!important;
+  font-weight:500!important;
+  white-space:nowrap;
+  font-variant-numeric:tabular-nums;
+  box-shadow:none!important;
+}
+html[data-theme] body :is(.semester-inline-stats,.academic-profile-numbers) {
+  display:flex!important;
+  flex-wrap:wrap;
+  gap:0 var(--space-3)!important;
+}
+html[data-theme] body :is(.semester-inline-stats>span,.academic-profile-numbers>span) {
+  background:transparent!important;
+  border:0!important;
+  padding:0!important;
+  border-radius:0!important;
+  font-size:13px!important;
+  color:var(--muted)!important;
+  width:auto!important;
+  text-align:left!important;
+  font-variant-numeric:tabular-nums;
+}
+html[data-theme] body :is(.semester-inline-stats>span,.academic-profile-numbers>span) b,
+html[data-theme] body :is(.semester-inline-stats>span,.academic-profile-numbers>span) strong {
+  color:var(--text);
+  font-weight:600;
+}
+/* itens da semana: lista simples, não pílulas */
+html[data-theme] body .focca-week-items>span {
+  border-radius:var(--radius-xs)!important;
+  background:var(--fill-2)!important;
+}
+/* ação "Status" do card: botão de texto discreto */
+html[data-theme] body .subject-card .mini-btn {
+  background:transparent!important;
+  border:1px solid var(--line)!important;
+  color:var(--muted)!important;
+  font-weight:500!important;
+  padding:2px 8px!important;
+  border-radius:var(--radius-xs)!important;
+}
+html[data-theme] body .subject-card .mini-btn:hover {
+  color:var(--text)!important;
+  border-color:var(--line-strong)!important;
+}
+/* único badge que pede atenção: notificações */
+html[data-theme] body #notificationBadge {
+  font-variant-numeric:tabular-nums;
 }
