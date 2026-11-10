@@ -142,7 +142,7 @@
     <header class="topbar">
       <button id="menuBtn" class="icon-btn" aria-label="Abrir menu" title="Menu"><svg class="ico" aria-hidden="true"><use href="#i-menu"/></svg></button>
       <div class="topbar-context">
-          <p class="eyebrow" id="courseEyebrow">Focca · meu dia</p>
+          <p class="eyebrow" id="courseEyebrow">Meu dia</p>
           <div class="topbar-title-row"><h2 id="viewTitle">Visão geral</h2><span id="topbarContext" class="topbar-context-chip">Hoje</span></div>
         </div>
       <div class="topbar-tools">
@@ -161,7 +161,7 @@
     <section id="view-today" class="view">
       <div class="today-hub-hero">
         <div>
-          <p class="eyebrow">Hoje no Focca</p>
+          <p class="eyebrow">Hoje</p>
           <h1 id="todayHubTitle">Seu dia acadêmico</h1>
           <p id="todayHubSubtitle" class="muted">Aulas, entregas e prioridades em um só lugar.</p>
         </div>
@@ -183,12 +183,12 @@
         </article>
         <article class="today-highlight">
           <div class="today-highlight-icon"><svg class="ico" aria-hidden="true"><use href="#i-checklist"/></svg></div>
-          <div><span>Entregas hoje</span><strong id="todayTaskTotal">0</strong><small>atividade(s)</small></div>
+          <div><span>Entregas hoje</span><strong id="todayTaskTotal">0</strong><small id="todayTaskUnit">atividades</small></div>
           <button class="text-link" data-jump="agenda">Agenda →</button>
         </article>
         <article class="today-highlight">
           <div class="today-highlight-icon"><svg class="ico" aria-hidden="true"><use href="#i-bell"/></svg></div>
-          <div><span>Atenção</span><strong id="todayAlertTotal">0</strong><small>alerta(s) ativos</small></div>
+          <div><span>Atenção</span><strong id="todayAlertTotal">0</strong><small id="todayAlertUnit">alertas ativos</small></div>
           <button id="todayOpenNotifications" class="text-link" type="button">Ver alertas →</button>
         </article>
       </div>
@@ -203,7 +203,7 @@
           
           <article class="card section-gap focca-week-card">
             <div class="card-header">
-              <div><p class="eyebrow">Semana Focca</p><h3>Minha semana</h3></div>
+              <div><p class="eyebrow">Semana</p><h3>Minha semana</h3></div>
               <button class="text-link" data-jump="schedule">Ver horários →</button>
             </div>
             <div id="foccaWeekStrip" class="focca-week-strip"></div>
@@ -286,7 +286,7 @@
       <div class="dashboard-layout section-gap">
         <div class="dashboard-main" id="dashboardMainWidgets">
           <article class="card today-card" data-widget="today" draggable="true">
-            <div class="card-header"><div><p class="eyebrow">Hoje</p><h3>Seu dia no Focca</h3></div><span id="todayDateLabel" class="badge"></span></div>
+            <div class="card-header"><div><p class="eyebrow">Hoje</p><h3>Seu dia</h3></div><span id="todayDateLabel" class="badge"></span></div>
             <div id="todayOverview" class="today-overview"></div>
           </article>
           <article class="card chart-card section-gap" data-widget="period-chart" draggable="true">

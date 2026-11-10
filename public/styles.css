@@ -8075,3 +8075,12 @@ html[data-theme] body .today-clock strong {
   font-size:var(--text-2xl)!important;
   font-weight:700!important;
 }
+
+/* ---------- 7 · Texto ---------- */
+/* a data virou o título da página Hoje; o relógio mostra só a hora */
+html[data-theme] body #todayClockDate {
+  display:none!important;
+}
+html[data-theme] body #dashboardSubtitle:empty {
+  display:none;
+}

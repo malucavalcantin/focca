@@ -5,6 +5,7 @@ import { COMPUTACAO_BASE_MATRIX } from './base-matrix.js?v=20260825-auth62';
 import { DONE_STATUSES, calcProgress, countStatuses, subjectAverage, percentLabel, approvalSituation, findNextClass, absenceStatus, calcCRA, projectedCRA, craGoalNeeded } from './academic.js?v=20261001c';
 
 const $=id=>document.getElementById(id);
+const plural=(n,one,many)=>`${n} ${Number(n)===1?one:many}`;
 const ico=name=>`<svg class="ico" aria-hidden="true"><use href="#i-${name}"/></svg>`;
 const esc=(v='')=>String(v).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
 const state={user:null,profile:null,subjects:[],tasks:[],schedule:[],absences:[],assessments:[],settings:[],filter:'current',currentFavoritesOnly:false,selectedSubjectId:null};
@@ -79,10 +80,10 @@ function renderHeader(){
   const p=state.profile||{};
   $('userName').textContent=p.displayName||state.user?.displayName||'Estudante';
   $('userEmail').textContent=state.user?.email||'';
-  $('courseEyebrow').textContent='Computação · UFRPE';
-  $('termLabel').textContent=p.currentTerm||'Seu período';
-  $('dashboardTitle').textContent=`Olá, ${esc((p.displayName||state.user?.displayName||'estudante').split(' ')[0])}!`;
-  $('dashboardSubtitle').textContent='Seu hub de Computação na UFRPE.';
+  
+  $('termLabel').textContent='Computação · UFRPE';
+  $('dashboardTitle').textContent=p.currentTerm?`Semestre ${p.currentTerm}`:'Semestre atual';
+  $('dashboardSubtitle').textContent='';
   $('matrixCourseTitle').textContent='Computação · UFRPE';
   if(state.user?.photoURL){$('userPhoto').src=state.user.photoURL;$('userPhoto').classList.remove('hidden')}
 }
@@ -196,7 +197,7 @@ function renderTodayOverview(){
 function computedNotifications(){
   const now=Date.now(),items=[];
   state.tasks.filter(t=>!t.completed).forEach(t=>{const due=new Date(t.dueAt).getTime();if(!Number.isFinite(due))return;const diff=due-now;if(diff<0)items.push({icon:ico('alert'),title:'Atividade atrasada',text:`${t.title} · ${t.subjectName||''}`,view:'agenda',level:'danger'});else if(diff<=48*3600000)items.push({icon:ico('clock'),title:'Prazo próximo',text:`${t.title} · ${new Date(t.dueAt).toLocaleString('pt-BR',{dateStyle:'short',timeStyle:'short'})}`,view:'agenda',level:'warning'})});
-  currentSubjects().forEach(s=>{const calls=settingFor(s.id),n=state.absences.filter(a=>a.subjectId===s.id).reduce((x,a)=>x+Number(a.absences||0),0);if(calls&&n>=4)items.push({icon:ico('check'),title:'Faltas registradas',text:`${s.name}: ${n} falta(s) lançada(s)`,view:'attendance',level:'info'})});
+  currentSubjects().forEach(s=>{const calls=settingFor(s.id),n=state.absences.filter(a=>a.subjectId===s.id).reduce((x,a)=>x+Number(a.absences||0),0);if(calls&&n>=4)items.push({icon:ico('check'),title:'Faltas registradas',text:`${s.name}: ${plural(n,'falta','faltas')}`,view:'attendance',level:'info'})});
   return items.slice(0,12)
 }
 function renderNotifications(){const list=computedNotifications();$('notificationBadge').textContent=list.length;$('notificationBadge').classList.toggle('hidden',!list.length);$('notificationsList').innerHTML=list.length?list.map(n=>`<button class="notification-item ${n.level}" data-notification-view="${n.view}"><span>${n.icon}</span><div><b>${esc(n.title)}</b><small>${esc(n.text)}</small></div><i>→</i></button>`).join(''):'<div class="empty-state mascoted"><span>Você está em dia por aqui.</span></div>'}
@@ -211,7 +212,7 @@ const absenceLevels={ok:['Tranquilo','ok'],warning:['Atenção','warning'],risk:
 function absenceTotal(subjectId){return state.absences.filter(a=>a.subjectId===subjectId).reduce((x,a)=>x+Number(a.absences||0),0)}
 function absenceInfo(s){return absenceStatus({hours:s.hours,absences:absenceTotal(s.id),calls:settingFor(s.id)})}
 function renderAbsenceChart(){const root=$('absenceChart');if(!root)return;const infos=currentSubjects().map(absenceInfo),counted=infos.filter(i=>i.limit!=null);const total=counted.reduce((x,i)=>x+i.used,0),risky=counted.filter(i=>i.level==='risk'||i.level==='over').length,noCalls=infos.filter(i=>i.level==='no-calls').length;const tile=(cls,icon,value,label,hint)=>`<div class="absence-tile ${cls}"><span class="absence-tile-icon">${icon}</span><div><strong>${value}</strong><b>${label}</b><small>${hint}</small></div></div>`;root.innerHTML=infos.length?[tile('',ico('check'),total,'faltas registradas','nas disciplinas com chamada'),tile(risky?'risk':'ok',ico(risky?'alert':'check'),risky,risky===1?'disciplina em risco':'disciplinas em risco',risky?'75% ou mais do limite usado':'Tudo dentro do limite'),tile('nocalls',ico('bell-off'),noCalls,'sem chamada','não contam faltas')].join(''):'<div class="empty-state">Nenhuma disciplina cursando.</div>'}
-function renderGradeEvolution(){const root=$('gradeEvolution');if(!root)return;const curr=currentSubjects();root.innerHTML=curr.length?curr.map(s=>{const vals=state.assessments.filter(a=>a.subjectId===s.id).map(a=>Number(a.grade)).filter(Number.isFinite);return `<div class="grade-evolution-row"><div><b>${esc(s.name)}</b><span>${vals.length?`${vals.length} avaliação(ões)`:'Sem notas'}</span></div><div class="grade-sequence">${vals.length?vals.map((v,i)=>`<span title="Avaliação ${i+1}: ${v}" style="height:${Math.max(6,v*10)}%"><i>${v.toFixed(1).replace('.',',')}</i></span>`).join(''):'<em>—</em>'}</div></div>`}).join(''):'<div class="empty-state">Nenhuma disciplina cursando.</div>'}
+function renderGradeEvolution(){const root=$('gradeEvolution');if(!root)return;const curr=currentSubjects();root.innerHTML=curr.length?curr.map(s=>{const vals=state.assessments.filter(a=>a.subjectId===s.id).map(a=>Number(a.grade)).filter(Number.isFinite);return `<div class="grade-evolution-row"><div><b>${esc(s.name)}</b><span>${vals.length?plural(vals.length,'avaliação','avaliações'):'Sem notas'}</span></div><div class="grade-sequence">${vals.length?vals.map((v,i)=>`<span title="Avaliação ${i+1}: ${v}" style="height:${Math.max(6,v*10)}%"><i>${v.toFixed(1).replace('.',',')}</i></span>`).join(''):'<em>—</em>'}</div></div>`}).join(''):'<div class="empty-state">Nenhuma disciplina cursando.</div>'}
 const dashboardWidgets={
  'quick-actions':'Ações rápidas','metrics':'Indicadores','today':'Hoje','period-chart':'Conclusão por período','analytics':'Gráficos','current-subjects':'Disciplinas atuais','next-class':'Próxima aula','tasks':'Próximas atividades','projection':'Projeção','university':'Universidade'
 };
@@ -228,14 +229,14 @@ function renderTodayHub(){
   const now=new Date();
   if($('todayClockTime'))$('todayClockTime').textContent=now.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
   if($('todayClockDate'))$('todayClockDate').textContent=now.toLocaleDateString('pt-BR',{weekday:'long',day:'2-digit',month:'long'});
-  if($('todayHubTitle'))$('todayHubTitle').textContent=`${now.getHours()<12?'Bom dia':now.getHours()<18?'Boa tarde':'Boa noite'}, ${(state.profile?.displayName||state.user?.displayName||'estudante').split(' ')[0]}!`;
+  if($('todayHubTitle')){const d=now.toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long'});$('todayHubTitle').textContent=d.charAt(0).toUpperCase()+d.slice(1)}
 
   const classes=todayClasses(),tasks=todayTasks(),alerts=computedNotifications();
   const next=nextClass();
   if($('todayNextClassName'))$('todayNextClassName').textContent=next?(next.subject?.name||next.item.subjectName||'Disciplina'):'Nenhuma aula futura';
   if($('todayNextClassMeta'))$('todayNextClassMeta').textContent=next?`${next.date.toLocaleDateString('pt-BR',{weekday:'short'})} · ${next.item.start}–${next.item.end} · ${next.item.location||next.subject?.room||'local não informado'}`:'Sua agenda está livre.';
-  if($('todayTaskTotal'))$('todayTaskTotal').textContent=tasks.length;
-  if($('todayAlertTotal'))$('todayAlertTotal').textContent=alerts.length;
+  if($('todayTaskTotal'))$('todayTaskTotal').textContent=tasks.length;if($('todayTaskUnit'))$('todayTaskUnit').textContent=tasks.length===1?'atividade':'atividades';
+  if($('todayAlertTotal'))$('todayAlertTotal').textContent=alerts.length;if($('todayAlertUnit'))$('todayAlertUnit').textContent=alerts.length===1?'alerta ativo':'alertas ativos';
 
   const timeline=[
     ...classes.map(x=>({time:x.start,icon:ico('calendar'),title:resolveScheduleSubject(x)?.name||x.subjectName||'Aula',meta:x.location||resolveScheduleSubject(x)?.room||'Local não informado',view:'schedule'})),
@@ -336,7 +337,7 @@ function renderInterfaceRefresh(){
     const offset=(now.getDay()+6)%7;
     monday.setDate(now.getDate()-offset);
     monday.setHours(0,0,0,0);
-    const dayNames=['SEG','TER','QUA','QUI','SEX','SÁB','DOM'];
+    const dayNames=['Seg','Ter','Qua','Qui','Sex','Sáb','Dom'];
     week.innerHTML=dayNames.map((name,i)=>{
       const d=new Date(monday); d.setDate(monday.getDate()+i);
       const isToday=d.toDateString()===now.toDateString();
@@ -569,7 +570,7 @@ function renderCRA(){
   const averages=Object.fromEntries(currentSubjects().map(s=>[s.id,currentAverage(s.id)]));
   const projection=projectedCRA(state.subjects,averages);
   $('craValue').textContent=cra.cra==null?'—':fmtGrade(cra.cra);
-  $('craMeta').textContent=cra.cra==null?'Lance as notas finais das disciplinas cursadas para calcular.':`${cra.count} disciplina(s) · ${cra.hours} h${cra.missing?` · faltam notas de ${cra.missing}`:''}`;
+  $('craMeta').textContent=cra.cra==null?'Lance as notas finais das disciplinas cursadas para calcular.':`${plural(cra.count,'disciplina','disciplinas')} · ${cra.hours} h${cra.missing?` · faltam notas de ${cra.missing}`:''}`;
   $('craProjection').textContent=projection!=null&&currentSubjects().some(s=>averages[s.id]!=null)?`Com as médias atuais deste semestre: ${fmtGrade(projection)}`:'';
   $('craMissingBadge').textContent=cra.missing?`${cra.missing} sem nota`:'';
   $('craMissingBadge').classList.toggle('hidden',!cra.missing);
@@ -613,12 +614,12 @@ function renderAbsences(){
     return `<div class="absence-subject ${cls}"><div class="absence-subject-head"><strong>${esc(s.name)}</strong><span class="absence-pill ${cls}">${label}</span></div>${info.limit==null?'':`<div class="absence-count"><b>${info.used}</b><span>/ ${info.limit} faltas</span></div>`}${info.limit==null?'':`<div class="absence-meter" role="meter" aria-valuemin="0" aria-valuemax="${info.limit}" aria-valuenow="${info.used}" aria-label="Faltas usadas em ${esc(s.name)}"><i style="width:${info.pct}%"></i></div>`}<small>${detail}</small></div>`;
   }).join('')||'<div class="empty-state">Nenhuma disciplina cursando.</div>';
   const fmtDay=d=>{const dt=new Date(`${d}T12:00:00`);return Number.isNaN(dt.getTime())?esc(d||''):dt.toLocaleDateString('pt-BR',{weekday:'short',day:'2-digit',month:'short'})};
-  $('absenceHistory').innerHTML=[...state.absences].sort((a,b)=>String(b.date).localeCompare(String(a.date))).map(a=>{const s=state.subjects.find(x=>x.id===a.subjectId);return `<div class="absence-record"><span class="absence-record-count">${a.absences}</span><div><strong>${esc(s?.name||a.subjectName||'')}</strong><span>${fmtDay(a.date)} · ${a.absences} falta(s)</span></div><button class="btn btn-danger" data-absence-delete="${a.id}" aria-label="Excluir registro de falta">Excluir</button></div>`}).join('')||'<div class="empty-state">Nenhuma falta registrada.</div>';
+  $('absenceHistory').innerHTML=[...state.absences].sort((a,b)=>String(b.date).localeCompare(String(a.date))).map(a=>{const s=state.subjects.find(x=>x.id===a.subjectId);return `<div class="absence-record"><span class="absence-record-count">${a.absences}</span><div><strong>${esc(s?.name||a.subjectName||'')}</strong><span>${fmtDay(a.date)} · ${plural(a.absences,'falta','faltas')}</span></div><button class="btn btn-danger" data-absence-delete="${a.id}" aria-label="Excluir registro de falta">Excluir</button></div>`}).join('')||'<div class="empty-state">Nenhuma falta registrada.</div>';
 }
 async function submitAbsence(e){e.preventDefault();const s=state.subjects.find(x=>x.id===$('absenceSubject').value);if(!s)return;const calls=$('professorCalls').value==='yes';await saveSubjectSetting({subjectId:s.id,professorCalls:calls});if(calls)await addAbsence({subjectId:s.id,subjectName:s.name,date:$('absenceDate').value,absences:Number($('absenceCount').value)});await refreshAbsences();toast(calls?'Falta registrada.':'Configuração salva: esta matéria não contabiliza faltas.')}
 
 async function refreshGrades(){state.assessments=await listAssessments();renderGrades();renderGradeEvolution();renderDashboard()}
-function renderGrades(){$('gradeSummary').innerHTML=currentSubjects().map(s=>{const vals=state.assessments.filter(a=>a.subjectId===s.id).map(a=>Number(a.grade)).filter(Number.isFinite);const avg=vals.length?vals.reduce((a,b)=>a+b,0)/vals.length:null;return `<div class="stack-item"><div><strong>${esc(s.name)}</strong><span>${vals.length} avaliação(ões)</span></div><b>${avg==null?'—':avg.toFixed(1).replace('.',',')}</b></div>`}).join('')||'<div class="empty-state">Nenhuma disciplina cursando.</div>';$('assessmentList').innerHTML=state.assessments.map(a=>{const s=state.subjects.find(x=>x.id===a.subjectId);return `<article class="subject-card"><h3>${esc(a.title)}</h3><p>${esc(s?.name||a.subjectName||'')} · nota ${Number(a.grade).toFixed(1).replace('.',',')}</p><button class="btn btn-danger" data-assessment-delete="${a.id}">Excluir</button></article>`}).join('')}
+function renderGrades(){$('gradeSummary').innerHTML=currentSubjects().map(s=>{const vals=state.assessments.filter(a=>a.subjectId===s.id).map(a=>Number(a.grade)).filter(Number.isFinite);const avg=vals.length?vals.reduce((a,b)=>a+b,0)/vals.length:null;return `<div class="stack-item"><div><strong>${esc(s.name)}</strong><span>${plural(vals.length,'avaliação','avaliações')}</span></div><b>${avg==null?'—':avg.toFixed(1).replace('.',',')}</b></div>`}).join('')||'<div class="empty-state">Nenhuma disciplina cursando.</div>';$('assessmentList').innerHTML=state.assessments.map(a=>{const s=state.subjects.find(x=>x.id===a.subjectId);return `<article class="subject-card"><h3>${esc(a.title)}</h3><p>${esc(s?.name||a.subjectName||'')} · nota ${Number(a.grade).toFixed(1).replace('.',',')}</p><button class="btn btn-danger" data-assessment-delete="${a.id}">Excluir</button></article>`}).join('')}
 async function submitAssessment(e){e.preventDefault();const s=state.subjects.find(x=>x.id===$('assessmentSubject').value);if(!s)return;await saveAssessment({subjectId:s.id,subjectName:s.name,title:$('assessmentTitle').value.trim(),grade:Number($('assessmentGrade').value)});e.target.reset();await refreshGrades();toast('Nota salva.')}
 
 async function loadPrivate(){await refreshCore();await Promise.all([refreshTasks(),refreshSchedule(),refreshAbsences(),refreshGrades()]);if(!state.profile?.onboardingComplete){setTimeout(()=>{$('onboardingInstitution').value=state.profile?.institution||'';$('onboardingTerm').value=state.profile?.currentTerm||'';$('onboardingDisplayName').value=state.profile?.displayName||state.user?.displayName||'';openModal('onboardingModal')},250)}else if(!state.subjects.length){await installBaseMatrix(true)}}
@@ -953,20 +954,20 @@ const uiRefine={
 };
 
 const viewGroups={
-  today:['Focca · meu dia','Hoje'],
-  dashboard:['Focca · meu dia','Resumo'],
-  agenda:['Focca · meu dia','Organização'],
-  schedule:['Focca · meu dia','Semana'],
-  subjects:['Focca · acadêmico','Semestre atual'],
-  curriculum:['Focca · acadêmico','Formação'],
-  degree:['Focca · acadêmico','Trajetória'],
-  grades:['Focca · acadêmico','Desempenho'],
-  attendance:['Focca · acadêmico','Frequência'],
-  study:['Focca · estudos','Foco'],
-  materials:['Focca · estudos','Biblioteca'],
-  university:['Focca · universidade','Acessos'],
+  today:['Meu dia','Hoje'],
+  dashboard:['Meu dia','Resumo'],
+  agenda:['Meu dia','Organização'],
+  schedule:['Meu dia','Semana'],
+  subjects:['Acadêmico','Semestre atual'],
+  curriculum:['Acadêmico','Formação'],
+  degree:['Acadêmico','Trajetória'],
+  grades:['Acadêmico','Desempenho'],
+  attendance:['Acadêmico','Frequência'],
+  study:['Estudos','Foco'],
+  materials:['Estudos','Biblioteca'],
+  university:['Focca','Acessos'],
   settings:['Focca','Preferências'],
-  'subject-detail':['Focca · disciplina','Visão 360º']
+  'subject-detail':['Acadêmico','Visão 360º']
 };
 
 function updateTopbarContext(view){
