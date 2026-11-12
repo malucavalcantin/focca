@@ -1,25 +1,20 @@
-// Sobe todos os componentes, cada um em seu próprio processo:
-// Discovery, Serviço de Notas, Serviço de Frequência e API Gateway.
-// Ctrl+C encerra todos.
+// Sobe todos os componentes sem Docker, cada um em seu próprio processo e
+// a partir da sua própria pasta: Discovery, Serviço de Notas, Serviço de
+// Frequência e API Gateway. Ctrl+C encerra todos. Antes: `npm install`.
 import { spawn } from 'node:child_process';
 import { setTimeout as esperar } from 'node:timers/promises';
 
-const componentes = [
-  ['discovery', 'discovery/src/index.js'],
-  ['notas', 'servico-notas/src/index.js'],
-  ['frequencia', 'servico-frequencia/src/index.js'],
-  ['gateway', 'gateway/src/index.js'],
-];
+const componentes = ['discovery', 'servico-notas', 'servico-frequencia', 'gateway'];
 
 const processos = [];
-for (const [nome, arquivo] of componentes) {
+for (const pasta of componentes) {
   // Só o gateway usa a porta pública (PORT); os demais ficam nas portas internas padrão.
   const env = { ...process.env };
-  if (nome !== 'gateway') delete env.PORT;
-  const filho = spawn(process.execPath, [arquivo], { stdio: 'inherit', env });
-  filho.on('exit', codigo => { if (codigo) console.error(`[${nome}] terminou com código ${codigo}`); });
+  if (pasta !== 'gateway') delete env.PORT;
+  const filho = spawn(process.execPath, ['src/index.js'], { cwd: pasta, stdio: 'inherit', env });
+  filho.on('exit', codigo => { if (codigo) console.error(`[${pasta}] terminou com código ${codigo}`); });
   processos.push(filho);
-  if (nome === 'discovery') await esperar(500); // o Discovery precisa estar no ar antes dos registros
+  if (pasta === 'discovery') await esperar(500); // o Discovery precisa estar no ar antes dos registros
 }
 
 const encerrar = () => {

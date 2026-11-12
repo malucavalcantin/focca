@@ -1,20 +1,22 @@
 # Sobe o Focca em microsserviços, cada componente em seu contêiner:
 #   docker compose up --build
 #
-# Só o gateway fica exposto (http://localhost:8080).
-# Database per service: cada microsserviço tem o SEU servidor PostgreSQL
-# (db-notas e db-frequencia), com volume, usuário e senha próprios. Um serviço
-# não conhece o endereço nem as credenciais do banco do outro.
+# Portas visíveis fora do Docker: SÓ o gateway (8080) e o Discovery (3000).
+# Os serviços de domínio (notas, frequencia) e os bancos (db-notas,
+# db-frequencia) não publicam porta: só são acessíveis pela rede interna.
 #
-# Ordem de inicialização garantida por healthchecks: os bancos e o Discovery
-# ficam saudáveis antes dos serviços subirem, e o gateway só sobe depois que
-# Notas e Frequência estão saudáveis.
+# Database per service: cada serviço tem o SEU servidor PostgreSQL, com volume,
+# usuário e senha próprios. Um serviço não conhece as credenciais do outro.
+#
+# Cada componente é um projeto independente: o build usa só a sua pasta.
+# Healthchecks garantem a ordem de subida: bancos e Discovery, depois os
+# serviços, por último o gateway.
 
 services:
   discovery:
-    build:
-      context: .
-      dockerfile: discovery/Dockerfile
+    build: ./discovery
+    ports:
+      - "3000:3000"
     healthcheck:
       test: ["CMD", "node", "-e", "fetch('http://localhost:3000/saude').then(r => process.exit(r.ok ? 0 : 1), () => process.exit(1))"]
       interval: 3s
@@ -38,9 +40,7 @@ services:
     restart: unless-stopped
 
   notas:
-    build:
-      context: .
-      dockerfile: servico-notas/Dockerfile
+    build: ./servico-notas
     environment:
       HOST: notas
       DISCOVERY_URL: http://discovery:3000
@@ -73,9 +73,7 @@ services:
     restart: unless-stopped
 
   frequencia:
-    build:
-      context: .
-      dockerfile: servico-frequencia/Dockerfile
+    build: ./servico-frequencia
     environment:
       HOST: frequencia
       DISCOVERY_URL: http://discovery:3000
@@ -93,9 +91,7 @@ services:
     restart: unless-stopped
 
   gateway:
-    build:
-      context: .
-      dockerfile: gateway/Dockerfile
+    build: ./gateway
     environment:
       DISCOVERY_URL: http://discovery:3000
     ports:

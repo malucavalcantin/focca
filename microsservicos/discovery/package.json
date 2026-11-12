@@ -1,0 +1,12 @@
+{
+  "name": "focca-discovery",
+  "version": "2.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Discovery do Focca: registro e localização dos microsserviços",
+  "engines": { "node": ">=22.13" },
+  "scripts": { "start": "node src/index.js" },
+  "dependencies": {
+    "express": "^5.1.0"
+  }
+}

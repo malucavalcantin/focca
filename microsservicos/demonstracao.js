@@ -29,5 +29,11 @@ await chamar('POST', '/api/frequencia/estudantes/maria/disciplinas/apsoo/faltas'
 await chamar('POST', '/api/frequencia/estudantes/maria/disciplinas/apsoo/faltas', { data: '2026-11-05', quantidade: 6 });
 await chamar('GET', '/api/frequencia/estudantes/maria/disciplinas/apsoo/frequencia');
 
+console.log('\n== Comunicação entre serviços: Notas consulta Frequência pelo Discovery ==');
+await chamar('GET', '/api/notas/estudantes/maria/disciplinas/apsoo/notas');
+
+console.log('\n== Gateway como fachada: uma chamada, dois serviços ==');
+await chamar('GET', '/api/estudantes/maria/resumo');
+
 console.log('\n== Gateway e Discovery ==');
 await chamar('GET', '/saude');

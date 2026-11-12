@@ -1,0 +1,13 @@
+{
+  "name": "focca-gateway",
+  "version": "2.0.0",
+  "private": true,
+  "type": "module",
+  "description": "API Gateway Focca: fachada dos microsserviços, com localização pelo Discovery",
+  "engines": { "node": ">=22.13" },
+  "scripts": { "start": "node src/index.js" },
+  "dependencies": {
+    "express": "^5.1.0",
+    "http-proxy-middleware": "^3.0.5"
+  }
+}

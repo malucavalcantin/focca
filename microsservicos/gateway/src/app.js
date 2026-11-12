@@ -1,68 +1,77 @@
-// API Gateway Focca: implementa a interface IApiGateway.
-// O cliente só conhece o gateway. Uma chamada a /api/<serviço>/<caminho> é
-// encaminhada para uma instância do serviço, localizada no Discovery.
+// API Gateway Focca: implementa a interface IApiGateway e é a FACHADA do sistema.
+// Rotas feitas com Express; o encaminhamento usa a biblioteca http-proxy-middleware.
+//
+// - /api/notas/...       -> Serviço de Notas
+// - /api/frequencia/...  -> Serviço de Frequência
+// - /api/estudantes/:id/resumo -> fachada que junta os dois serviços numa resposta
+//
+// O gateway não conhece nenhum endereço fixo: a cada chamada pergunta ao
+// Discovery onde está uma instância ativa do serviço.
 import http from 'node:http';
-import { enviarJson } from '../../compartilhado/http.js';
+import express from 'express';
+import { createProxyMiddleware } from 'http-proxy-middleware';
+import { criarClienteDiscovery } from './discovery-cliente.js';
 
-/** Nomes públicos aceitos na URL -> nome do serviço registrado no Discovery. */
+/** Prefixo público na URL -> nome do serviço registrado no Discovery. */
 export const ROTAS = { notas: 'notas', frequencia: 'frequencia' };
 
 export function criarGateway({ discoveryUrl }) {
-  const proxima = new Map(); // nome -> índice para round-robin
+  const { localizar } = criarClienteDiscovery(discoveryUrl);
+  const app = express();
 
-  async function localizar(nome) {
-    const resp = await fetch(`${discoveryUrl}/servicos/${encodeURIComponent(nome)}`);
-    if (!resp.ok) return null;
-    const { instancias } = await resp.json();
-    const i = (proxima.get(nome) ?? 0) % instancias.length;
-    proxima.set(nome, i + 1);
-    return instancias[i];
-  }
-
-  function lerBruto(req) {
-    return new Promise((resolve, reject) => {
-      const partes = [];
-      req.on('data', p => partes.push(p));
-      req.on('end', () => resolve(Buffer.concat(partes)));
-      req.on('error', reject);
-    });
-  }
-
-  return http.createServer(async (req, res) => {
-    const url = new URL(req.url, 'http://localhost');
-    try {
-      if (url.pathname === '/saude') {
-        const resp = await fetch(`${discoveryUrl}/servicos`).catch(() => null);
-        const servicos = resp?.ok ? await resp.json() : null;
-        return enviarJson(res, 200, { servico: 'gateway', status: 'ok', discovery: servicos ? 'ok' : 'indisponível', servicos });
-      }
-
-      const [, prefixo, publico, ...resto] = url.pathname.split('/');
-      const nome = ROTAS[publico];
-      if (prefixo !== 'api' || !nome) {
-        return enviarJson(res, 404, { erro: 'Rota não encontrada. Use /api/notas/... ou /api/frequencia/...' });
-      }
-
-      const instancia = await localizar(nome).catch(() => null);
-      if (!instancia) return enviarJson(res, 503, { erro: `Serviço "${nome}" indisponível no momento` });
-
-      const corpo = ['GET', 'HEAD', 'DELETE'].includes(req.method) ? undefined : await lerBruto(req);
-      const destino = `${instancia}/${resto.join('/')}${url.search}`;
-      const resposta = await fetch(destino, {
-        method: req.method,
-        headers: { 'Content-Type': req.headers['content-type'] ?? 'application/json' },
-        body: corpo?.length ? corpo : undefined,
-      });
-
-      const texto = Buffer.from(await resposta.arrayBuffer());
-      res.writeHead(resposta.status, {
-        'Content-Type': resposta.headers.get('content-type') ?? 'application/json; charset=utf-8',
-        'X-Servico-Atendente': instancia,
-      });
-      res.end(texto);
-    } catch (erro) {
-      console.error('[gateway]', erro);
-      enviarJson(res, 502, { erro: 'Falha ao encaminhar a requisição ao serviço' });
-    }
+  app.get('/saude', async (req, res) => {
+    const resp = await fetch(`${discoveryUrl}/servicos`).catch(() => null);
+    const servicos = resp?.ok ? await resp.json() : null;
+    res.json({ servico: 'gateway', status: 'ok', discovery: servicos ? 'ok' : 'indisponível', servicos });
   });
+
+  // Fachada: uma chamada do cliente vira duas chamadas internas, uma para cada
+  // serviço, ambos localizados pelo Discovery. Se um estiver fora do ar, o outro
+  // responde normalmente.
+  app.get('/api/estudantes/:estudanteId/resumo', async (req, res) => {
+    const id = encodeURIComponent(req.params.estudanteId);
+    const consultar = async (nome, caminho) => {
+      const instancia = await localizar(nome);
+      if (!instancia) return { disponivel: false };
+      try {
+        const resp = await fetch(`${instancia}${caminho}`, { signal: AbortSignal.timeout(3000) });
+        return { disponivel: true, atendidoPor: instancia, status: resp.status, dados: await resp.json() };
+      } catch {
+        return { disponivel: false };
+      }
+    };
+    const [notas, frequencia] = await Promise.all([
+      consultar('notas', `/estudantes/${id}/notas`),
+      consultar('frequencia', `/estudantes/${id}/frequencia`),
+    ]);
+    res.json({ estudanteId: req.params.estudanteId, notas, frequencia });
+  });
+
+  // Encaminhamento: localiza a instância no Discovery e repassa a chamada.
+  const encaminhar = createProxyMiddleware({
+    target: 'http://localhost', // substituído a cada chamada pelo endereço vindo do Discovery
+    router: req => req.alvo,
+    changeOrigin: true,
+    on: {
+      error: (erro, req, res) => {
+        console.error('[gateway] falha ao encaminhar:', erro.message);
+        if (!res.headersSent) res.writeHead?.(502, { 'Content-Type': 'application/json; charset=utf-8' });
+        res.end(JSON.stringify({ erro: 'Falha ao encaminhar a requisição ao serviço' }));
+      },
+    },
+  });
+
+  for (const [publico, nome] of Object.entries(ROTAS)) {
+    app.use(`/api/${publico}`, async (req, res, next) => {
+      const instancia = await localizar(nome);
+      if (!instancia) return res.status(503).json({ erro: `Serviço "${nome}" indisponível no momento` });
+      req.alvo = instancia;
+      res.setHeader('X-Servico-Atendente', instancia);
+      next();
+    }, encaminhar);
+  }
+
+  app.use((req, res) => res.status(404).json({ erro: 'Rota não encontrada. Use /api/notas/..., /api/frequencia/... ou /api/estudantes/{id}/resumo' }));
+
+  return http.createServer(app);
 }

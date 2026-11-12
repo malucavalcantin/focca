@@ -1,0 +1,13 @@
+{
+  "name": "focca-servico-notas",
+  "version": "2.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Serviço de Notas do Focca (UC05), com banco PostgreSQL próprio",
+  "engines": { "node": ">=22.13" },
+  "scripts": { "start": "node src/index.js" },
+  "dependencies": {
+    "express": "^5.1.0",
+    "pg": "^8.16.0"
+  }
+}

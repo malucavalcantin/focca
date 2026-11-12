@@ -1,8 +1,9 @@
-// Discovery: implementa a interface IRegistroServicos.
-// Os serviços se registram ao iniciar e renovam o registro a cada 10 s;
-// um registro sem renovação por mais de TTL_MS deixa de ser devolvido.
-import { criarServidor, ErroHttp } from '../../compartilhado/http.js';
-import { validar, obrigatorio } from '../../compartilhado/validacao.js';
+// Discovery: implementa a interface IRegistroServicos, com rotas Express.
+// Cada serviço se registra ao iniciar (POST /servicos) e renova o registro a
+// cada 10 s. Quem precisa de um serviço pergunta aqui (GET /servicos/:nome).
+// Um registro sem renovação por mais de TTL_MS deixa de ser devolvido.
+import http from 'node:http';
+import express from 'express';
 
 export const TTL_MS = 30_000;
 
@@ -17,29 +18,41 @@ export function criarDiscovery({ agora = () => Date.now(), ttlMs = TTL_MS } = {}
     return [...instancias.keys()];
   };
 
-  return criarServidor({
-    'GET /saude': () => ({ servico: 'discovery', status: 'ok' }),
+  const app = express();
+  app.use(express.json());
 
-    'POST /servicos': ({ corpo }) => {
-      const { nome, url } = corpo;
-      validar([obrigatorio(nome, 'nome'), obrigatorio(url, 'url')]);
-      try { new URL(url); } catch { throw new ErroHttp(400, 'url inválida'); }
-      if (!registros.has(nome)) registros.set(nome, new Map());
-      registros.get(nome).set(url, agora());
-      return { status: 201, corpo: { nome, url, ttlSegundos: ttlMs / 1000 } };
-    },
+  app.get('/saude', (req, res) => res.json({ servico: 'discovery', status: 'ok' }));
 
-    'GET /servicos': () => Object.fromEntries([...registros.keys()].map(n => [n, vivas(n)]).filter(([, urls]) => urls.length)),
+  // Registrar (ou renovar) uma instância.
+  app.post('/servicos', (req, res) => {
+    const { nome, url } = req.body ?? {};
+    if (!nome || !url) return res.status(400).json({ erro: 'nome e url são obrigatórios' });
+    try { new URL(url); } catch { return res.status(400).json({ erro: 'url inválida' }); }
+    if (!registros.has(nome)) registros.set(nome, new Map());
+    registros.get(nome).set(url, agora());
+    res.status(201).json({ nome, url, ttlSegundos: ttlMs / 1000 });
+  });
 
-    'GET /servicos/:nome': ({ params }) => {
-      const instancias = vivas(params.nome);
-      if (!instancias.length) throw new ErroHttp(404, `Nenhuma instância ativa do serviço "${params.nome}"`);
-      return { nome: params.nome, instancias };
-    },
+  // Listar todos os serviços com instâncias ativas.
+  app.get('/servicos', (req, res) => {
+    res.json(Object.fromEntries([...registros.keys()].map(n => [n, vivas(n)]).filter(([, urls]) => urls.length)));
+  });
 
-    'DELETE /servicos/:nome': ({ params, query }) => {
-      registros.get(params.nome)?.delete(query.url);
-      return { status: 204, corpo: undefined };
-    },
-  }, { nome: 'discovery' });
+  // Retornar as instâncias ativas de um serviço.
+  app.get('/servicos/:nome', (req, res) => {
+    const instancias = vivas(req.params.nome);
+    if (!instancias.length) return res.status(404).json({ erro: `Nenhuma instância ativa do serviço "${req.params.nome}"` });
+    res.json({ nome: req.params.nome, instancias });
+  });
+
+  // Cancelar o registro de uma instância (ao desligar).
+  app.delete('/servicos/:nome', (req, res) => {
+    registros.get(req.params.nome)?.delete(req.query.url);
+    res.status(204).end();
+  });
+
+  app.use((req, res) => res.status(404).json({ erro: `Rota não encontrada: ${req.path}` }));
+  app.use((erro, req, res, next) => res.status(erro.status ?? 500).json({ erro: erro.status ? erro.message : 'Erro interno' }));
+
+  return http.createServer(app);
 }
