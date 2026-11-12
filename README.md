@@ -74,5 +74,5 @@ Requisito: Node 22 ou mais recente.
 npm test
 ```
 
-## Microsserviços (Entrega Parcial 2 de APSOO)
-A pasta `microsservicos/` tem o Serviço de Notas e o Serviço de Frequência como microsserviços em Node.js, com API Gateway e Discovery. Cada microsserviço tem o seu próprio banco PostgreSQL. Veja `microsservicos/README.md` para executar e publicar. Essa pasta não entra no Firebase Hosting, que publica só `public/`.
+## Microsserviços
+A pasta `microsservicos/` tem todos os serviços do Focca como microsserviços em Node.js (Express): Autenticação, Semestre e Matriz Curricular, Notas, Frequência e Agenda Acadêmica, com API Gateway e Discovery. Cada serviço tem o seu próprio banco PostgreSQL. Veja `microsservicos/README.md` para executar. Essa pasta não entra no Firebase Hosting, que publica só `public/`.

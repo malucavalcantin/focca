@@ -2,8 +2,8 @@
 #   docker compose up --build
 #
 # Portas visíveis fora do Docker: SÓ o gateway (8080) e o Discovery (3000).
-# Os serviços de domínio (notas, frequencia) e os bancos (db-notas,
-# db-frequencia) não publicam porta: só são acessíveis pela rede interna.
+# Os cinco serviços de domínio e os cinco bancos não publicam porta: só são
+# acessíveis pela rede interna.
 #
 # Database per service: cada serviço tem o SEU servidor PostgreSQL, com volume,
 # usuário e senha próprios. Um serviço não conhece as credenciais do outro.
@@ -11,6 +11,10 @@
 # Cada componente é um projeto independente: o build usa só a sua pasta.
 # Healthchecks garantem a ordem de subida: bancos e Discovery, depois os
 # serviços, por último o gateway.
+#
+# Login com Google e Google Agenda: em modo simulado aqui, para demonstração.
+# Para usar o Google de verdade, troque AUTENTICACAO_GOOGLE por GOOGLE_CLIENT_ID
+# e remova AGENDA_GOOGLE (a sincronização passa a exigir o token do estudante).
 
 services:
   discovery:
@@ -22,6 +26,40 @@ services:
       interval: 3s
       timeout: 3s
       retries: 20
+    restart: unless-stopped
+
+  db-autenticacao:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: autenticacao
+      POSTGRES_USER: servico_autenticacao
+      POSTGRES_PASSWORD: autenticacao_senha_local
+    volumes:
+      - dados-db-autenticacao:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U servico_autenticacao -d autenticacao"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+
+  autenticacao:
+    build: ./servico-autenticacao
+    environment:
+      HOST: autenticacao
+      DISCOVERY_URL: http://discovery:3000
+      DATABASE_URL: postgres://servico_autenticacao:autenticacao_senha_local@db-autenticacao:5432/autenticacao
+      AUTENTICACAO_GOOGLE: simulado
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://localhost:3003/saude').then(r => process.exit(r.ok ? 0 : 1), () => process.exit(1))"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+    depends_on:
+      discovery:
+        condition: service_healthy
+      db-autenticacao:
+        condition: service_healthy
     restart: unless-stopped
 
   db-notas:
@@ -90,6 +128,73 @@ services:
         condition: service_healthy
     restart: unless-stopped
 
+  db-agenda:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: agenda
+      POSTGRES_USER: servico_agenda
+      POSTGRES_PASSWORD: agenda_senha_local
+    volumes:
+      - dados-db-agenda:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U servico_agenda -d agenda"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+
+  agenda:
+    build: ./servico-agenda
+    environment:
+      HOST: agenda
+      DISCOVERY_URL: http://discovery:3000
+      DATABASE_URL: postgres://servico_agenda:agenda_senha_local@db-agenda:5432/agenda
+      AGENDA_GOOGLE: simulado
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://localhost:3004/saude').then(r => process.exit(r.ok ? 0 : 1), () => process.exit(1))"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+    depends_on:
+      discovery:
+        condition: service_healthy
+      db-agenda:
+        condition: service_healthy
+    restart: unless-stopped
+
+  db-semestre:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: semestre
+      POSTGRES_USER: servico_semestre
+      POSTGRES_PASSWORD: semestre_senha_local
+    volumes:
+      - dados-db-semestre:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U servico_semestre -d semestre"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+
+  semestre:
+    build: ./servico-semestre
+    environment:
+      HOST: semestre
+      DISCOVERY_URL: http://discovery:3000
+      DATABASE_URL: postgres://servico_semestre:semestre_senha_local@db-semestre:5432/semestre
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://localhost:3005/saude').then(r => process.exit(r.ok ? 0 : 1), () => process.exit(1))"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+    depends_on:
+      discovery:
+        condition: service_healthy
+      db-semestre:
+        condition: service_healthy
+    restart: unless-stopped
+
   gateway:
     build: ./gateway
     environment:
@@ -99,12 +204,21 @@ services:
     depends_on:
       discovery:
         condition: service_healthy
+      autenticacao:
+        condition: service_healthy
       notas:
         condition: service_healthy
       frequencia:
         condition: service_healthy
+      agenda:
+        condition: service_healthy
+      semestre:
+        condition: service_healthy
     restart: unless-stopped
 
 volumes:
+  dados-db-autenticacao:
   dados-db-notas:
   dados-db-frequencia:
+  dados-db-agenda:
+  dados-db-semestre:

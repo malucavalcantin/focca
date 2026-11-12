@@ -1,10 +1,9 @@
 // Sobe todos os componentes sem Docker, cada um em seu próprio processo e
-// a partir da sua própria pasta: Discovery, Serviço de Notas, Serviço de
-// Frequência e API Gateway. Ctrl+C encerra todos. Antes: `npm install`.
+// a partir da sua própria pasta: Discovery, os cinco serviços e o API Gateway. Ctrl+C encerra todos. Antes: `npm install`.
 import { spawn } from 'node:child_process';
 import { setTimeout as esperar } from 'node:timers/promises';
 
-const componentes = ['discovery', 'servico-notas', 'servico-frequencia', 'gateway'];
+const componentes = ['discovery', 'servico-autenticacao', 'servico-notas', 'servico-frequencia', 'servico-agenda', 'servico-semestre', 'gateway'];
 
 const processos = [];
 for (const pasta of componentes) {
