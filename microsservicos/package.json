@@ -10,6 +10,7 @@
     "start": "node iniciar.js",
     "demo": "node demonstracao.js",
     "ui": "node servidor-ui.js",
+    "usuario-demo": "node criar-usuario-demo.js",
     "test": "node --test \"testes/*.test.js\""
   }
 }

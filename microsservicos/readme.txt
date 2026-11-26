@@ -125,6 +125,12 @@ login, matriz, semestre, notas, faltas e atividades ficam nos serviços.
 
   3) Abra no navegador:  http://localhost:5500
 
+  Usuário de demonstração (já com matriz, semestre, notas, faltas e atividades):
+
+       npm run usuario-demo
+
+  Entre com  lucas@focca.dev  /  focca2026  (rodar de novo recria os dados).
+
 Como a interface fala com os serviços:
   - public/api-service.js  faz todas as chamadas ao gateway (mesmas funções do
                            antigo firebase-service.js) e manda o token do login.

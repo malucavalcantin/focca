@@ -243,11 +243,20 @@ const corpoNotas = atual => Object.fromEntries(VAGAS.map(v => [v, atual[v] ?? nu
 
 export async function listAssessments() {
   const { disciplinas } = await api('GET', `/api/notas/estudantes/${eu()}/notas`);
+  // Situação final de cada disciplina: o Serviço de Notas consulta o Serviço de
+  // Frequência (pelo Discovery) e pode trocar a situação por "reprovado por falta".
+  const finais = await Promise.all(disciplinas.map(r => notasDa(r.disciplinaId).catch(() => ({}))));
   const titulos = lerLocal('titulos-notas', {});
-  return disciplinas.flatMap(r => VAGAS.filter(v => r[v] != null).map(v => ({
-    id: `${r.disciplinaId}~${v}`, subjectId: r.disciplinaId, slot: v,
-    title: titulos[`${r.disciplinaId}~${v}`] || ROTULOS[v], grade: r[v], situacao: r.situacao,
-  })));
+  return disciplinas.flatMap((r, i) => {
+    const porFalta = finais[i].situacaoFinal === 'reprovado-por-falta';
+    const situacao = porFalta
+      ? { ...r.situacao, etapa: 'reprovado-por-falta', descricao: `Reprovado por falta (pelas notas: ${r.situacao.descricao.toLowerCase()})` }
+      : r.situacao;
+    return VAGAS.filter(v => r[v] != null).map(v => ({
+      id: `${r.disciplinaId}~${v}`, subjectId: r.disciplinaId, slot: v,
+      title: titulos[`${r.disciplinaId}~${v}`] || ROTULOS[v], grade: r[v], situacao,
+    }));
+  });
 }
 export async function saveAssessment(item) {
   const atual = await notasDa(item.subjectId);
