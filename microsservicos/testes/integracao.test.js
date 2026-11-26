@@ -196,6 +196,21 @@ test('agenda: planejar, concluir, sincronizar (adaptador simulado) e remover ati
   assert.equal((await chamar('DELETE', `/api/agenda/estudantes/${eu}/atividades/${id}`)).status, 204);
 });
 
+test('CORS: o gateway libera a interface web (public/) a chamar a API pelo navegador', async () => {
+  const preflight = await fetch(`${gateway}/api/notas/estudantes/${eu}/notas`, {
+    method: 'OPTIONS',
+    headers: { Origin: 'http://localhost:5500', 'Access-Control-Request-Method': 'GET', 'Access-Control-Request-Headers': 'authorization' },
+  });
+  assert.equal(preflight.status, 204); // responde o pré-voo sem exigir login
+  assert.equal(preflight.headers.get('access-control-allow-origin'), '*');
+  assert.match(preflight.headers.get('access-control-allow-headers'), /Authorization/);
+
+  const resp = await fetch(`${gateway}/api/notas/estudantes/${eu}/notas`, { headers: { Origin: 'http://localhost:5500', Authorization: `Bearer ${token}` } });
+  assert.equal(resp.status, 200);
+  assert.equal(resp.headers.get('access-control-allow-origin'), '*');
+  assert.match(resp.headers.get('access-control-expose-headers'), /X-Servico-Atendente/);
+});
+
 // ---------- Fachada e falhas ----------
 
 test('gateway como fachada: resumo junta semestre, notas, frequência e agenda', async () => {

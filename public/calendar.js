@@ -1,4 +1,4 @@
-import { GOOGLE_CLIENT_ID } from './firebase-config.js';
+import { GOOGLE_CLIENT_ID } from './api-config.js?v=20261126';
 import { buildClassEvent } from './calendar-events.js?v=20261001';
 
 const CALENDAR_SCOPE = 'https://www.googleapis.com/auth/calendar.events';
@@ -50,6 +50,9 @@ async function getToken() {
     tokenClient.requestAccessToken({ prompt: '' });
   });
 }
+
+/** Token OAuth do Google Agenda, enviado ao Serviço de Agenda quando ele não está em modo simulado. */
+export const googleAccessToken = () => getToken();
 
 export function reminderToMinutes(value, unit) {
   const amount = Math.max(0, Number(value || 0));

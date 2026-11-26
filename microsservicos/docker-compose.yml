@@ -199,6 +199,8 @@ services:
     build: ./gateway
     environment:
       DISCOVERY_URL: http://discovery:3000
+      # Libera a interface web do Focca (public/) a chamar o gateway pelo navegador.
+      CORS_ORIGENS: "*"
     ports:
       - "8080:8080"
     depends_on:

@@ -85,8 +85,8 @@ Na pasta microsservicos/ (depois do npm install):
 
        npm test
 
-São 23 testes: regras de negócio e testes de integração ponta a ponta
-pelo gateway, com login.
+São 24 testes: regras de negócio e testes de integração ponta a ponta
+pelo gateway, com login (inclui o CORS usado pela interface web).
 
 
 4. COMO USAR A API
@@ -108,3 +108,29 @@ Cada estudante só acessa os próprios dados (/estudantes/<seu id>/...).
   /api/estudantes/<id>/resumo   fachada: junta semestre, notas, frequência e agenda
 
 A lista completa de rotas está no README.md, seção "API".
+
+
+5. USAR A INTERFACE WEB DO FOCCA COM OS MICROSSERVIÇOS
+------------------------------------------------------
+
+A interface (pasta public/) chama o gateway pelo navegador. Os dados de
+login, matriz, semestre, notas, faltas e atividades ficam nos serviços.
+
+  1) Suba os serviços (Docker: docker compose up --build, ou sem Docker:
+     npm start com AUTENTICACAO_GOOGLE=simulado e AGENDA_GOOGLE=simulado).
+
+  2) Em outro terminal, na pasta microsservicos/:
+
+       npm run ui
+
+  3) Abra no navegador:  http://localhost:5500
+
+Como a interface fala com os serviços:
+  - public/api-service.js  faz todas as chamadas ao gateway (mesmas funções do
+                           antigo firebase-service.js) e manda o token do login.
+  - public/api-config.js   endereço do gateway (padrão http://localhost:8080).
+  - gateway/src/app.js     corsDoGateway() libera o navegador (CORS_ORIGENS).
+
+O que nenhum serviço guarda fica no próprio navegador (localStorage):
+horários das aulas, favoritos, professor/sala das disciplinas e preferências.
+"Entrar com Google" usa o modo simulado (o e-mail digitado no campo de login).

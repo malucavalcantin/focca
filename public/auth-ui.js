@@ -1,24 +1,14 @@
-import { auth, db } from './firebase-config.js?v=20260825-auth62';
-import {
-  GoogleAuthProvider,
-  signInWithPopup,
-  signInWithEmailAndPassword,
-  createUserWithEmailAndPassword,
-  updateProfile
-} from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js';
-import {
-  doc, getDoc, setDoc, serverTimestamp
-} from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js';
-
-const provider = new GoogleAuthProvider();
-provider.setCustomParameters({ prompt: 'select_account' });
+// Tela de login do Focca ligada ao Serviço de Autenticação (pelo API Gateway).
+// Criar conta, entrar com e-mail e senha e entrar com conta Google viram
+// chamadas a /api/autenticacao/...; o token da sessão fica no api-service.js.
+import { loginWithEmail, registerWithEmail, loginWithGoogle } from './api-service.js?v=20261126';
 
 const $ = id => document.getElementById(id);
 
 function showToast(message, error=false){
   const toast = $('toast');
   if (!toast) {
-    alert(message);
+    console.warn(message);
     return;
   }
   toast.textContent = message;
@@ -29,38 +19,13 @@ function showToast(message, error=false){
 
 function friendlyError(error){
   const map = {
-    'auth/invalid-credential': 'E-mail ou senha inválidos.',
-    'auth/email-already-in-use': 'Este e-mail já está cadastrado.',
-    'auth/weak-password': 'A senha precisa ter pelo menos 6 caracteres.',
-    'auth/popup-closed-by-user': 'O login com Google foi cancelado.',
-    'auth/popup-blocked': 'O navegador bloqueou a janela de login do Google. Libere pop-ups para o Focca e tente novamente.',
-    'auth/unauthorized-domain': 'O domínio atual ainda não está autorizado no Firebase Authentication.',
-    'auth/operation-not-allowed': 'Este método de login ainda não está habilitado no Firebase Authentication.',
-    'auth/network-request-failed': 'Não foi possível acessar o Firebase. Verifique sua conexão.'
+    401: 'E-mail ou senha inválidos.',
+    409: 'Este e-mail já está cadastrado.',
+    501: 'O login com Google não está configurado no Serviço de Autenticação.',
+    503: 'O Serviço de Autenticação está fora do ar no momento.'
   };
-  return map[error?.code] || error?.message || 'Não foi possível concluir o login.';
-}
-
-async function ensureUserDocument(user, extra={}){
-  const ref = doc(db, 'users', user.uid);
-  const snap = await getDoc(ref);
-  const base = {
-    email: user.email || '',
-    displayName: user.displayName || extra.displayName || 'Estudante',
-    photoURL: user.photoURL || null,
-    institution: 'UFRPE',
-    courseName: 'Computação',
-    updatedAt: serverTimestamp()
-  };
-  if (!snap.exists()) {
-    await setDoc(ref, {
-      ...base,
-      onboardingComplete: false,
-      createdAt: serverTimestamp()
-    }, { merge: true });
-  } else {
-    await setDoc(ref, base, { merge: true });
-  }
+  if (error?.status === 400) return error.message;
+  return map[error?.status] || error?.message || 'Não foi possível concluir o login.';
 }
 
 function openRegister(){
@@ -88,12 +53,7 @@ function bindAuth(){
     const submit = loginForm.querySelector('button[type="submit"]');
     try {
       if (submit) submit.disabled = true;
-      const result = await signInWithEmailAndPassword(
-        auth,
-        $('loginEmail').value.trim(),
-        $('loginPassword').value
-      );
-      await ensureUserDocument(result.user);
+      await loginWithEmail($('loginEmail').value.trim(), $('loginPassword').value);
     } catch (error) {
       showToast(friendlyError(error), true);
     } finally {
@@ -106,14 +66,11 @@ function bindAuth(){
     const submit = registerForm.querySelector('button[type="submit"]');
     try {
       if (submit) submit.disabled = true;
-      const name = $('registerName').value.trim();
-      const result = await createUserWithEmailAndPassword(
-        auth,
+      await registerWithEmail(
+        $('registerName').value.trim(),
         $('registerEmail').value.trim(),
         $('registerPassword').value
       );
-      if (name) await updateProfile(result.user, { displayName: name });
-      await ensureUserDocument(result.user, { displayName: name });
       showToast('Conta criada. Bem-vindo ao Focca!');
     } catch (error) {
       showToast(friendlyError(error), true);
@@ -122,11 +79,15 @@ function bindAuth(){
     }
   });
 
+  // Entrar com conta Google. No docker compose o Serviço de Autenticação está em
+  // modo simulado (AUTENTICACAO_GOOGLE=simulado), que aceita "simulado:<email>:<nome>".
+  // Usa o e-mail digitado no campo de login (ou um e-mail de demonstração).
   googleBtn?.addEventListener('click', async () => {
     try {
       googleBtn.disabled = true;
-      const result = await signInWithPopup(auth, provider);
-      await ensureUserDocument(result.user);
+      const email = $('loginEmail')?.value.trim() || 'estudante.google@ufrpe.br';
+      const nome = email.split('@')[0].replace(/[._-]+/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+      await loginWithGoogle(`simulado:${email}:${nome}`);
     } catch (error) {
       showToast(friendlyError(error), true);
     } finally {

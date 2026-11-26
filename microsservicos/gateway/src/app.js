@@ -12,6 +12,7 @@
 // O gateway confere o token no Serviço de Autenticação e só deixa o estudante
 // acessar os próprios dados (/estudantes/<id do token>/...).
 // Nenhum endereço é fixo: a cada chamada o gateway pergunta ao Discovery.
+// O CORS (corsDoGateway) deixa a interface web do Focca chamar o gateway pelo navegador.
 import http from 'node:http';
 import express from 'express';
 import { createProxyMiddleware } from 'http-proxy-middleware';
@@ -21,9 +22,35 @@ import { criarClienteDiscovery } from './discovery-cliente.js';
 export const ROTAS = { autenticacao: 'autenticacao', notas: 'notas', frequencia: 'frequencia', agenda: 'agenda', semestre: 'semestre' };
 const PUBLICAS = new Set(['autenticacao']);
 
-export function criarGateway({ discoveryUrl }) {
+/**
+ * CORS: libera o navegador para chamar o gateway a partir da interface do Focca
+ * (public/), que roda em outra origem (ex.: http://localhost:5500).
+ * `origens` vem de CORS_ORIGENS (lista separada por vírgula); "*" libera todas.
+ * O login usa token no cabeçalho Authorization (sem cookies), então "*" é seguro.
+ */
+export function corsDoGateway(origens = '*') {
+  const lista = String(origens).split(',').map(o => o.trim()).filter(Boolean);
+  const todas = lista.includes('*');
+  return (req, res, next) => {
+    const origem = req.get('origin');
+    if (origem && (todas || lista.includes(origem))) {
+      res.setHeader('Access-Control-Allow-Origin', todas ? '*' : origem);
+      if (!todas) res.setHeader('Vary', 'Origin');
+      res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
+      res.setHeader('Access-Control-Allow-Headers', 'Authorization, Content-Type');
+      res.setHeader('Access-Control-Expose-Headers', 'X-Servico-Atendente');
+      res.setHeader('Access-Control-Max-Age', '600');
+    }
+    // Pré-voo (preflight) do navegador: responde aqui, antes do login e do encaminhamento.
+    if (req.method === 'OPTIONS') return res.status(204).end();
+    next();
+  };
+}
+
+export function criarGateway({ discoveryUrl, corsOrigens = process.env.CORS_ORIGENS ?? '*' }) {
   const { localizar } = criarClienteDiscovery(discoveryUrl);
   const app = express();
+  app.use(corsDoGateway(corsOrigens));
 
   app.get('/saude', async (req, res) => {
     const resp = await fetch(`${discoveryUrl}/servicos`).catch(() => null);

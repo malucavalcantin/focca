@@ -9,6 +9,7 @@
     "postinstall": "node instalar.js",
     "start": "node iniciar.js",
     "demo": "node demonstracao.js",
+    "ui": "node servidor-ui.js",
     "test": "node --test \"testes/*.test.js\""
   }
 }
